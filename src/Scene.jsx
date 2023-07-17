@@ -9,42 +9,56 @@ import {
   CameraControls,
   Grid
 } from "@react-three/drei";
+import { useThree } from "@react-three/fiber";
 import { useControls } from "leva";
 import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing";
 import React, { useEffect, useRef, useState, useTransition } from "react";
 import { Model } from "../public/models/gltfjsx/CannonLevel";
+import { Cannon } from "../public/models/gltfjsx/Cannon";
+import { Target } from "../public/models/gltfjsx/Target";
 
-export default function Scene() {
+
+export default function Scene({ cannonRef }) {
   const meshRef = useRef()
   const cameraControlsRef = useRef()
+  const targetRef = useRef()
+
+  const { camera } = useThree()
+  camera.maxZoom = 0
+  camera.minZoom = 0
 
   useEffect(() => {
-    if (meshRef.current) {
-
-    }
-
     if (cameraControlsRef.current) {
-      cameraControlsRef.current?.setLookAt(0, 9, 36, 0, 9, 35, true)
+      cameraControlsRef.current?.setLookAt(0, 9, 40, 0, 9, 35, true)
     }
   }, [])
 
   return (
     <>
-      <group position={[0, -0.3, 0]}>
+      <group position={[0, 0, 0]}>
         <GizmoHelper alignment={"bottom-right"} margin={[80, 80]} renderPriority={2}>
           <GizmoViewport axisColors={["red", "green", "blue"]} labelColor={"black"} />
         </GizmoHelper>
-        <AccumulativeShadows temporal frames={200} color="yellow" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
-          <RandomizedLight amount={5} radius={4} ambient={0.3} position={[5, 3, 2]} bias={0.001} />
-        </AccumulativeShadows>
-        <Effects />
-        <Env />
 
         <Center top>
           <Model ref={meshRef} />
+          <Cannon ref={cannonRef} />
+          <Target ref={targetRef} />
         </Center>
+
+
+        <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
+          <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />
+        </AccumulativeShadows>
+        <Effects />
+        <Env />
         <Ground />
-        <CameraControls ref={cameraControlsRef} enabled={true} />
+        <CameraControls
+          ref={cameraControlsRef}
+          enabled={true}
+          dollySpeed={0}
+          truckSpeed={0}
+        />
       </group>
     </>
   );
@@ -92,10 +106,10 @@ function Ground() {
   const gridConfig = {
     cellSize: 0.5,
     cellThickness: 0.5,
-    cellColor: '#6f6f6f',
+    cellColor: 'white',
     sectionSize: 3,
     sectionThickness: 1,
-    sectionColor: '#9d4b4b',
+    sectionColor: 'gray',
     fadeDistance: 30,
     fadeStrength: 1,
     followCamera: false,
