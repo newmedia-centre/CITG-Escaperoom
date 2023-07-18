@@ -13,28 +13,28 @@ export const Model = forwardRef((props, ref) => {
   })
   return (
     <group ref={ref} {...props} dispose={null}>
-      <mesh geometry={nodes.SmallRooms001.geometry} material={materials['YellowMetal.001']} position={[-10.194, 0.002, -3.088]} />
+      <mesh receiveShadow geometry={nodes.SmallRooms001.geometry} material={materials['YellowMetal.001']} position={[-10.194, 0.002, -3.088]} />
       <group position={[13.597, 4.219, -25.036]} scale={[1.021, 1, 1.302]}>
-        <mesh geometry={nodes.Plane014.geometry} material={materials['ConcreteFloor.001']} />
-        <mesh geometry={nodes.Plane014_1.geometry} material={materials['PaintedMetal.001']} />
+        <mesh receiveShadow geometry={nodes.Plane014.geometry} material={materials['ConcreteFloor.001']} />
+        <mesh receiveShadow geometry={nodes.Plane014_1.geometry} material={materials['PaintedMetal.001']} />
       </group>
-      <mesh geometry={nodes.Platform005.geometry} material={materials['ConcreteFloor.001']} position={[-9.194, 5.667, 5.02]} />
-      <mesh geometry={nodes.Frame027.geometry} material={materials['RedMetal.001']} position={[2.973, -0.01, -16.559]} scale={[1, 0.362, 1]} />
-      <mesh geometry={nodes.Frame033.geometry} material={materials['BlueMetal.001']} position={[4.328, -0.01, -11.871]} rotation={[0, -1.571, 0]} scale={[1, 1.554, 1]} />
-      <mesh geometry={nodes.Frame039.geometry} material={materials['RedMetal.001']} position={[7.915, 3.649, -11.485]} rotation={[-Math.PI / 2, Math.PI / 2, 0]} scale={[1, 0.444, 1]} />
-      <mesh geometry={nodes.Floor001.geometry} material={materials['ConcreteFloor.001']} position={[0, -0.01, 0]} scale={[1.923, 1, 2.096]} />
-      <mesh geometry={nodes.Container001.geometry} material={materials['BlueMetal.001']} position={[-7.961, 0.002, -22.094]} />
+      <mesh receiveShadow geometry={nodes.Platform005.geometry} material={materials['ConcreteFloor.001']} position={[-9.194, 5.667, 5.02]} />
+      <mesh receiveShadow geometry={nodes.Frame027.geometry} material={materials['RedMetal.001']} position={[2.973, -0.01, -16.559]} scale={[1, 0.362, 1]} />
+      <mesh receiveShadow geometry={nodes.Frame033.geometry} material={materials['BlueMetal.001']} position={[4.328, -0.01, -11.871]} rotation={[0, -1.571, 0]} scale={[1, 1.554, 1]} />
+      <mesh receiveShadow geometry={nodes.Frame039.geometry} material={materials['RedMetal.001']} position={[7.915, 3.649, -11.485]} rotation={[-Math.PI / 2, Math.PI / 2, 0]} scale={[1, 0.444, 1]} />
+      <mesh receiveShadow geometry={nodes.Floor001.geometry} material={materials['ConcreteFloor.001']} position={[0, 0, 0]} scale={[1.923, 1, 2.096]} />
+      <mesh receiveShadow geometry={nodes.Container001.geometry} material={materials['BlueMetal.001']} position={[-7.961, 0.002, -22.094]} />
       <group position={[3.213, 2.729, -19.654]}>
-        <mesh geometry={nodes.Cube014.geometry} material={materials['Concrete.001']} />
-        <mesh geometry={nodes.Cube014_1.geometry} material={materials['RedMetal.001']} />
+        <mesh receiveShadow geometry={nodes.Cube014.geometry} material={materials['Concrete.001']} />
+        <mesh receiveShadow geometry={nodes.Cube014_1.geometry} material={materials['RedMetal.001']} />
       </group>
-      <mesh geometry={nodes.ConcreteRect001.geometry} material={materials['Concrete.001']} position={[-0.303, 1.432, -16.464]} />
-      <mesh geometry={nodes.BigFrame001.geometry} material={materials['BlueMetal.001']} position={[-5.311, 0, 0.518]} />
+      <mesh receiveShadow geometry={nodes.ConcreteRect001.geometry} material={materials['Concrete.001']} position={[-0.303, 1.432, -16.464]} />
+      <mesh receiveShadow geometry={nodes.BigFrame001.geometry} material={materials['BlueMetal.001']} position={[-5.311, 0, 0.518]} />
       <group position={[-15.078, 18.914, -55.053]} rotation={[Math.PI / 2, 0, 0]}>
-        <mesh geometry={nodes.Plane025.geometry} material={materials['DarkGrayMetal.001']} />
-        <mesh geometry={nodes.Plane025_1.geometry} material={materials['Concrete.001']} />
-        <mesh geometry={nodes.Plane025_2.geometry} material={materials['RedMetal.001']} />
-        <mesh geometry={nodes.Plane025_3.geometry} material={materials['BrownBricks.001']} />
+        <mesh receiveShadow geometry={nodes.Plane025.geometry} material={materials['DarkGrayMetal.001']} />
+        <mesh receiveShadow geometry={nodes.Plane025_1.geometry} material={materials['Concrete.001']} />
+        <mesh receiveShadow geometry={nodes.Plane025_2.geometry} material={materials['RedMetal.001']} />
+        <mesh receiveShadow geometry={nodes.Plane025_3.geometry} material={materials['BrownBricks.001']} />
       </group>
     </group>
   )

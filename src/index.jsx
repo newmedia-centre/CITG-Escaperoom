@@ -1,27 +1,34 @@
+// Index.jsx
 import "./style.css";
 import ReactDOM from "react-dom/client";
 import { Canvas } from "@react-three/fiber";
 import { Html, useProgress } from "@react-three/drei";
 import Scene from "./Scene";
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useState } from "react";
 import { CircularProgress } from "@mui/joy";
 import { Stack, Button } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { Physics, Debug } from "@react-three/cannon";
 
 
 function App() {
-  const cannonRef = useRef();
+  const cannonRef = useRef()
+  const [fireCannon, setFireCannon] = useState(null)
 
   const rotateCannonUp = () => {
     if (cannonRef.current) {
       cannonRef.current.rotation.x += 0.1
     }
   }
-
   const rotateCannonDown = () => {
     if (cannonRef.current) {
       cannonRef.current.rotation.x -= 0.1
+    }
+  }
+  const fireCannonBall = () => {
+    if (fireCannon) {
+      fireCannon();
     }
   }
 
@@ -36,8 +43,9 @@ function App() {
           zIndex: 1, // make sure it floats above
         }}
         zIndex={10000}>
-        < Button variant="contained" endIcon={<ArrowUpwardIcon />}>Move Cannon</Button>
-        <Button variant="contained" endIcon={<ArrowDownwardIcon />}>Move Cannon</Button>
+        < Button onClick={rotateCannonUp} variant="contained" endIcon={<ArrowUpwardIcon />}>Move Cannon</Button>
+        <Button onClick={rotateCannonDown} variant="contained" endIcon={<ArrowDownwardIcon />}>Move Cannon</Button>
+        <Button onClick={fireCannonBall} variant="contained">Fire!</Button>
       </Stack >
       <Canvas
         dpr={[1, 1.5]}
@@ -46,7 +54,9 @@ function App() {
         gl={{ alpha: true }}
       >
         <Suspense fallback={<Loader />}>
-          <Scene cannonRef={cannonRef} />
+          <Physics>
+            <Scene cannonRef={cannonRef} setFireFunction={setFireCannon} />
+          </Physics>
         </Suspense>
       </Canvas>
       <div id="info-box">
