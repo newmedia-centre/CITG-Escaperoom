@@ -49,7 +49,7 @@ export default function Scene({ cannonRef, setFireFunction, lives, setLives, set
   const gameOverThreshold = 18 // water level at which game is over
 
   const handleCollision = (event, name) => {
-    if (name === "cannonBall" && !hitHandled) {
+    if (name === "cannonBall" && !hitHandled && !gameOver && !gameWon) {
       if (event.body.uuid === targetRef.current.uuid) {
         console.log("The target was hit first!")
         setGameWon(true)
@@ -70,14 +70,10 @@ export default function Scene({ cannonRef, setFireFunction, lives, setLives, set
     cannonBallApi.mass.set(newMass);
   }
 
-  const resetHitResult = () => {
-    hitHandled = false;
-  }
-
   const fireCannon = (forceMagnitude = 1000) => {
     if (cannonRef.current && cannonBallRef.current) {
-      // Clear hit result
-      resetHitResult()
+
+      hitHandled = false
 
       cannonBallApi.mass.set(1)
       const cannonPosition = cannonRef.current.getWorldPosition(new THREE.Vector3())
