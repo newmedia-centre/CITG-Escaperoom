@@ -4,9 +4,9 @@ import ReactDOM from "react-dom/client";
 import { Canvas } from "@react-three/fiber";
 import { Html, useProgress } from "@react-three/drei";
 import Scene from "./Scene";
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useRef, useState, useEffect } from "react";
 import { CircularProgress } from "@mui/joy";
-import { Stack, Button } from '@mui/material';
+import { Stack, Box, Button, Typography } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { Physics, Debug } from "@react-three/cannon";
@@ -15,6 +15,10 @@ import { Physics, Debug } from "@react-three/cannon";
 function App() {
   const cannonRef = useRef()
   const [fireCannon, setFireCannon] = useState(null)
+  const [lives, setLives] = useState(3)
+  const [gameOver, setGameOver] = useState(false)
+  const [gameWon, setGameWon] = useState(false)
+  const [resetGame, setResetGame] = useState(false)
 
   const rotateCannonUp = () => {
     if (cannonRef.current) {
@@ -28,25 +32,48 @@ function App() {
   }
   const fireCannonBall = () => {
     if (fireCannon) {
-      fireCannon();
+      fireCannon()
     }
   }
+  const retry = () => {
+    setGameOver(false)
+    setGameWon(false)
+    setLives(3)
+    setResetGame(true)
+  }
+
+
+  useEffect(() => {
+    if (lives === 0) {
+      setGameOver(true)
+    }
+  }, [lives])
 
   return (
     <>
-      <Stack direction="column" spacing={2} justifyContent="center"
-        sx={{
-          position: 'absolute',
-          bottom: '1%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 1, // make sure it floats above
-        }}
-        zIndex={10000}>
-        < Button onClick={rotateCannonUp} variant="contained" endIcon={<ArrowUpwardIcon />}>Move Cannon</Button>
-        <Button onClick={rotateCannonDown} variant="contained" endIcon={<ArrowDownwardIcon />}>Move Cannon</Button>
-        <Button onClick={fireCannonBall} variant="contained">Fire!</Button>
-      </Stack >
+      {!gameOver && !gameWon ? (
+        <Stack direction="column" spacing={2} justifyContent="center"
+          sx={{
+            position: 'absolute',
+            bottom: '0%',
+            left: '50%',
+            transform: 'translate(-50%, -20%)',
+            userSelect: 'none'
+          }}
+          zIndex={10000}>
+          < Button onClick={rotateCannonUp} variant="contained" endIcon={<ArrowUpwardIcon />}>Move</Button>
+          <Button onClick={rotateCannonDown} variant="contained" endIcon={<ArrowDownwardIcon />}>Move</Button>
+          <Button onClick={fireCannonBall} variant="contained" color="error">Fire!</Button>
+
+          <Typography variant="h6" color="error">Lives: {lives}</Typography>
+        </Stack >
+      ) : gameWon ? (
+        <WinScreen onRetry={retry} />
+      ) : (
+        <GameOverScreen onRetry={retry} />
+      )
+      }
+
       <Canvas
         dpr={[1, 1.5]}
         shadows
@@ -54,8 +81,10 @@ function App() {
         gl={{ alpha: true }}
       >
         <Suspense fallback={<Loader />}>
-          <Physics>
-            <Scene cannonRef={cannonRef} setFireFunction={setFireCannon} />
+          <Physics >
+            {/* <Debug> */}
+            <Scene cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
+            {/* </Debug> */}
           </Physics>
         </Suspense>
       </Canvas>
@@ -70,6 +99,54 @@ function App() {
     </>
 
   )
+}
+
+function GameOverScreen({ onRetry }) {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        bgcolor: 'rgba(0, 0, 0, 0.7)',
+        zIndex: 10000,
+        userSelect: 'none'
+      }}
+    >
+      <Typography variant="h1" color="error">Game Over</Typography>
+      <Button onClick={onRetry} variant="contained" color="error">Retry</Button>
+    </Box>
+  );
+}
+
+function WinScreen({ onRetry }) {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        bgcolor: 'rgba(0, 0, 0, 0.7)',
+        zIndex: 10000,
+        userSelect: 'none'
+      }}
+    >
+      <Typography variant="h1" color="success">You Win!</Typography>
+      <Button onClick={onRetry} variant="contained" color="success">Retry</Button>
+    </Box>
+  );
 }
 
 function Loader() {

@@ -18,23 +18,68 @@ import React, { useEffect, useRef, useState, useTransition } from "react";
 import { Model as CannonLevel } from "../public/models/gltfjsx/CannonLevel";
 import { Cannon } from "../public/models/gltfjsx/Cannon";
 import { Target } from "../public/models/gltfjsx/Target";
-import { useBox, usePlane } from '@react-three/cannon'
+import { useSphere, usePlane, useBox } from '@react-three/cannon'
+import Ocean from "./Ocean";
 
-
-export default function Scene({ cannonRef, setFireFunction }) {
+export default function Scene({ cannonRef, setFireFunction, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
   const meshRef = useRef()
   const cameraControlsRef = useRef()
-  const targetRef = useRef()
-  const [cannonBallRef, api] = useBox(() => ({ mass: 1 }))
+  const oceanRef = useRef()
+  const [cannonBallRef, cannonBallApi] = useSphere(() => ({
+    args: [0.4],
+    mass: 1,
+    onCollide: (e) => handleCollision(e, "cannonBall")
+  }))
+  const [targetRef] = useBox(() => ({
+    args: [2.2, 0.2, 2.2],
+    position: [-2, 0.1, 16],
+    type: "Kinematic",
+    onCollide: (e) => handleCollision(e, "target")
+  }))
+  const [groundRef] = usePlane(() => ({
+    rotation: [-Math.PI / 2, 0, 0],
+    position: [0, 0.1, 0],
+    type: "Static",
+    onCollide: (e) => handleCollision(e, "ground")
+  }))
+
+  let hitHandled = false
+  const [elapsed, setElapsed] = useState(0) // time elapsed
+  const waterRisingDuration = 60 // duration of transition in seconds
+  const gameOverThreshold = 18 // water level at which game is over
+
+  const handleCollision = (event, name) => {
+    if (name === "cannonBall" && !hitHandled) {
+      if (event.body.uuid === targetRef.current.uuid) {
+        console.log("The target was hit first!")
+        setGameWon(true)
+      } else if (event.body.uuid === groundRef.current.uuid) {
+        console.log("The ground was hit first!")
+        takeLive()
+      }
+      hitHandled = true
+    }
+  }
+
+  const takeLive = () => {
+    setLives(lives => lives - 1) // Updates lives using callback
+  }
 
   // Define a function to switch the mass
   const switchMass = (newMass = 0) => {
-    api.mass.set(newMass);
+    cannonBallApi.mass.set(newMass);
   }
 
-  const applyCannonForce = (forceMagnitude = 1000) => {
+  const resetHitResult = () => {
+    hitHandled = false;
+  }
+
+  const fireCannon = (forceMagnitude = 1000) => {
     if (cannonRef.current && cannonBallRef.current) {
-      api.mass.set(1)
+      // Clear hit result
+      resetHitResult()
+
+      cannonBallApi.mass.set(1)
       const cannonPosition = cannonRef.current.getWorldPosition(new THREE.Vector3())
       const cannonRotation = cannonRef.current.getWorldQuaternion(new THREE.Quaternion())
 
@@ -46,12 +91,19 @@ export default function Scene({ cannonRef, setFireFunction }) {
       const force = direction.multiplyScalar(forceMagnitude);
 
       // Reset cannonball values
-      api.position.set(cannonPosition.x, cannonPosition.y, cannonPosition.z)
-      api.rotation.set(cannonRotation.x, cannonRotation.y, cannonRotation.z)
-      api.velocity.set(0, 0, 0)
+      cannonBallApi.position.set(cannonPosition.x, cannonPosition.y, cannonPosition.z)
+      cannonBallApi.rotation.set(cannonRotation.x, cannonRotation.y, cannonRotation.z)
+      cannonBallApi.velocity.set(0, 0, 0)
 
       // Apply the force at the center of the cannonball
-      api.applyForce(force.toArray(), cannonBallRef.current.position.toArray());
+      cannonBallApi.applyForce(force.toArray(), cannonBallRef.current.position.toArray());
+    }
+  }
+
+  const resetWaterLevel = () => {
+    setElapsed(0);
+    if (oceanRef.current) {
+      oceanRef.current.position.y = 0;
     }
   }
 
@@ -61,29 +113,44 @@ export default function Scene({ cannonRef, setFireFunction }) {
 
   useEffect(() => {
     if (cameraControlsRef.current) {
-      cameraControlsRef.current?.setLookAt(0, 9, 40, 0, 9, 35, true)
+      cameraControlsRef.current?.setLookAt(-2, 9, 40, -2, 9, 35, true)
     }
     if (cannonBallRef.current && cannonRef.current) {
       switchMass()
       let worldPos = new THREE.Vector3()
       cannonRef.current.getWorldPosition(worldPos)
-      api.position.set(worldPos.x, worldPos.y, worldPos.z)
+      cannonBallApi.position.set(worldPos.x, worldPos.y, worldPos.z)
     }
-    setFireFunction(() => applyCannonForce)
-  }, [setFireFunction])
+    if (resetGame) {
+      resetWaterLevel()
+      setResetGame(false)
+    }
+    setFireFunction(() => fireCannon)
+  }, [setFireFunction, resetGame])
 
-  // useFrame(({ clock }) => api.position.set(Math.sin(clock.getElapsedTime()) * 5, 0, 0))
+  useFrame((state, delta) => {
+    if (oceanRef.current && !gameWon && !gameOver) {
+      setElapsed((prev) => prev + delta);
+      const fraction = Math.min(elapsed / waterRisingDuration, 1);
+      const newPosition = THREE.MathUtils.lerp(0, gameOverThreshold, fraction);
+      oceanRef.current.position.y = newPosition;
+
+      if (newPosition >= gameOverThreshold) {
+        setGameOver(true)
+      }
+    }
+  })
 
   return (
     <>
       <group position={[0, 0, 0]}>
         <Center top>
           <CannonLevel ref={meshRef} />
-          <Cannon ref={cannonRef} />
+          <Cannon position={[-2, 0, 0]} ref={cannonRef} />
           <Target ref={targetRef} />
         </Center>
 
-        <Sphere castShadow receiveShadow ref={cannonBallRef} args={[0.4, 32, 32]}>
+        <Sphere castShadow receiveShadow ref={cannonBallRef} args={[0.4, 64, 64]}>
           <meshStandardMaterial color="gray" metalness={0.9} roughness={0.4} />
         </Sphere>
 
@@ -91,10 +158,11 @@ export default function Scene({ cannonRef, setFireFunction }) {
         <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
           <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />
         </AccumulativeShadows>
-        <Effects />
+        {/* <Effects /> */}
         <spotLight intensity={0.8} angle={1} penumbra={0.2} position={[25, 25, 0]} castShadow />
         <Env />
         <Ground />
+        <Ocean ref={oceanRef} />
         <ContactShadows position={[0, 0, 0]} opacity={0.25} scale={10} blur={1.5} far={0.8} />
         <CameraControls
           ref={cameraControlsRef}
@@ -145,7 +213,7 @@ function Env() {
   );
 }
 
-function Ground() {
+function Ground({ ref }) {
   const gridConfig = {
     cellSize: 0.5,
     cellThickness: 0.5,
@@ -158,8 +226,6 @@ function Ground() {
     followCamera: false,
     infiniteGrid: true
   }
-  const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], position: [0, 0.0, 0], type: 'Static' }), useRef(null))
-
   return (
     <>
       <Grid ref={ref} position={[0, -0.01, 0]} args={[10.5, 10.5]} {...gridConfig} />
