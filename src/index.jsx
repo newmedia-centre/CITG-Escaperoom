@@ -10,6 +10,7 @@ import { Stack, Box, Button, Typography } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { Physics, Debug } from "@react-three/cannon";
+import ConfettiExplosion from "react-confetti-explosion";
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
   const [gameOver, setGameOver] = useState(false)
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
+  const [isExploding, setIsExploding] = useState(false)
 
   const rotateCannonUp = () => {
     if (cannonRef.current) {
@@ -61,14 +63,17 @@ function App() {
             userSelect: 'none'
           }}
           zIndex={10000}>
-          < Button onClick={rotateCannonUp} variant="contained" endIcon={<ArrowUpwardIcon />}>Move</Button>
-          <Button onClick={rotateCannonDown} variant="contained" endIcon={<ArrowDownwardIcon />}>Move</Button>
+          {/* < Button onClick={rotateCannonUp} variant="contained" endIcon={<ArrowUpwardIcon />}>Move</Button> */}
+          {/* <Button onClick={rotateCannonDown} variant="contained" endIcon={<ArrowDownwardIcon />}>Move</Button> */}
           <Button onClick={fireCannonBall} variant="contained" color="error">Fire!</Button>
 
           <Typography variant="h6" color="error">Lives: {lives}</Typography>
         </Stack >
+
       ) : gameWon ? (
-        <WinScreen onRetry={retry} />
+        <>
+          <WinScreen onRetry={retry} />
+        </>
       ) : (
         <GameOverScreen onRetry={retry} />
       )
@@ -119,7 +124,7 @@ function GameOverScreen({ onRetry }) {
         userSelect: 'none'
       }}
     >
-      <Typography variant="h1" color="error">Game Over</Typography>
+      <Typography variant="h2" color="error">Game Over</Typography>
       <Button onClick={onRetry} variant="contained" color="error">Retry</Button>
     </Box>
   );
@@ -143,7 +148,9 @@ function WinScreen({ onRetry }) {
         userSelect: 'none'
       }}
     >
-      <Typography variant="h1" color="success">You Win!</Typography>
+      <ConfettiExplosion particleCount={200} duration={4000} />
+
+      <Typography variant="h2" color="green">You Win!</Typography>
       <Button onClick={onRetry} variant="contained" color="success">Retry</Button>
     </Box>
   );

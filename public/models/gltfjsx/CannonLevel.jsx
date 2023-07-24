@@ -29,7 +29,7 @@ export const Model = forwardRef((props, ref) => {
         <mesh receiveShadow geometry={nodes.Cube014_1.geometry} material={materials['RedMetal.001']} />
       </group>
       <mesh receiveShadow geometry={nodes.ConcreteRect001.geometry} material={materials['Concrete.001']} position={[-0.303, 1.432, -16.464]} />
-      <mesh receiveShadow geometry={nodes.BigFrame001.geometry} material={materials['BlueMetal.001']} position={[-5.311, 0, 0.518]} />
+      <mesh receiveShadow geometry={nodes.BigFrame001.geometry} material={materials['BlueMetal.001']} position={[-7.311, -0.5, 0.518]} />
       <group position={[-15.078, 18.914, -55.053]} rotation={[Math.PI / 2, 0, 0]}>
         <mesh receiveShadow geometry={nodes.Plane025.geometry} material={materials['DarkGrayMetal.001']} />
         <mesh receiveShadow geometry={nodes.Plane025_1.geometry} material={materials['Concrete.001']} />

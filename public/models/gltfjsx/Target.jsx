@@ -7,16 +7,15 @@ import React, { forwardRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 
 export const Target = forwardRef((props, ref) => {
-  const { nodes, materials } = useGLTF('models/gltfjsx/Target-transformed.glb')
+  const { nodes, materials } = useGLTF('models/gltfjsx/Target2-transformed.glb')
   return (
     <group ref={ref} {...props} dispose={null} >
       <group position={[-0.3, -0.1, -29.2]}>
-        <mesh geometry={nodes.Circle001.geometry} material={materials.WhiteTarget} />
-        <mesh geometry={nodes.Circle001_1.geometry} material={materials.BlackTarget} />
-        <mesh geometry={nodes.Circle001_2.geometry} material={materials.RedTarget} />
+        <mesh geometry={nodes.Circle002.geometry} material={materials.BlackTarget} />
+        <mesh geometry={nodes.Circle002_1.geometry} material={materials.RedTarget} />
       </group>
     </group>
   )
 })
 
-useGLTF.preload('models/gltfjsx/Target-transformed.glb')
+useGLTF.preload('models/gltfjsx/Target2-transformed.glb')

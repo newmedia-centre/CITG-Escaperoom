@@ -21,8 +21,8 @@ const Ocean = forwardRef((props, ref) => {
         void main() {
             vec4 modelPosition = modelMatrix * vec4(position, 1.0);
 
-            modelPosition.y += sin(modelPosition.x * 50.0 + time * 3.0) * 0.02;
-            modelPosition.y += sin(modelPosition.z * 20.0 + time * 2.0) * 0.04;
+            modelPosition.y += sin(modelPosition.x * 650.0 + time * 2.0) * 0.08;
+            modelPosition.y += cos(modelPosition.z * 900.0 + time * 1.0) * 0.04;
 
             vUv = uv; // send the uv coordinate to the fragment shader
 

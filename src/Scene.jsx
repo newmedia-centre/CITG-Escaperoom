@@ -26,13 +26,13 @@ export default function Scene({ cannonRef, setFireFunction, lives, setLives, set
   const cameraControlsRef = useRef()
   const oceanRef = useRef()
   const [cannonBallRef, cannonBallApi] = useSphere(() => ({
-    args: [0.4],
+    args: [0.8],
     mass: 1,
     onCollide: (e) => handleCollision(e, "cannonBall")
   }))
   const [targetRef] = useBox(() => ({
-    args: [2.2, 0.2, 2.2],
-    position: [-2, 0.1, 16],
+    args: [1.9, 0.3, 1.9],
+    position: [-2, 1.8, 12.7],
     type: "Kinematic",
     onCollide: (e) => handleCollision(e, "target")
   }))
@@ -61,6 +61,16 @@ export default function Scene({ cannonRef, setFireFunction, lives, setLives, set
     }
   }
 
+  function CannonBall({ position }) {
+    const [ref] = useSphere(() => ({ position }))
+
+    return (
+      <Sphere ref={ref} castShadow receiveShadow args={[0.4, 64, 64]}>
+        <meshStandardMaterial color="gray" metalness={0.9} roughness={0.4} />
+      </Sphere>
+    )
+  }
+
   const takeLive = () => {
     setLives(lives => lives - 1) // Updates lives using callback
   }
@@ -80,7 +90,7 @@ export default function Scene({ cannonRef, setFireFunction, lives, setLives, set
       const cannonRotation = cannonRef.current.getWorldQuaternion(new THREE.Quaternion())
 
       // Create a direction vector pointing in the direction of the cannon barrel
-      const direction = new THREE.Vector3(0, 1, 0); // 1 unit along the y-axis
+      const direction = new THREE.Vector3(0, 0, -1); // 1 unit along the y-axis
       direction.applyQuaternion(cannonRotation);
 
       // Scale the direction by the magnitude of the force to be applied
@@ -122,18 +132,31 @@ export default function Scene({ cannonRef, setFireFunction, lives, setLives, set
       setResetGame(false)
     }
     setFireFunction(() => fireCannon)
-  }, [setFireFunction, resetGame])
+  }, [setFireFunction])
 
-  useFrame((state, delta) => {
-    if (oceanRef.current && !gameWon && !gameOver) {
-      setElapsed((prev) => prev + delta);
-      const fraction = Math.min(elapsed / waterRisingDuration, 1);
-      const newPosition = THREE.MathUtils.lerp(0, gameOverThreshold, fraction);
-      oceanRef.current.position.y = newPosition;
+  // Rises the water level over time
+  // useFrame((state, delta) => {
+  //   if (oceanRef.current && !gameWon && !gameOver) {
+  //     setElapsed((prev) => prev + delta);
+  //     const fraction = Math.min(elapsed / waterRisingDuration, 1);
+  //     const newPosition = THREE.MathUtils.lerp(0, gameOverThreshold, fraction);
+  //     oceanRef.current.position.y = newPosition;
 
-      if (newPosition >= gameOverThreshold) {
-        setGameOver(true)
-      }
+  //     if (newPosition >= gameOverThreshold) {
+  //       setGameOver(true)
+  //     }
+  //   }
+  // })
+  const { waterLevel, cannonAngle } = useControls({
+    waterLevel: {
+      value: 0, min: 0, max: 10, step: 0.01,
+      onChange: (value) => oceanRef.current.position.y = value,
+      label: "Water Level in Meters"
+    },
+    cannonAngle: {
+      value: 0.000, min: -Math.PI / 2, max: Math.PI / 2, step: 0.001,
+      onChange: (value) => cannonRef.current.rotation.x = value,
+      label: "Cannon Angle in Radians"
     }
   })
 
@@ -143,13 +166,19 @@ export default function Scene({ cannonRef, setFireFunction, lives, setLives, set
         <Center top>
           <CannonLevel ref={meshRef} />
           <Cannon position={[-2, 0, 0]} ref={cannonRef} />
+
+          {/* Cannonball display */}
+          {
+            Array(lives).fill().map((_, index) => (
+              <CannonBall key={index} position={[-0.7 + index * 1, 6.04, 5]} />
+            ))
+          }
           <Target ref={targetRef} />
         </Center>
 
         <Sphere castShadow receiveShadow ref={cannonBallRef} args={[0.4, 64, 64]}>
           <meshStandardMaterial color="gray" metalness={0.9} roughness={0.4} />
         </Sphere>
-
 
         <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
           <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />
