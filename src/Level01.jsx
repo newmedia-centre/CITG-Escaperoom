@@ -1,4 +1,4 @@
-//Scene.jsx
+//Level01.jsx
 import {
   AccumulativeShadows,
   RandomizedLight,
@@ -21,7 +21,7 @@ import { Target } from "../public/models/gltfjsx/Target";
 import { useSphere, usePlane, useBox } from '@react-three/cannon'
 import Ocean from "./Ocean";
 
-export default function Scene({ cannonRef, setFireFunction, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
+export default function Level01({ cannonRef, setFireFunction, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
   const meshRef = useRef()
   const cameraControlsRef = useRef()
   const oceanRef = useRef()

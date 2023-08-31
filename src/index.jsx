@@ -3,14 +3,14 @@ import "./style.css";
 import ReactDOM from "react-dom/client";
 import { Canvas } from "@react-three/fiber";
 import { Html, useProgress } from "@react-three/drei";
-import Scene from "./Scene";
+import Level01 from "./Level01";
+import Level02 from "./Level02";
 import { Suspense, useRef, useState, useEffect } from "react";
 import { CircularProgress } from "@mui/joy";
 import { Stack, Box, Button, Typography } from '@mui/material';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { Physics, Debug } from "@react-three/cannon";
 import ConfettiExplosion from "react-confetti-explosion";
+import GaugeComponent from "react-gauge-component";
 
 
 function App() {
@@ -21,6 +21,8 @@ function App() {
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
   const [isExploding, setIsExploding] = useState(false)
+  const [currentLevel, setCurrentLevel] = useState(1)
+  const [speed, setSpeed] = useState(0)
 
   const rotateCannonUp = () => {
     if (cannonRef.current) {
@@ -54,22 +56,78 @@ function App() {
   return (
     <>
       {!gameOver && !gameWon ? (
-        <Stack direction="column" spacing={2} justifyContent="center"
-          sx={{
-            position: 'absolute',
-            bottom: '0%',
-            left: '50%',
-            transform: 'translate(-50%, -20%)',
-            userSelect: 'none'
-          }}
-          zIndex={10000}>
-          {/* < Button onClick={rotateCannonUp} variant="contained" endIcon={<ArrowUpwardIcon />}>Move</Button> */}
-          {/* <Button onClick={rotateCannonDown} variant="contained" endIcon={<ArrowDownwardIcon />}>Move</Button> */}
-          <Button onClick={fireCannonBall} variant="contained" color="error">Fire!</Button>
+        <>
+          {currentLevel === 0 && (
+            <Stack direction="column" spacing={2} justifyContent="center"
+              sx={{
+                position: 'absolute',
+                bottom: '0%',
+                left: '50%',
+                transform: 'translate(-50%, -20%)',
+                userSelect: 'none'
+              }}
+              zIndex={10000}>
+              <Button onClick={fireCannonBall} variant="contained" color="error">Fire!</Button>
+              <Typography variant="h6" color="error">Lives: {lives}</Typography>
+            </Stack >
+          )}
+          {currentLevel === 1 && (
+            <Stack direction="column" justifyContent="center"
+              sx={{
+                position: 'absolute',
+                bottom: '12px',
+                right: '12px',
+                userSelect: 'none'
+              }}
+              zIndex={10000}>
+              <Box
+                sx={{
+                  padding: 1,
+                  width: 240,
+                  borderRadius: 2,
+                  boxShadow: 2,
+                  backgroundColor: '#181c20',
+                }}
+              >
+                <GaugeComponent
+                  style={{ width: '100%' }}
+                  type="semicircle"
+                  value={speed}
+                  minValue={0}
+                  maxValue={2}
+                  arc={{
+                    width: 0.21,
+                    padding: 0,
+                    cornerRadius: 0,
+                    subArcs: [
+                      { limit: 0.5, color: '#EA4228', showTick: true },
+                      { limit: 0.9, color: '#F5CD19', showTick: true },
+                      { limit: 1.1, color: '#5BE12C', showTick: true },
+                      { limit: 1.5, color: '#F5CD19', showTick: true },
+                      { color: '#EA4228' }
+                    ]
+                  }}
+                  pointer={{
+                    color: '#3c93ff',
+                    length: 0.80,
+                    width: 14,
+                    elastic: true,
+                    animationDuration: 1000
+                  }}
+                  labels={{
+                    tickLabels: {
+                      defaultTickValueConfig: {
+                        style: { fontSize: 14 }
+                      }
+                    }
+                  }}
+                />
+                <Typography variant="h6" color="error">Lives: {lives}</Typography>
+              </Box>
 
-          <Typography variant="h6" color="error">Lives: {lives}</Typography>
-        </Stack >
-
+            </Stack >
+          )}
+        </>
       ) : gameWon ? (
         <>
           <WinScreen onRetry={retry} />
@@ -88,7 +146,13 @@ function App() {
         <Suspense fallback={<Loader />}>
           <Physics >
             {/* <Debug> */}
-            <Scene cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
+            {currentLevel === 0 && (
+              <Level01 cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
+            )}
+            {currentLevel === 1 && (
+              <Level02 setSpeed={setSpeed} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
+            )}
+
             {/* </Debug> */}
           </Physics>
         </Suspense>
