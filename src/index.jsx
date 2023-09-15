@@ -6,12 +6,14 @@ import { Html, useProgress } from "@react-three/drei";
 import Level01 from "./Level01";
 import Level02 from "./Level02";
 import { Suspense, useRef, useState, useEffect } from "react";
-import { CircularProgress } from "@mui/joy";
-import { Stack, Box, Button, Typography } from '@mui/material';
+import { CircularProgress, Typography, ButtonGroup, IconButton } from "@mui/joy";
+import { Stack, Box } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
 import ConfettiExplosion from "react-confetti-explosion";
 import GaugeComponent from "react-gauge-component";
-
+import Cylinder from "./shapes/Cylinder";
+import Ring from "./shapes/Ring";
+import Sphere from "./shapes/Sphere";
 
 function App() {
   const cannonRef = useRef()
@@ -68,11 +70,11 @@ function App() {
               }}
               zIndex={10000}>
               <Button onClick={fireCannonBall} variant="contained" color="error">Fire!</Button>
-              <Typography variant="h6" color="error">Lives: {lives}</Typography>
+              <Typography level="h6" color="error">Lives: {lives}</Typography>
             </Stack >
           )}
           {currentLevel === 1 && (
-            <Stack direction="column" justifyContent="center"
+            <Stack direction="row" spacing={2} justifyContent="center"
               sx={{
                 position: 'absolute',
                 bottom: '12px',
@@ -80,6 +82,21 @@ function App() {
                 userSelect: 'none'
               }}
               zIndex={10000}>
+              <Box sx={{
+                padding: 1,
+                width: 240,
+                borderRadius: 2,
+                boxShadow: 2,
+                backgroundColor: '#181c20',
+              }}>
+                <Typography level="title-lg" textColor="#8c92a4">Shapes</Typography>
+                {/* ButtonGroup should be centered horizontally */}
+                <ButtonGroup variant="soft" color="neutral" size="lg" spacing={2} style={{ justifyContent: "center" }}>
+                  <IconButton><Cylinder /></IconButton>
+                  <IconButton><Ring /></IconButton>
+                  <IconButton><Sphere /></IconButton>
+                </ButtonGroup>
+              </Box>
               <Box
                 sx={{
                   padding: 1,
@@ -122,7 +139,7 @@ function App() {
                     }
                   }}
                 />
-                <Typography variant="h6" color="error">Lives: {lives}</Typography>
+                <Typography level="h6" color="danger">Lives: {lives}</Typography>
               </Box>
 
             </Stack >
@@ -188,8 +205,8 @@ function GameOverScreen({ onRetry }) {
         userSelect: 'none'
       }}
     >
-      <Typography variant="h2" color="error">Game Over</Typography>
-      <Button onClick={onRetry} variant="contained" color="error">Retry</Button>
+      <Typography level="h2" color="danger">Game Over</Typography>
+      <Button onClick={onRetry} variant="contained" color="danger">Retry</Button>
     </Box>
   );
 }
@@ -214,7 +231,7 @@ function WinScreen({ onRetry }) {
     >
       <ConfettiExplosion particleCount={200} duration={4000} />
 
-      <Typography variant="h2" color="green">You Win!</Typography>
+      <Typography level="h2" color="green">You Win!</Typography>
       <Button onClick={onRetry} variant="contained" color="success">Retry</Button>
     </Box>
   );
