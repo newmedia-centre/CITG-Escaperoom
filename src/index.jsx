@@ -158,7 +158,7 @@ function App() {
         dpr={[1, 1.5]}
         shadows
         camera={{ position: [0, 0, 5], fov: 60 }}
-        gl={{ alpha: true }}
+        gl={{ alpha: true, localClippingEnabled: true }}
       >
         <Suspense fallback={<Loader />}>
           <Physics >

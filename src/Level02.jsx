@@ -13,12 +13,17 @@ import * as THREE from "three";
 import { useControls } from "leva";
 import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing";
 import React, { useEffect, useRef, useState, useTransition } from "react";
-import { usePlane } from '@react-three/cannon'
 import { Level02Model } from "../public/models/gltfjsx/Level02Model";
 
 export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
   const weightRef = useRef()
+  const benchRopeRef = useRef()
+  const pulleyRopeRef = useRef()
+  const ceilingRopeRef = useRef()
+  const wellRef = useRef()
   const cameraControlsRef = useRef()
+
+  const { camera } = useThree()
 
   const [cameraFollowing, setCameraFollowing] = useState(false)
 
@@ -28,7 +33,6 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
     setLives(lives => lives - 1) // Updates lives using callback
   }
 
-  const { camera } = useThree()
   camera.maxZoom = 0
   camera.minZoom = 0
 
@@ -50,16 +54,6 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
     }
   }
 
-  const { weightHeight } = useControls({
-    weightHeight: {
-      value: 0.7,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange: (value) => setWeightHeight(value),
-    },
-  })
-
   const setWeightHeight = (height) => {
     if (weightRef.current) {
       weightRef.current.position.y = height
@@ -74,11 +68,21 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
     }
   }
 
+  useControls({
+    weightHeight: {
+      value: 0,
+      min: -4.5,
+      max: 0,
+      step: 0.01,
+      onChange: (value) => setWeightHeight(value),
+    },
+  })
+
   useEffect(() => {
     if (cameraControlsRef.current) {
       cameraControlsRef.current?.setLookAt(50, 50, -10, 0, 0, 0, false)
       cameraControlsRef.current?.setLookAt(10, 5, 0, 0, 0, 0, true)
-      changeCamera("weight")
+      changeCamera("bench")
     }
     if (resetGame) {
       setResetGame(false)
@@ -93,6 +97,7 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
     }
 
     followModelPosition()
+
   })
 
   return (
@@ -100,7 +105,10 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
       <group position={[0, 0, 0]}>
         <Center top>
         </Center>
-        <Level02Model ref={weightRef} />
+        <Level02Model ref={{
+          weightRef: weightRef,
+        }}
+        />
 
         <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
           <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />
