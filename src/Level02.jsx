@@ -78,7 +78,7 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
     if (cameraControlsRef.current) {
       cameraControlsRef.current?.setLookAt(50, 50, -10, 0, 0, 0, false)
       cameraControlsRef.current?.setLookAt(10, 5, 0, 0, 0, 0, true)
-      changeCamera("weight")
+      changeCamera("bench")
     }
     if (resetGame) {
       setResetGame(false)
