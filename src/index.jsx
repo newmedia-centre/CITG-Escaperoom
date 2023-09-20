@@ -6,7 +6,7 @@ import { Html, useProgress } from "@react-three/drei";
 import Level01 from "./Level01";
 import Level02 from "./Level02";
 import { Suspense, useRef, useState, useEffect } from "react";
-import { CircularProgress, Typography, ButtonGroup, IconButton } from "@mui/joy";
+import { CircularProgress, Typography, Button, ButtonGroup, IconButton } from "@mui/joy";
 import { Stack, Box } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
 import ConfettiExplosion from "react-confetti-explosion";
@@ -14,6 +14,7 @@ import GaugeComponent from "react-gauge-component";
 import Cylinder from "./shapes/Cylinder";
 import Ring from "./shapes/Ring";
 import Sphere from "./shapes/Sphere";
+import { Leva } from "leva"
 
 function App() {
   const cannonRef = useRef()
@@ -23,7 +24,7 @@ function App() {
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
   const [isExploding, setIsExploding] = useState(false)
-  const [currentLevel, setCurrentLevel] = useState(1)
+  const [currentLevel, setCurrentLevel] = useState(0)
   const [speed, setSpeed] = useState(0)
 
   const rotateCannonUp = () => {
@@ -69,8 +70,8 @@ function App() {
                 userSelect: 'none'
               }}
               zIndex={10000}>
-              <Button onClick={fireCannonBall} variant="contained" color="error">Fire!</Button>
-              <Typography level="h6" color="error">Lives: {lives}</Typography>
+              <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Fire!</Button>
+              <Typography level="h6" color="neutral" variant="soft">Lives: {lives}</Typography>
             </Stack >
           )}
           {currentLevel === 1 && (
@@ -154,6 +155,18 @@ function App() {
       )
       }
 
+      <div
+        style={{
+          width: 350,
+          position: "absolute",
+          right: 0,
+          top: 0,
+          zIndex: 100,
+          opacity: 0.8
+        }}
+      >
+        <Leva fill />
+      </div>
       <Canvas
         dpr={[1, 1.5]}
         shadows
@@ -189,7 +202,7 @@ function App() {
 
 function GameOverScreen({ onRetry }) {
   return (
-    <Box
+    <Stack spacing={2}
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -206,14 +219,14 @@ function GameOverScreen({ onRetry }) {
       }}
     >
       <Typography level="h2" color="danger">Game Over</Typography>
-      <Button onClick={onRetry} variant="contained" color="danger">Retry</Button>
-    </Box>
-  );
+      <Button onClick={onRetry} variant="solid" color="danger">Retry</Button>
+    </Stack>
+  )
 }
 
 function WinScreen({ onRetry }) {
   return (
-    <Box
+    <Stack spacing={2}
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -226,14 +239,18 @@ function WinScreen({ onRetry }) {
         height: '100%',
         bgcolor: 'rgba(0, 0, 0, 0.7)',
         zIndex: 10000,
-        userSelect: 'none'
+        userSelect: 'none',
       }}
     >
       <ConfettiExplosion particleCount={200} duration={4000} />
 
-      <Typography level="h2" color="green">You Win!</Typography>
-      <Button onClick={onRetry} variant="contained" color="success">Retry</Button>
-    </Box>
+      <Typography level="h2" color="success">You Win!</Typography>
+      <Typography level="h3" color="success">New Keyword obtained:</Typography>
+      <Typography level="h2" color="neutral" variant="soft">"Water"</Typography>
+      <Button onClick={onRetry} variant="solid" size="lg" color="success">Retry</Button>
+      <Typography level="body-lg" color="success" variant="soft" textAlign="center"
+      >Remember your keywoard and continue to the next puzzle</Typography>
+    </Stack>
   );
 }
 

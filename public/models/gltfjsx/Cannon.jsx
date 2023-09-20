@@ -12,7 +12,7 @@ export const Cannon = forwardRef((props, ref) => {
 
   return (
     <group {...props} dispose={null}>
-      <mesh geometry={nodes.Cannon.geometry} material={materials.PaintedMetal} position={[-0.261, 5.667, 4.789]} scale={0.549} />
+      <mesh geometry={nodes.Cannon.geometry} material={materials.PaintedMetal} position={[-0.261, 5.667, 4.789]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={0.549} />
       <mesh ref={ref} geometry={nodes.CannonBarrel.geometry} material={materials.DarkGrayMetal} position={[-0.261, 6.324, 4.789]} scale={0.482} />
     </group>
   )

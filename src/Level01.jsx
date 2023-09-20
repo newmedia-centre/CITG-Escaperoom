@@ -18,6 +18,9 @@ import React, { useEffect, useRef, useState, useTransition } from "react";
 import { Model as CannonLevel } from "../public/models/gltfjsx/CannonLevel";
 import { Cannon } from "../public/models/gltfjsx/Cannon";
 import { Target } from "../public/models/gltfjsx/Target";
+import { CannonBallHint } from "../public/models/gltfjsx/CannonBallHint"
+import { WaterLevel } from "../public/models/gltfjsx/WaterLevel"
+import { WindowBlueprint } from "../public/models/gltfjsx/WindowBlueprint"
 import { useSphere, usePlane, useBox } from '@react-three/cannon'
 import Ocean from "./Ocean";
 
@@ -45,8 +48,11 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
   let hitHandled = false
   const [elapsed, setElapsed] = useState(0) // time elapsed
-  const waterRisingDuration = 60 // duration of transition in seconds
-  const gameOverThreshold = 18 // water level at which game is over
+
+  const waterLevel = 2.5
+  if (oceanRef.current) {
+    oceanRef.current.position.y = waterLevel
+  }
 
   const handleCollision = (event, name) => {
     if (name === "cannonBall" && !hitHandled && !gameOver && !gameWon) {
@@ -90,7 +96,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
       const cannonRotation = cannonRef.current.getWorldQuaternion(new THREE.Quaternion())
 
       // Create a direction vector pointing in the direction of the cannon barrel
-      const direction = new THREE.Vector3(0, 0, -1); // 1 unit along the y-axis
+      const direction = new THREE.Vector3(0, 1, 0); // 1 unit along the y-axis
       direction.applyQuaternion(cannonRotation);
 
       // Scale the direction by the magnitude of the force to be applied
@@ -147,14 +153,10 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   //     }
   //   }
   // })
-  const { waterLevel, cannonAngle } = useControls({
-    waterLevel: {
-      value: 0, min: 0, max: 10, step: 0.01,
-      onChange: (value) => oceanRef.current.position.y = value,
-      label: "Water Level in Meters"
-    },
+
+  useControls({
     cannonAngle: {
-      value: 0.000, min: -Math.PI / 2, max: Math.PI / 2, step: 0.001,
+      value: 0.000, min: -Math.PI / 2, max: 0, step: 0.001,
       onChange: (value) => cannonRef.current.rotation.x = value,
       label: "Cannon Angle in Radians"
     }
@@ -167,6 +169,9 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
           <CannonLevel ref={meshRef} />
           <Cannon position={[-2, 0, 0]} ref={cannonRef} />
 
+          <WaterLevel />
+          <WindowBlueprint />
+          <CannonBallHint />
           {/* Cannonball display */}
           {
             Array(lives).fill().map((_, index) => (
@@ -202,29 +207,8 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
 function Env() {
   const [preset, setPreset] = useState("sunset");
-  const [degraded, degrade] = useState(false);
-  // You can use the "inTransition" boolean to react to the loading in-between state,
-  // For instance by showing a message
-  const [inTransition, startTransition] = useTransition();
-  const { blur } = useControls({
-    blur: { value: 0.65, min: 0, max: 1 },
-    preset: {
-      value: preset,
-      options: [
-        "sunset",
-        "dawn",
-        "night",
-        "warehouse",
-        "forest",
-        "apartment",
-        "studio",
-        "city",
-        "park",
-        "lobby",
-      ],
-      onChange: (value) => startTransition(() => setPreset(value)),
-    },
-  });
+  const blur = 0.65
+
   return (
     <>
       <PerformanceMonitor onDecline={() => degrade(true)} />
