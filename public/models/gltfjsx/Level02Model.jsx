@@ -7,9 +7,11 @@ import React, { forwardRef, useRef, useState, createRef } from 'react'
 import { useFrame } from "@react-three/fiber"
 import { useGLTF, Plane } from '@react-three/drei'
 import * as THREE from 'three'
+import { MathUtils } from 'three'
 
 export const Level02Model = forwardRef((props, ref) => {
   const { weightRef, wellRef } = ref
+  var { progress } = props
   const { nodes, materials } = useGLTF('models/gltfjsx/Level02-transformed.glb')
 
   const rope001Ref = useRef()
@@ -18,6 +20,14 @@ export const Level02Model = forwardRef((props, ref) => {
   const circle003Ref = useRef()
   const rope004Ref = useRef()
   const ropeRef = useRef()
+
+  const initRope001Position = new THREE.Vector3(0, 0.6, 2.304)
+  const initRope002Position = new THREE.Vector3(0, 0.6, -2.366)
+  const initRope003Position = new THREE.Vector3(0, 0.548, -2.416)
+  const initCircle003Position = new THREE.Vector3(0, 0.355, -2.418)
+  const initRope004Position = new THREE.Vector3(0, 0.356, -2.518)
+  const initRopePosition = new THREE.Vector3(0, 2.847, -2.518)
+  const initWeightPosition = new THREE.Vector3(0, 0, 0)
 
   const [planes] = useState(() => [[-0.05, 0, 0]].map(v => new THREE.Plane(new THREE.Vector3(...v), 1))) // prettier-ignore
   const [planeObjects] = useState(() => [createRef()])
@@ -34,9 +44,9 @@ export const Level02Model = forwardRef((props, ref) => {
     const ropePosition = ropeRef.current?.position
 
     // Calculate the distance between ropes
-    var distance12 = rope001Position.distanceTo(rope002Position)
-    var distance23 = rope003Position.distanceTo(circle003Position)
-    var distance40 = rope004Position.distanceTo(ropePosition)
+    const distance12 = rope001Position.distanceTo(rope002Position)
+    const distance23 = rope003Position.distanceTo(circle003Position)
+    const distance40 = rope004Position.distanceTo(ropePosition)
 
     // Set the scale of ropes based on the distance and original length
     rope001Ref.current.scale.y = (distance12 / 4.66989)
@@ -68,12 +78,13 @@ export const Level02Model = forwardRef((props, ref) => {
 
   // Call the scaleRope001 function in the useFrame hook to update the scale continuously
   useFrame(({ clock }) => {
-    var speed = 0.8
-    rope001Ref.current.position.z = -6.7 * Math.abs(Math.cos(clock.getElapsedTime() * speed)) + 4.66989
 
-    weightRef.current.position.y = -4.3 * Math.abs(Math.sin(clock.getElapsedTime() * speed))
-    rope004Ref.current.position.y = -4.3 * Math.abs(Math.sin(clock.getElapsedTime() * speed)) + 0.354
-    circle003Ref.current.position.y = -4.3 * Math.abs(Math.sin(clock.getElapsedTime() * speed)) + 0.354
+    rope001Ref.current.position.z = MathUtils.lerp(initRope001Position.z, -2, progress.get())
+    rope002Ref.current.position.z = MathUtils.lerp(initRope002Position.z, -2.36, progress.get())
+    circle003Ref.current.position.y = MathUtils.lerp(initCircle003Position.y, -4, progress.get())
+    rope003Ref.current.position.y = MathUtils.lerp(initRope003Position.y, 0.55, progress.get())
+    rope004Ref.current.position.y = MathUtils.lerp(initRope004Position.y, -4, progress.get())
+    weightRef.current.position.y = MathUtils.lerp(initWeightPosition.y, -4.35, progress.get())
     ropeScaler()
 
     planes.forEach((plane, i) => {

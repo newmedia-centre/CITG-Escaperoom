@@ -13,7 +13,8 @@ import * as THREE from "three";
 import { useControls } from "leva";
 import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing";
 import React, { useEffect, useRef, useState, useTransition } from "react";
-import { Level02Model } from "../public/models/gltfjsx/Level02Model";
+import { Level02Model } from "../public/models/gltfjsx/Level02Model"
+import { useSpring, animated } from '@react-spring/three'
 
 export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
   const weightRef = useRef()
@@ -26,6 +27,23 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
   const { camera } = useThree()
 
   const [cameraFollowing, setCameraFollowing] = useState(false)
+
+  const [progress, setProgress] = useSpring(() => ({
+    progress: 0,
+    config: {
+      mass: 30,
+      friction: 130,
+      tension: 120,
+      // velocity: 4,
+    },
+  }))
+
+  // Function to trigger the animation with a new 'to' value
+  const playAnimation = (newValue) => {
+    setProgress({
+      progress: newValue,
+    })
+  }
 
   var timer = 0
 
@@ -54,12 +72,6 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
     }
   }
 
-  const setWeightHeight = (height) => {
-    if (weightRef.current) {
-      weightRef.current.position.y = height
-    }
-  }
-
   const followModelPosition = () => {
     if (cameraFollowing && cameraControlsRef.current && weightRef.current) {
       var pos = weightRef.current.children[0].getWorldPosition(new THREE.Vector3())
@@ -67,16 +79,6 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
       cameraControlsRef.current?.moveTo(pos.x, pos.y, offset.z, pos.x, pos.y, offset.z, true)
     }
   }
-
-  useControls({
-    weightHeight: {
-      value: 0,
-      min: -4.5,
-      max: 0,
-      step: 0.01,
-      onChange: (value) => setWeightHeight(value),
-    },
-  })
 
   useEffect(() => {
     if (cameraControlsRef.current) {
@@ -88,6 +90,19 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
       setResetGame(false)
     }
   }, [])
+
+  useControls({
+    progressValue: {
+      value: 0,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      onChange: (value) => {
+        playAnimation(value)
+      },
+
+    },
+  })
 
   useFrame(({ clock }) => {
     timer += clock.getDelta()
@@ -105,10 +120,17 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
       <group position={[0, 0, 0]}>
         <Center top>
         </Center>
-        <Level02Model ref={{
+        <animated.group ref={{
           weightRef: weightRef,
         }}
-        />
+          progress={progress.progress}
+        >
+          <Level02Model ref={{
+            weightRef: weightRef
+          }}
+            progress={progress.progress}
+          />
+        </animated.group>
 
         <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
           <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />
@@ -134,24 +156,7 @@ function Env() {
   // You can use the "inTransition" boolean to react to the loading in-between state,
   // For instance by showing a message
   const [inTransition, startTransition] = useTransition();
-  const { weightHeight } = useControls({
-    preset: {
-      value: preset,
-      options: [
-        "sunset",
-        "dawn",
-        "night",
-        "warehouse",
-        "forest",
-        "apartment",
-        "studio",
-        "city",
-        "park",
-        "lobby",
-      ],
-      onChange: (value) => startTransition(() => setPreset(value)),
-    },
-  });
+
   return (
     <>
       <PerformanceMonitor onDecline={() => degrade(true)} />
