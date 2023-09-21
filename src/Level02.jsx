@@ -57,17 +57,20 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
   const changeCamera = (scene) => {
     switch (scene) {
       case "cabinet":
+        setCameraFollowing(false)
         cameraControlsRef.current?.setLookAt(-1.5, 1.6, 0.45, -2, 1.2, 0.45, true)
         break;
       case "door":
+        setCameraFollowing(false)
         cameraControlsRef.current?.setLookAt(0, 2, -5, -4, 0, 0, true)
         break;
       case "bench":
+        setCameraFollowing(false)
         cameraControlsRef.current?.setLookAt(5, 3, 0, 0, 0, 0, true)
         break;
       case "weight":
-        cameraControlsRef.current?.fitToBox(weightRef.current?.children[0], true, { cover: false, paddingLeft: 0.5, paddingRight: 0.5, paddingBottom: 0.5, paddingTop: 0.5 })
         setCameraFollowing(true)
+        cameraControlsRef.current?.fitToBox(weightRef.current?.children[0], true, { cover: false, paddingLeft: 0.5, paddingRight: 0.5, paddingBottom: 0.5, paddingTop: 0.5 })
         break;
     }
   }
@@ -100,7 +103,14 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
       onChange: (value) => {
         playAnimation(value)
       },
-
+    },
+    // Switch camera list
+    camera: {
+      value: "bench",
+      options: ["cabinet", "door", "bench", "weight"],
+      onChange: (value) => {
+        changeCamera(value)
+      },
     },
   })
 

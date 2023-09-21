@@ -49,7 +49,6 @@ function App() {
     setResetGame(true)
   }
 
-
   useEffect(() => {
     if (lives === 0) {
       setGameOver(true)

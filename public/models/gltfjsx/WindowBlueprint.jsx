@@ -10,7 +10,7 @@ export const WindowBlueprint = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF('models/gltfjsx/WindowBlueprint-transformed.glb')
   return (
     <group {...props} dispose={null}>
-      <mesh geometry={nodes.WindowBlueprint.geometry} material={materials.WindowBlueprint} position={[13, 8, 5.038]} rotation={[Math.PI / 2, 0, Math.PI / 2]} scale={2} />
+      <mesh geometry={nodes.WindowBlueprint.geometry} material={materials.WindowBlueprint} position={[13, 7, 5.038]} scale={1} />
     </group>
   )
 })

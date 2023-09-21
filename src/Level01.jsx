@@ -21,6 +21,7 @@ import { Target } from "../public/models/gltfjsx/Target";
 import { CannonBallHint } from "../public/models/gltfjsx/CannonBallHint"
 import { WaterLevel } from "../public/models/gltfjsx/WaterLevel"
 import { WindowBlueprint } from "../public/models/gltfjsx/WindowBlueprint"
+import { PilarBlueprint } from "../public/models/gltfjsx/PilarBlueprint"
 import { useSphere, usePlane, useBox } from '@react-three/cannon'
 import Ocean from "./Ocean";
 
@@ -156,9 +157,9 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
   useControls({
     cannonAngle: {
-      value: 0.000, min: -Math.PI / 2, max: 0, step: 0.001,
-      onChange: (value) => cannonRef.current.rotation.x = value,
-      label: "Cannon Angle in Radians"
+      value: 0.000, min: (THREE.MathUtils.RAD2DEG * -Math.PI / 2), max: 0, step: 0.001,
+      onChange: (value) => cannonRef.current.rotation.x = THREE.MathUtils.DEG2RAD * value,
+      label: "Cannon Angle in Degrees"
     }
   })
 
@@ -169,8 +170,9 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
           <CannonLevel ref={meshRef} />
           <Cannon position={[-2, 0, 0]} ref={cannonRef} />
 
-          <WaterLevel />
+          <WaterLevel position={[2, 0, 1.56]} />
           <WindowBlueprint />
+          <PilarBlueprint />
           <CannonBallHint />
           {/* Cannonball display */}
           {
