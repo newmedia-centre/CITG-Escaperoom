@@ -2,7 +2,7 @@
 import "./style.css";
 import ReactDOM from "react-dom/client";
 import { Canvas } from "@react-three/fiber";
-import { Html, useProgress } from "@react-three/drei";
+import { Html, useProgress, useSelect, Select } from "@react-three/drei";
 import Level01 from "./Level01";
 import Level02 from "./Level02";
 import { Suspense, useRef, useState, useEffect } from "react";
@@ -24,19 +24,9 @@ function App() {
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
   const [isExploding, setIsExploding] = useState(false)
-  const [currentLevel, setCurrentLevel] = useState(0)
+  const [currentLevel, setCurrentLevel] = useState(1)
   const [speed, setSpeed] = useState(0)
 
-  const rotateCannonUp = () => {
-    if (cannonRef.current) {
-      cannonRef.current.rotation.x += 0.1
-    }
-  }
-  const rotateCannonDown = () => {
-    if (cannonRef.current) {
-      cannonRef.current.rotation.x -= 0.1
-    }
-  }
   const fireCannonBall = () => {
     if (fireCannon) {
       fireCannon()
@@ -47,6 +37,58 @@ function App() {
     setGameWon(false)
     setLives(3)
     setResetGame(true)
+  }
+
+  const fetchAuthToken = async () => {
+    const response = await fetch(process.env.DB_SITE, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': 'd1c3e5f4-3c1a-4f5c-8f6e-9e1a9c7c9e7a'
+      },
+      body: JSON.stringify({
+        "username": process.env.DB_USERNAME,
+        "password": process.env.DB_PASSWORD
+      })
+    })
+    const data = await response.json()
+    return data.token
+  }
+
+  const postStartGameTime = async () => {
+    const token = await fetchAuthToken()
+    const date = Date.now()
+    let dateUnix = Math.round(date / 1000)
+
+    const response = await fetch(process.env.DB_SITE, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "token": token,
+        "level": currentLevel,
+        "start_time": dateUnix
+      })
+    })
+  }
+
+  const postEndGameTime = async () => {
+    const token = await fetchAuthToken()
+    const date = Date.now()
+    let dateUnix = Math.round(date / 1000)
+
+    const response = await fetch(process.env.DB_SITE, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        "token": token,
+        "level": currentLevel,
+        "end_time": dateUnix
+      })
+    })
   }
 
   useEffect(() => {
@@ -69,8 +111,8 @@ function App() {
                 userSelect: 'none'
               }}
               zIndex={10000}>
-              <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Fire!</Button>
-              <Typography level="h6" color="neutral" variant="soft">Lives: {lives}</Typography>
+              <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
+              <Typography level="h6" color="neutral" variant="soft">Levens: {lives}</Typography>
             </Stack >
           )}
           {currentLevel === 1 && (
@@ -154,7 +196,7 @@ function App() {
       )
       }
 
-      <div
+      <div className="ignore-select"
         style={{
           width: 350,
           position: "absolute",
@@ -218,7 +260,7 @@ function GameOverScreen({ onRetry }) {
       }}
     >
       <Typography level="h2" color="danger">Game Over</Typography>
-      <Button onClick={onRetry} variant="solid" color="danger">Retry</Button>
+      <Button onClick={onRetry} variant="solid" color="danger">Opnieuw proberen</Button>
     </Stack>
   )
 }
@@ -243,18 +285,14 @@ function WinScreen({ onRetry }) {
     >
       <ConfettiExplosion particleCount={200} duration={4000} />
 
-      <Typography level="h2" color="success">You Win!</Typography>
-      <Typography level="h3" color="success">New Keyword obtained:</Typography>
-      <Typography level="h2" color="neutral" variant="soft">"Water"</Typography>
-      <Button onClick={onRetry} variant="solid" size="lg" color="success">Retry</Button>
-      <Typography level="body-lg" color="success" variant="soft" textAlign="center"
-      >Remember your keywoard and continue to the next puzzle</Typography>
+      <Typography level="h2" color="success">Level completed!</Typography>
+      <Button onClick={onRetry} variant="solid" size="lg" color="success">Openiuw proberen</Button>
     </Stack>
   );
 }
 
 function Loader() {
-  const { progress } = useProgress();
+  const { progress } = useProgress()
   return (
     <Html center>
       <CircularProgress

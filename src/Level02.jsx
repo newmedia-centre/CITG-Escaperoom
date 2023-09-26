@@ -18,10 +18,6 @@ import { useSpring, animated } from '@react-spring/three'
 
 export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
   const weightRef = useRef()
-  const benchRopeRef = useRef()
-  const pulleyRopeRef = useRef()
-  const ceilingRopeRef = useRef()
-  const wellRef = useRef()
   const cameraControlsRef = useRef()
 
   const { camera } = useThree()
@@ -58,11 +54,11 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
     switch (scene) {
       case "cabinet":
         setCameraFollowing(false)
-        cameraControlsRef.current?.setLookAt(-1.5, 1.6, 0.45, -2, 1.2, 0.45, true)
+        cameraControlsRef.current?.setLookAt(0.2, 1.6, 1.209, -2, 1, 1.209, true)
         break;
       case "door":
         setCameraFollowing(false)
-        cameraControlsRef.current?.setLookAt(0, 2, -5, -4, 0, 0, true)
+        cameraControlsRef.current?.setLookAt(2, 2, 1, -1, 1, -0.5, true)
         break;
       case "bench":
         setCameraFollowing(false)
@@ -201,5 +197,5 @@ function Effects() {
       </EffectComposer>
 
     </>
-  );
+  )
 }

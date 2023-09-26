@@ -9,6 +9,9 @@ import {
   Grid,
   Sphere,
   ContactShadows,
+  Select,
+  useSelect,
+  Box
 } from "@react-three/drei";
 import * as THREE from "three";
 import { useThree, useFrame } from "@react-three/fiber";
@@ -49,6 +52,14 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
   let hitHandled = false
   const [elapsed, setElapsed] = useState(0) // time elapsed
+
+  const outlineProps = {
+    color: "black",
+    roughness: 1,
+    thickness: 1,
+  }
+
+  const [selected, setSelected] = useState([])
 
   const waterLevel = 2.5
   if (oceanRef.current) {
@@ -126,7 +137,8 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
   useEffect(() => {
     if (cameraControlsRef.current) {
-      cameraControlsRef.current?.setLookAt(-2, 9, 40, -2, 9, 35, true)
+      // Camera position
+      cameraControlsRef.current?.setLookAt(-2, 11, 38, -2, 8, 33, true)
     }
     if (cannonBallRef.current && cannonRef.current) {
       switchMass()
@@ -141,25 +153,11 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     setFireFunction(() => fireCannon)
   }, [setFireFunction])
 
-  // Rises the water level over time
-  // useFrame((state, delta) => {
-  //   if (oceanRef.current && !gameWon && !gameOver) {
-  //     setElapsed((prev) => prev + delta);
-  //     const fraction = Math.min(elapsed / waterRisingDuration, 1);
-  //     const newPosition = THREE.MathUtils.lerp(0, gameOverThreshold, fraction);
-  //     oceanRef.current.position.y = newPosition;
-
-  //     if (newPosition >= gameOverThreshold) {
-  //       setGameOver(true)
-  //     }
-  //   }
-  // })
-
   useControls({
     cannonAngle: {
       value: 0.000, min: (THREE.MathUtils.RAD2DEG * -Math.PI / 2), max: 0, step: 0.001,
       onChange: (value) => cannonRef.current.rotation.x = THREE.MathUtils.DEG2RAD * value,
-      label: "Cannon Angle in Degrees"
+      label: "Kanon hoek in graden"
     }
   })
 
@@ -193,6 +191,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
         {/* <Effects /> */}
         <spotLight intensity={0.8} angle={1} penumbra={0.2} position={[25, 25, 0]} castShadow />
         <Env />
+
         <Ground />
         <Ocean ref={oceanRef} />
         <ContactShadows position={[0, 0, 0]} opacity={0.25} scale={10} blur={1.5} far={0.8} />
@@ -202,7 +201,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
           dollySpeed={0}
           truckSpeed={0}
         />
-      </group>
+      </group >
     </>
   );
 }

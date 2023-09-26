@@ -8,9 +8,11 @@ import { useGLTF } from '@react-three/drei'
 
 export const WaterLevel = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF('models/gltfjsx/WaterLevel-transformed.glb')
+
   return (
     <group {...props} dispose={null}>
-      <mesh geometry={nodes.WaterLevel.geometry} material={materials.WaterLevel} position={[-14.972, 0, 1.957]} rotation={[0, 0, -Math.PI / 2]} scale={[1.647, 1, 1]} />
+      <mesh geometry={nodes.WaterLevel.geometry} material={materials.WaterLevel} position={[-14.972, 0, 1.957]} rotation={[0, 0, -Math.PI / 2]} scale={[1.647, 1, 1]} >
+      </mesh>
     </group>
   )
 })
