@@ -9,15 +9,12 @@ import {
   Grid,
   Sphere,
   ContactShadows,
-  Select,
-  useSelect,
-  Box
 } from "@react-three/drei";
 import * as THREE from "three";
-import { useThree, useFrame } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import { useControls } from "leva";
 import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing";
-import React, { useEffect, useRef, useState, useTransition } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Model as CannonLevel } from "../public/models/gltfjsx/CannonLevel";
 import { Cannon } from "../public/models/gltfjsx/Cannon";
 import { Target } from "../public/models/gltfjsx/Target";
@@ -52,14 +49,6 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
   let hitHandled = false
   const [elapsed, setElapsed] = useState(0) // time elapsed
-
-  const outlineProps = {
-    color: "black",
-    roughness: 1,
-    thickness: 1,
-  }
-
-  const [selected, setSelected] = useState([])
 
   const waterLevel = 2.5
   if (oceanRef.current) {

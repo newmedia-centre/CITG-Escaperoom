@@ -2,19 +2,17 @@
 import "./style.css";
 import ReactDOM from "react-dom/client";
 import { Canvas } from "@react-three/fiber";
-import { Html, useProgress, useSelect, Select } from "@react-three/drei";
+import { Html, useProgress } from "@react-three/drei";
 import Level01 from "./Level01";
 import Level02 from "./Level02";
 import { Suspense, useRef, useState, useEffect } from "react";
-import { CircularProgress, Typography, Button, ButtonGroup, IconButton } from "@mui/joy";
-import { Stack, Box } from '@mui/material';
+import { CircularProgress, Typography, Button, LinearProgress, Input, FormControl } from "@mui/joy";
+import { Stack } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
 import ConfettiExplosion from "react-confetti-explosion";
 import GaugeComponent from "react-gauge-component";
-import Cylinder from "./shapes/Cylinder";
-import Ring from "./shapes/Ring";
-import Sphere from "./shapes/Sphere";
 import { Leva } from "leva"
+import DatabaseClient from "./DatabaseClient"
 
 function App() {
   const cannonRef = useRef()
@@ -26,12 +24,36 @@ function App() {
   const [isExploding, setIsExploding] = useState(false)
   const [currentLevel, setCurrentLevel] = useState(1)
   const [speed, setSpeed] = useState(0)
+  const [timeRemaining, setTimeRemaining] = useState(0)
+  const [playerID, setPlayerID] = useState("")
 
+  const totalTimeInMinutes = 90
+
+  // Adds player to database and starts the game
+  const registerPlayer = async (playerId) => {
+    console.log("TODO: register player")
+    const token = await fetchAuthToken()
+
+    setPlayerID(playerId)
+    const date = Date.now()
+    let startTime = Math.round(date / 1000)
+    const jsonPayload = {
+      data: {
+        level: currentLevel,
+        start_time: startTime,
+      }
+    }
+    await postStartGameTime(playerID, jsonPayload, token)
+  }
+
+  // Fire cannon
   const fireCannonBall = () => {
     if (fireCannon) {
       fireCannon()
     }
   }
+
+  // Reset game
   const retry = () => {
     setGameOver(false)
     setGameWon(false)
@@ -39,68 +61,61 @@ function App() {
     setResetGame(true)
   }
 
-  const fetchAuthToken = async () => {
-    const response = await fetch(process.env.DB_SITE, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Api-Key': 'd1c3e5f4-3c1a-4f5c-8f6e-9e1a9c7c9e7a'
-      },
-      body: JSON.stringify({
-        "username": process.env.DB_USERNAME,
-        "password": process.env.DB_PASSWORD
-      })
-    })
-    const data = await response.json()
-    return data.token
-  }
-
-  const postStartGameTime = async () => {
+  const postStartGameTime = async (playerName) => {
     const token = await fetchAuthToken()
     const date = Date.now()
     let dateUnix = Math.round(date / 1000)
 
-    const response = await fetch(process.env.DB_SITE, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "token": token,
-        "level": currentLevel,
-        "start_time": dateUnix
-      })
-    })
   }
 
-  const postEndGameTime = async () => {
-    const token = await fetchAuthToken()
-    const date = Date.now()
-    let dateUnix = Math.round(date / 1000)
-
-    const response = await fetch(process.env.DB_SITE, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        "token": token,
-        "level": currentLevel,
-        "end_time": dateUnix
-      })
-    })
+  // To prevent page refresh on form submit
+  const onSubmit = (e) => {
+    e.preventDefault()
   }
 
   useEffect(() => {
-    if (lives === 0) {
-      setGameOver(true)
-    }
-  }, [lives])
+    DatabaseClient()
+  }, [])
 
   return (
     <>
+      {/* If player name is not found register new Player */}
+      {playerID === "" && (
+        <>
+          <Stack
+            spacing={2}
+            position={"absolute"}
+            direction={"column"}
+            justifyContent={"center"}
+            alignItems={"center"}
+            textAlign={"center"}
+            display={"flex"}
+            height={"100vh"}
+            width={"100vw"}
+            sx={{
+              backgroundColor: "rgba(0,0,0,0.34)",
+              userSelect: "none",
+              zIndex: 90000,
+            }}
+          >
+            <Typography level="h1">Welcome to</Typography>
+            <Typography level="h2">CITG Escape Room</Typography>
+            <Typography level="body-md">Create your group name to play the game</Typography>
+            <form onSubmit={onSubmit} >
+              <Stack spacing={1}>
+                <Input placeholder="Enter your group name..." variant="solid" required />
+                <Button type={"submit"} onClick={registerPlayer} size="lg">Play</Button>
+              </Stack>
+            </form>
+          </Stack>
+        </>
+      )
+      }
+
       {!gameOver && !gameWon ? (
         <>
+          <TimeRemaining timeRemaining={90} totalTimeInMinutes={totalTimeInMinutes} />
+
           {currentLevel === 0 && (
             <Stack direction="column" spacing={2} justifyContent="center"
               sx={{
@@ -108,90 +123,72 @@ function App() {
                 bottom: '0%',
                 left: '50%',
                 transform: 'translate(-50%, -20%)',
-                userSelect: 'none'
+                userSelect: 'none',
               }}
               zIndex={10000}>
               <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
-              <Typography level="h6" color="neutral" variant="soft">Levens: {lives}</Typography>
+              <Typography level="h6" color="neutral" variant="soft">Pogingen: {lives}</Typography>
             </Stack >
           )}
           {currentLevel === 1 && (
-            <Stack direction="row" spacing={2} justifyContent="center"
+            <Stack direction="column" spacing={3} justifyContent="center"
               sx={{
                 position: 'absolute',
-                bottom: '12px',
+                bottom: '32px',
                 right: '12px',
-                userSelect: 'none'
-              }}
-              zIndex={10000}>
-              <Box sx={{
-                padding: 1,
-                width: 240,
+                userSelect: 'none',
+                userEvents: 'none',
                 borderRadius: 2,
                 boxShadow: 2,
+                opacity: 0.95,
                 backgroundColor: '#181c20',
-              }}>
-                <Typography level="title-lg" textColor="#8c92a4">Shapes</Typography>
-                {/* ButtonGroup should be centered horizontally */}
-                <ButtonGroup variant="soft" color="neutral" size="lg" spacing={2} style={{ justifyContent: "center" }}>
-                  <IconButton><Cylinder /></IconButton>
-                  <IconButton><Ring /></IconButton>
-                  <IconButton><Sphere /></IconButton>
-                </ButtonGroup>
-              </Box>
-              <Box
-                sx={{
-                  padding: 1,
-                  width: 240,
-                  borderRadius: 2,
-                  boxShadow: 2,
-                  backgroundColor: '#181c20',
+              }}
+              zIndex={10000}>
+              <GaugeComponent
+                style={{
+                  width: '60%',
                 }}
-              >
-                <GaugeComponent
-                  style={{ width: '100%' }}
-                  type="semicircle"
-                  value={speed}
-                  minValue={0}
-                  maxValue={2}
-                  arc={{
-                    width: 0.21,
-                    padding: 0,
-                    cornerRadius: 0,
-                    subArcs: [
-                      { limit: 0.5, color: '#EA4228', showTick: true },
-                      { limit: 0.9, color: '#F5CD19', showTick: true },
-                      { limit: 1.1, color: '#5BE12C', showTick: true },
-                      { limit: 1.5, color: '#F5CD19', showTick: true },
-                      { color: '#EA4228' }
-                    ]
-                  }}
-                  pointer={{
-                    color: '#3c93ff',
-                    length: 0.80,
-                    width: 14,
-                    elastic: true,
-                    animationDuration: 1000
-                  }}
-                  labels={{
-                    tickLabels: {
-                      defaultTickValueConfig: {
-                        style: { fontSize: 14 }
-                      }
+                type="semicircle"
+                value={speed}
+                minValue={0}
+                maxValue={2}
+                arc={{
+                  width: 0.21,
+                  padding: 0,
+                  cornerRadius: 0,
+                  subArcs: [
+                    { limit: 0.5, color: '#EA4228', showTick: true },
+                    { limit: 0.9, color: '#F5CD19', showTick: true },
+                    { limit: 1.1, color: '#5BE12C', showTick: true },
+                    { limit: 1.5, color: '#F5CD19', showTick: true },
+                    { color: '#EA4228' }
+                  ]
+                }}
+                pointer={{
+                  color: '#3c93ff',
+                  length: 0.80,
+                  width: 14,
+                  elastic: true,
+                  animationDuration: 1000
+                }}
+                labels={{
+                  tickLabels: {
+                    defaultTickValueConfig: {
+                      style: { fontSize: 18 }
                     }
-                  }}
-                />
-                <Typography level="h6" color="danger">Lives: {lives}</Typography>
-              </Box>
+                  }
+                }}
+              />
+              <Typography level="h5" color="danger">Pogingen: {lives}</Typography>
 
             </Stack >
           )}
         </>
-      ) : gameWon ? (
+      ) : gameWon ? ( // If game is won show win screen
         <>
           <WinScreen onRetry={retry} />
         </>
-      ) : (
+      ) : ( // If game is lost show game over screen
         <GameOverScreen onRetry={retry} />
       )
       }
@@ -203,7 +200,7 @@ function App() {
           right: 0,
           top: 0,
           zIndex: 100,
-          opacity: 0.8
+          opacity: 0.95
         }}
       >
         <Leva fill />
@@ -236,8 +233,8 @@ function App() {
           <img src="tudelft-nmc-200px.png" />
         </div>
       </div>
-    </>
 
+    </>
   )
 }
 
@@ -289,6 +286,41 @@ function WinScreen({ onRetry }) {
       <Button onClick={onRetry} variant="solid" size="lg" color="success">Openiuw proberen</Button>
     </Stack>
   );
+}
+
+function TimeRemaining({ timeRemaining, totalTimeInMinutes }) {
+  let percentageLeft = timeRemaining / totalTimeInMinutes * 100
+
+  return (
+    <LinearProgress
+      determinate
+      color="neutral"
+      size="sm"
+      thickness={32}
+      value={Number(percentageLeft)}
+      sx={{
+        '--LinearProgress-radius': '31px',
+        '--LinearProgress-thickness': '18px',
+        position: 'absolute',
+        left: '0',
+        bottom: '0',
+        width: '100%',
+        bgcolor: 'rgba(0, 0, 0, 0.7)',
+        zIndex: 20000,
+        userSelect: 'none',
+        pointerEvents: 'none'
+      }}
+    >
+      <Typography
+        level="body-xs"
+        fontWeight="xl"
+        textColor="common.white"
+        sx={{ mixBlendMode: 'difference' }}
+      >
+        Tijd over: {`${Math.round(timeRemaining)} minuten`}
+      </Typography>
+    </LinearProgress >
+  )
 }
 
 function Loader() {

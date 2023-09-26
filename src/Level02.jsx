@@ -113,12 +113,11 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
   useFrame(({ clock }) => {
     timer += clock.getDelta()
     if (timer > 0.1) {
-      setSpeed((Math.random() * 2))
+      // setSpeed((Math.random() * 2))
       timer = 0
     }
 
     followModelPosition()
-
   })
 
   return (
