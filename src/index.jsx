@@ -129,57 +129,78 @@ function App() {
             </Stack >
           )}
           {currentLevel === 1 && (
-            <Stack direction="column" spacing={3} justifyContent="center"
-              sx={{
-                position: 'absolute',
-                bottom: '32px',
-                right: '12px',
-                userSelect: 'none',
-                userEvents: 'none',
-                borderRadius: 2,
-                boxShadow: 2,
-                opacity: 0.95,
-                backgroundColor: '#181c20',
-              }}
-              zIndex={10000}>
-              <GaugeComponent
-                style={{
-                  width: '240px',
+            <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
+              position: 'absolute',
+              bottom: '32px',
+              left: '12px',
+              userSelect: 'none',
+              userEvents: 'none',
+              zIndex: 10000,
+            }}>
+              {/* Left Panel */}
+              <Stack spacing={1} p={2}
+                sx={{
+                  borderRadius: 2,
+                  boxShadow: 2,
+                  opacity: 0.95,
+                  backgroundColor: '#181c20',
+                  userSelect: 'none',
+                  userEvents: 'none',
                 }}
-                type="semicircle"
-                value={speed}
-                minValue={0}
-                maxValue={2}
-                arc={{
-                  width: 0.22,
-                  padding: 0,
-                  cornerRadius: 0,
-                  subArcs: [
-                    { limit: 0.5, color: '#EA4228', showTick: true },
-                    { limit: 0.9, color: '#F5CD19', showTick: true },
-                    { limit: 1.1, color: '#5BE12C', showTick: true },
-                    { limit: 1.5, color: '#F5CD19', showTick: true },
-                    { color: '#EA4228' }
-                  ]
+              >
+                <Button >Activeren</Button>
+                <Button varient>Reset</Button>
+              </Stack>
+              {/* Right Panel */}
+              <Stack direction="column" spacing={1} justifyContent="center" p={1}
+                sx={{
+                  userSelect: 'none',
+                  userEvents: 'none',
+                  borderRadius: 2,
+                  boxShadow: 2,
+                  opacity: 0.95,
+                  backgroundColor: '#181c20',
                 }}
-                pointer={{
-                  color: '#3c93ff',
-                  length: 0.80,
-                  width: 14,
-                  elastic: true,
-                  animationDuration: 1000
-                }}
-                labels={{
-                  tickLabels: {
-                    defaultTickValueConfig: {
-                      style: { fontSize: 18 }
+              >
+                <GaugeComponent
+                  style={{
+                    width: '240px',
+                  }}
+                  type="semicircle"
+                  value={speed}
+                  minValue={0}
+                  maxValue={2}
+                  arc={{
+                    width: 0.22,
+                    padding: 0,
+                    cornerRadius: 0,
+                    subArcs: [
+                      { limit: 0.5, color: '#EA4228', showTick: true },
+                      { limit: 0.9, color: '#F5CD19', showTick: true },
+                      { limit: 1.1, color: '#5BE12C', showTick: true },
+                      { limit: 1.5, color: '#F5CD19', showTick: true },
+                      { color: '#EA4228' }
+                    ]
+                  }}
+                  pointer={{
+                    color: '#3c93ff',
+                    length: 0.80,
+                    width: 14,
+                    elastic: true,
+                    animationDuration: 1000
+                  }}
+                  labels={{
+                    tickLabels: {
+                      defaultTickValueConfig: {
+                        style: { fontSize: 18 }
+                      }
                     }
-                  }
-                }}
-              />
-              <Typography level="h5" color="danger">Pogingen: {lives}</Typography>
+                  }}
+                />
+                <Typography level="h5" color="danger">Pogingen: {lives}</Typography>
 
-            </Stack >
+              </Stack >
+            </Stack>
           )}
         </>
       ) : gameWon ? ( // If game is won show win screen
@@ -216,7 +237,7 @@ function App() {
               <Level01 cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
             )}
             {currentLevel === 1 && (
-              <Level02 setSpeed={setSpeed} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
+              <Level02 speed={speed} setSpeed={setSpeed} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
             )}
 
             {/* </Debug> */}

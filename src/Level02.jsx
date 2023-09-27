@@ -12,18 +12,17 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { useControls } from "leva";
 import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing";
-import React, { useEffect, useRef, useState, useTransition } from "react";
+import React, { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Level02Model } from "../public/models/gltfjsx/Level02Model"
 import { useSpring, animated } from '@react-spring/three'
 
-export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
+export default function Level01({ speed, setSpeed, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
   const weightRef = useRef()
   const cameraControlsRef = useRef()
-
+  const laserRef = useRef()
   const { camera } = useThree()
-
   const [cameraFollowing, setCameraFollowing] = useState(false)
-
+  const [weightHit, setWeightHit] = useState(false)
   const [progress, setProgress] = useSpring(() => ({
     progress: 0,
     config: {
@@ -46,6 +45,8 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
   const takeLive = () => {
     setLives(lives => lives - 1) // Updates lives using callback
   }
+
+  const laserRaycast = useForwardRaycast(laserRef)
 
   camera.maxZoom = 0
   camera.minZoom = 0
@@ -115,9 +116,31 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
     if (timer > 0.1) {
       timer = 0
     }
+
+    // Sets the speed of the spring animation
     setSpeed((Math.abs(progress.progress.velocity) * 100000) / 10)
 
+    // Updates the camera position to follow the model
     followModelPosition()
+
+    if (weightHit === false) {
+      // Checks if the weight hits the laser
+      const intersections = laserRaycast()
+      if (intersections.length > 3) {
+        setWeightHit(true)
+        if (speed >= 0.9 && speed <= 1.0) {
+          setGameWon(true)
+        }
+        else {
+          takeLive()
+
+          if (lives === 0) {
+            setGameOver(true)
+          }
+        }
+      }
+    }
+
   })
 
   return (
@@ -131,7 +154,8 @@ export default function Level01({ setSpeed, lives, setLives, setGameOver, gameOv
           progress={progress.progress}
         >
           <Level02Model ref={{
-            weightRef: weightRef
+            weightRef: weightRef,
+            laserRef: laserRef
           }}
             progress={progress.progress}
           />
@@ -197,4 +221,19 @@ function Effects() {
 
     </>
   )
+}
+
+// Currently uses layer 1 to raycast
+const useForwardRaycast = (obj) => {
+  const raycaster = useMemo(() => new THREE.Raycaster(), [])
+  const pos = useMemo(() => new THREE.Vector3(), [])
+  const dir = useMemo(() => new THREE.Vector3(), [])
+  const scene = useThree((state) => state.scene)
+
+  return () => {
+    if (!obj.current) return []
+
+    raycaster.set(obj.current.getWorldPosition(pos), obj.current.getWorldDirection(dir))
+    return raycaster.intersectObjects(scene.children)
+  }
 }

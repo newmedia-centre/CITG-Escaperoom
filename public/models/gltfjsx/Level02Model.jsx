@@ -10,7 +10,7 @@ import * as THREE from 'three'
 import { MathUtils } from 'three'
 
 export const Level02Model = forwardRef((props, ref) => {
-  const { weightRef } = ref
+  const { weightRef, laserRef } = ref
   var { progress } = props
   const { nodes, materials } = useGLTF('models/gltfjsx/Level02-transformed.glb')
 
@@ -112,7 +112,7 @@ export const Level02Model = forwardRef((props, ref) => {
       <mesh ref={rope001Ref} geometry={nodes.Rope001.geometry} material={materials.Rope} position={[0, 0.6, 2.304]} rotation={[Math.PI / 2, 0, 0]} />
       <group position={[0, -4, -2.077]} rotation={[-Math.PI, 0, -Math.PI]}>
         <mesh geometry={nodes.Laser_1.geometry} material={materials.Alluminium} />
-        <mesh geometry={nodes.Laser_2.geometry} material={materials.Laser} />
+        <mesh ref={laserRef} rotation={[0, 0, 0]} geometry={nodes.Laser_2.geometry} material={materials.Laser} />
       </group>
       <mesh geometry={nodes.Cylinder.geometry} material={nodes.Cylinder.material} position={[0, 0.595, 2.5]} scale={[1.196, 0.598, 1.196]} />
       <mesh geometry={nodes.Bench.geometry} material={materials.Wood} position={[0, 0.35, 0.231]} />
