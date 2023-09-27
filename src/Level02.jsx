@@ -18,12 +18,13 @@ import { useSpring, animated } from '@react-spring/three'
 
 export default function Level01({ speed, setSpeed, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
   const weightRef = useRef()
+  const cabinetRef = useRef()
   const cameraControlsRef = useRef()
   const laserRef = useRef()
   const { camera } = useThree()
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [weightHit, setWeightHit] = useState(false)
-  const [selectedObject, setSelectedObject] = useState(null)
+  const [selectedObject, setSelectedObject] = useState([])
   const [progress, setProgress] = useSpring(() => ({
     progress: 0,
     config: {
@@ -93,6 +94,8 @@ export default function Level01({ speed, setSpeed, lives, setLives, setGameOver,
     if (resetGame) {
       setResetGame(false)
     }
+
+    console.log(selectedObject)
   }, [])
 
   useControls({
@@ -158,10 +161,10 @@ export default function Level01({ speed, setSpeed, lives, setLives, setGameOver,
           progress={progress.progress}
         >
           <Level02Model ref={{
-            weightRef: weightRef,
-            laserRef: laserRef
+            weightRef: weightRef, laserRef: laserRef, cabinetRef: cabinetRef, selectedObject: selectedObject
           }}
             progress={progress.progress}
+            setSelectedObject={setSelectedObject}
           />
         </animated.group>
 
