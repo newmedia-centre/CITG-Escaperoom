@@ -26,7 +26,6 @@ export const Level02Model = forwardRef((props, ref) => {
   const initRope003Position = new THREE.Vector3(0, 0.548, -2.416)
   const initCircle003Position = new THREE.Vector3(0, 0.355, -2.418)
   const initRope004Position = new THREE.Vector3(0, 0.356, -2.518)
-  const initRopePosition = new THREE.Vector3(0, 2.847, -2.518)
   const initWeightPosition = new THREE.Vector3(0, 0, 0)
 
   const [planes] = useState(() => [[-0.05, 0, 0]].map(v => new THREE.Plane(new THREE.Vector3(...v), 1))) // prettier-ignore
@@ -85,6 +84,8 @@ export const Level02Model = forwardRef((props, ref) => {
     rope003Ref.current.position.y = MathUtils.lerp(initRope003Position.y, 0.55, progress.get())
     rope004Ref.current.position.y = MathUtils.lerp(initRope004Position.y, -4, progress.get())
     weightRef.current.position.y = MathUtils.lerp(initWeightPosition.y, -4.35, progress.get())
+
+
     ropeScaler()
 
     // Well clipping plane

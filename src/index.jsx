@@ -6,7 +6,7 @@ import { Html, useProgress } from "@react-three/drei";
 import Level01 from "./Level01";
 import Level02 from "./Level02";
 import { Suspense, useRef, useState, useEffect } from "react";
-import { CircularProgress, Typography, Button, LinearProgress, Input, FormControl } from "@mui/joy";
+import { CircularProgress, Typography, Button, LinearProgress, Input } from "@mui/joy";
 import { Stack } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
 import ConfettiExplosion from "react-confetti-explosion";
@@ -21,11 +21,10 @@ function App() {
   const [gameOver, setGameOver] = useState(false)
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
-  const [isExploding, setIsExploding] = useState(false)
   const [currentLevel, setCurrentLevel] = useState(1)
   const [speed, setSpeed] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(0)
-  const [playerID, setPlayerID] = useState("")
+  const [playerID, setPlayerID] = useState("test")
 
   const totalTimeInMinutes = 90
 
@@ -65,7 +64,6 @@ function App() {
     const token = await fetchAuthToken()
     const date = Date.now()
     let dateUnix = Math.round(date / 1000)
-
   }
 
   // To prevent page refresh on form submit
@@ -146,14 +144,14 @@ function App() {
               zIndex={10000}>
               <GaugeComponent
                 style={{
-                  width: '60%',
+                  width: '240px',
                 }}
                 type="semicircle"
                 value={speed}
                 minValue={0}
                 maxValue={2}
                 arc={{
-                  width: 0.21,
+                  width: 0.22,
                   padding: 0,
                   cornerRadius: 0,
                   subArcs: [
