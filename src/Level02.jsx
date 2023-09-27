@@ -21,8 +21,9 @@ export default function Level01({ speed, setSpeed, lives, setLives, setGameOver,
   const cameraControlsRef = useRef()
   const laserRef = useRef()
   const { camera } = useThree()
-  const [cameraFollowing, setCameraFollowing] = useState(false)
+  const [cameraFollowing, setCameraFollowing] = useState({})
   const [weightHit, setWeightHit] = useState(false)
+  const [selectedObject, setSelectedObject] = useState(null)
   const [progress, setProgress] = useSpring(() => ({
     progress: 0,
     config: {
@@ -54,28 +55,31 @@ export default function Level01({ speed, setSpeed, lives, setLives, setGameOver,
   const changeCamera = (scene) => {
     switch (scene) {
       case "cabinet":
-        setCameraFollowing(false)
+        setCameraFollowing({})
         cameraControlsRef.current?.setLookAt(0.2, 1.6, 1.209, -2, 1, 1.209, true)
         break;
       case "door":
-        setCameraFollowing(false)
+        setCameraFollowing({})
         cameraControlsRef.current?.setLookAt(2, 2, 1, -1, 1, -0.5, true)
         break;
       case "bench":
-        setCameraFollowing(false)
-        cameraControlsRef.current?.setLookAt(5, 3, 0, 0, 0, 0, true)
+        setCameraFollowing({})
+        cameraControlsRef.current?.setLookAt(16, 9, 3, 0, 0, 0, true)
         break;
       case "weight":
-        setCameraFollowing(true)
         cameraControlsRef.current?.fitToBox(weightRef.current?.children[0], true, { cover: false, paddingLeft: 0.5, paddingRight: 0.5, paddingBottom: 0.5, paddingTop: 0.5 })
+        setCameraFollowing(weightRef)
         break;
+      case "object":
+        cameraControlsRef.current?.fitToBox(selectedObject.current, true, { cover: false, paddingLeft: 0.5, paddingRight: 0.5, paddingBottom: 0.5, paddingTop: 0.5 })
+        setCameraFollowing(selectedObject)
     }
   }
 
   const followModelPosition = () => {
-    if (cameraFollowing && cameraControlsRef.current && weightRef.current) {
-      var pos = weightRef.current.children[0].getWorldPosition(new THREE.Vector3())
-      var offset = weightRef.current.children[0].position
+    if (Object.keys(cameraFollowing) != 0 && cameraControlsRef.current) {
+      var pos = cameraFollowing.current.children[0].getWorldPosition(new THREE.Vector3())
+      var offset = cameraFollowing.current.children[0].position
       cameraControlsRef.current?.moveTo(pos.x, pos.y, offset.z, pos.x, pos.y, offset.z, true)
     }
   }
@@ -104,7 +108,7 @@ export default function Level01({ speed, setSpeed, lives, setLives, setGameOver,
     // Switch camera list
     camera: {
       value: "bench",
-      options: ["cabinet", "door", "bench", "weight"],
+      options: ["cabinet", "door", "bench", "weight", "object"],
       onChange: (value) => {
         changeCamera(value)
       },

@@ -148,8 +148,8 @@ function App() {
                   userEvents: 'none',
                 }}
               >
-                <Button >Activeren</Button>
-                <Button varient>Reset</Button>
+                <Button>Activeren</Button>
+                <Button>Reset</Button>
               </Stack>
               {/* Right Panel */}
               <Stack direction="column" spacing={1} justifyContent="center" p={1}
