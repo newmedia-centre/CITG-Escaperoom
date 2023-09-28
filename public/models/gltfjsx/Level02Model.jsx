@@ -11,7 +11,7 @@ import { MathUtils } from 'three'
 
 export const Level02Model = forwardRef((props, ref) => {
   const { weightRef, laserRef, cabinetRef } = ref
-  var { progress, setSelectedObject } = props
+  var { progress, setSelectedObject, setCameraFollowing } = props
 
   const rope001Ref = useRef()
   const rope002Ref = useRef()
@@ -98,7 +98,7 @@ export const Level02Model = forwardRef((props, ref) => {
   return (
     <group {...props} dispose={null}>
       <group ref={weightRef}>
-        <mesh geometry={nodes.Pulley004.geometry} material={materials.BlackMetal} position={[0, 0.355, -2.467]} />
+        <mesh name='weight' geometry={nodes.Pulley004.geometry} material={materials.BlackMetal} position={[0, 0.355, -2.467]} onPointerDown={(obj) => setSelectedObject(obj.eventObject)} />
         <mesh geometry={nodes.PulleyWeight.geometry} material={materials.Alluminium} position={[0, 0.355, -2.467]} rotation={[0, 0, -Math.PI / 2]} scale={[0.01, 0.032, 0.01]} />
         <mesh geometry={nodes.Weight.geometry} material={materials.AlluminiumDark} position={[0, 0.178, -2.467]} scale={[0.069, 0.089, 0.069]} />
       </group>
@@ -114,12 +114,12 @@ export const Level02Model = forwardRef((props, ref) => {
         <mesh ref={laserRef} rotation={[0, 0, 0]} geometry={nodes.Laser_2.geometry} material={materials.Laser} />
       </group>
       <mesh geometry={nodes.Cylinder.geometry} material={nodes.Cylinder.material} position={[0, 0.595, 2.5]} scale={[1.196, 0.598, 1.196]} />
-      <mesh geometry={nodes.Bench.geometry} material={materials.Wood} position={[0, 0.35, 0.231]} />
+      <mesh name='bench' geometry={nodes.Bench.geometry} material={materials.Wood} position={[0, 0.35, 0.231]} onPointerDown={(obj) => setSelectedObject(obj.eventObject)} />
       <mesh geometry={nodes.Foots.geometry} material={materials.Wood} position={[0.155, 0.233, -1.95]} />
       <mesh geometry={nodes.Pulley.geometry} material={materials.BlackMetal} position={[0, 0.348, -2.02]} rotation={[Math.PI / 6, 0, 0]} scale={[0.336, 1, 1]} />
       <mesh geometry={nodes.Pulley001.geometry} material={materials.BlackMetal} position={[0, 0.548, -2.366]} rotation={[Math.PI / 6, 0, 0]} scale={[0.158, 1, 1]} />
       <mesh ref={rope002Ref} geometry={nodes.Rope002.geometry} material={materials.Rope} position={[0, 0.6, -2.366]} rotation={[Math.PI / 2, 0, 0]} />
-      <group name='cabinet' ref={cabinetRef} onPointerDown={() => setSelectedObject(cabinetRef.current)} onPointerMissed={() => setSelectedObject(null)}>
+      <group name='cabinet' ref={cabinetRef} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
         <mesh geometry={nodes.Cabinet.geometry} material={materials.Alluminium} position={[-2.75, 0, 1.209]} />
         <mesh geometry={nodes.CabinetDoor.geometry} material={materials.AlluminiumDark} position={[-2.307, 0, 1.893]} rotation={[-Math.PI, -0.527, -Math.PI]} />
         <mesh geometry={nodes.CabinetDoor001.geometry} material={materials.AlluminiumDark} position={[-2.307, 0, 0.526]} rotation={[-Math.PI, Math.PI / 6, -Math.PI]} />
@@ -130,8 +130,10 @@ export const Level02Model = forwardRef((props, ref) => {
       <mesh ref={ropeRef} geometry={nodes.Rope.geometry} material={materials.Rope} position={[0, 2.847, -2.518]} rotation={[0, 0, Math.PI]} />
       <mesh geometry={nodes.Walls.geometry} material={materials.Walls} position={[3, 1, 3]} />
       <mesh geometry={nodes.Walls.geometry} material={materials.Walls} position={[3, 1, 3]} />
-      <mesh geometry={nodes.DoorFrame.geometry} material={materials.WoodWhite} position={[-2.75, 0, -1.19]} rotation={[0, Math.PI / 2, 0]} />
-      <mesh geometry={nodes.Door.geometry} material={materials.Wood} position={[-2.728, 1.05, -1.608]} rotation={[0, Math.PI / 2, 0]} />
+      <group name='door' onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
+        <mesh geometry={nodes.DoorFrame.geometry} material={materials.WoodWhite} position={[-2.75, 0, -1.19]} rotation={[0, Math.PI / 2, 0]} />
+        <mesh geometry={nodes.Door.geometry} material={materials.Wood} position={[-2.728, 1.05, -1.608]} rotation={[0, Math.PI / 2, 0]} />
+      </group>
       <mesh geometry={nodes.Handle_Back.geometry} material={materials.Alluminium} position={[-2.733, 1.05, -0.844]} rotation={[0, Math.PI / 2, 0]} />
       <mesh geometry={nodes.Handle_Front.geometry} material={nodes.Handle_Front.material} position={[-2.757, 1.05, -0.844]} rotation={[Math.PI, -Math.PI / 2, 0]} />
 

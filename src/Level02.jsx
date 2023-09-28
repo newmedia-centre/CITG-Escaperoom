@@ -74,6 +74,9 @@ export default function Level01({ speed, setSpeed, lives, setLives, setGameOver,
       case "object":
         cameraControlsRef.current?.fitToBox(selectedObject.current, true, { cover: false, paddingLeft: 0.5, paddingRight: 0.5, paddingBottom: 0.5, paddingTop: 0.5 })
         setCameraFollowing(selectedObject)
+      default:
+        setCameraFollowing({})
+        cameraControlsRef.current?.setLookAt(16, 9, 3, 0, 0, 0, true)
     }
   }
 
@@ -94,9 +97,11 @@ export default function Level01({ speed, setSpeed, lives, setLives, setGameOver,
     if (resetGame) {
       setResetGame(false)
     }
-
-    console.log(selectedObject)
   }, [])
+
+  useEffect(() => {
+    changeCamera(selectedObject?.name)
+  }, [selectedObject])
 
   useControls({
     progressValue: {
@@ -140,7 +145,6 @@ export default function Level01({ speed, setSpeed, lives, setLives, setGameOver,
         }
         else {
           takeLive()
-
           if (lives === 0) {
             setGameOver(true)
           }

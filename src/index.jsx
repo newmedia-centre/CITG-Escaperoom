@@ -314,17 +314,15 @@ function TimeRemaining({ timeRemaining, totalTimeInMinutes }) {
     <LinearProgress
       determinate
       color="neutral"
-      size="sm"
       thickness={32}
       value={Number(percentageLeft)}
       sx={{
-        '--LinearProgress-radius': '31px',
-        '--LinearProgress-thickness': '18px',
         position: 'absolute',
         left: '0',
         bottom: '0',
         width: '100%',
-        bgcolor: 'rgba(0, 0, 0, 0.7)',
+        height: '32px',
+        bgcolor: 'rgba(0, 0, 0, 0.9)',
         zIndex: 20000,
         userSelect: 'none',
         pointerEvents: 'none'
