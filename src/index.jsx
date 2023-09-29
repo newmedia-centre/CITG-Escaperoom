@@ -21,7 +21,7 @@ function App() {
   const [gameOver, setGameOver] = useState(false)
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
-  const [currentLevel, setCurrentLevel] = useState(0)
+  const [currentLevel, setCurrentLevel] = useState(1)
   const [speed, setSpeed] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(0)
   const [playerID, setPlayerID] = useState("test")
