@@ -3,15 +3,16 @@ import "./style.css";
 import ReactDOM from "react-dom/client";
 import { Canvas } from "@react-three/fiber";
 import { Html, useProgress } from "@react-three/drei";
-import Scene from "./Scene";
+import Level01 from "./Level01";
+import Level02 from "./Level02";
 import { Suspense, useRef, useState, useEffect } from "react";
-import { CircularProgress } from "@mui/joy";
-import { Stack, Box, Button, Typography } from '@mui/material';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { CircularProgress, Typography, Button, LinearProgress, Input } from "@mui/joy";
+import { Stack } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
 import ConfettiExplosion from "react-confetti-explosion";
-
+import GaugeComponent from "react-gauge-component";
+import { Leva } from "leva"
+import DatabaseClient from "./DatabaseClient"
 
 function App() {
   const cannonRef = useRef()
@@ -20,23 +21,38 @@ function App() {
   const [gameOver, setGameOver] = useState(false)
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
-  const [isExploding, setIsExploding] = useState(false)
+  const [currentLevel, setCurrentLevel] = useState(0)
+  const [speed, setSpeed] = useState(0)
+  const [timeRemaining, setTimeRemaining] = useState(0)
+  const [playerID, setPlayerID] = useState("test")
 
-  const rotateCannonUp = () => {
-    if (cannonRef.current) {
-      cannonRef.current.rotation.x += 0.1
+  const totalTimeInMinutes = 90
+
+  // Adds player to database and starts the game
+  const registerPlayer = async (playerId) => {
+    console.log("TODO: register player")
+    const token = await fetchAuthToken()
+
+    setPlayerID(playerId)
+    const date = Date.now()
+    let startTime = Math.round(date / 1000)
+    const jsonPayload = {
+      data: {
+        level: currentLevel,
+        start_time: startTime,
+      }
     }
+    await postStartGameTime(playerID, jsonPayload, token)
   }
-  const rotateCannonDown = () => {
-    if (cannonRef.current) {
-      cannonRef.current.rotation.x -= 0.1
-    }
-  }
+
+  // Fire cannon
   const fireCannonBall = () => {
     if (fireCannon) {
       fireCannon()
     }
   }
+
+  // Reset game
   const retry = () => {
     setGameOver(false)
     setGameWon(false)
@@ -44,51 +60,186 @@ function App() {
     setResetGame(true)
   }
 
+  const postStartGameTime = async (playerName) => {
+    const token = await fetchAuthToken()
+    const date = Date.now()
+    let dateUnix = Math.round(date / 1000)
+  }
+
+  // To prevent page refresh on form submit
+  const onSubmit = (e) => {
+    e.preventDefault()
+  }
 
   useEffect(() => {
-    if (lives === 0) {
-      setGameOver(true)
-    }
-  }, [lives])
+    DatabaseClient()
+  }, [])
 
   return (
     <>
+      {/* If player name is not found register new Player */}
+      {playerID === "" && (
+        <>
+          <Stack
+            spacing={2}
+            position={"absolute"}
+            direction={"column"}
+            justifyContent={"center"}
+            alignItems={"center"}
+            textAlign={"center"}
+            display={"flex"}
+            height={"100vh"}
+            width={"100vw"}
+            sx={{
+              backgroundColor: "rgba(0,0,0,0.34)",
+              userSelect: "none",
+              zIndex: 90000,
+            }}
+          >
+            <Typography level="h1">Welcome to</Typography>
+            <Typography level="h2">CITG Escape Room</Typography>
+            <Typography level="body-md">Create your group name to play the game</Typography>
+            <form onSubmit={onSubmit} >
+              <Stack spacing={1}>
+                <Input placeholder="Enter your group name..." variant="solid" required />
+                <Button type={"submit"} onClick={registerPlayer} size="lg">Play</Button>
+              </Stack>
+            </form>
+          </Stack>
+        </>
+      )
+      }
+
       {!gameOver && !gameWon ? (
-        <Stack direction="column" spacing={2} justifyContent="center"
-          sx={{
-            position: 'absolute',
-            bottom: '0%',
-            left: '50%',
-            transform: 'translate(-50%, -20%)',
-            userSelect: 'none'
-          }}
-          zIndex={10000}>
-          {/* < Button onClick={rotateCannonUp} variant="contained" endIcon={<ArrowUpwardIcon />}>Move</Button> */}
-          {/* <Button onClick={rotateCannonDown} variant="contained" endIcon={<ArrowDownwardIcon />}>Move</Button> */}
-          <Button onClick={fireCannonBall} variant="contained" color="error">Fire!</Button>
+        <>
+          <TimeRemaining timeRemaining={90} totalTimeInMinutes={totalTimeInMinutes} />
 
-          <Typography variant="h6" color="error">Lives: {lives}</Typography>
-        </Stack >
+          {currentLevel === 0 && (
+            <Stack direction="row" spacing={3} justifyContent="center"
+              sx={{
+                position: 'absolute',
+                bottom: '32px',
+                left: '50%',
+                transform: 'translate(-50%, -20%)',
+                userSelect: 'none',
+              }}
+              zIndex={10000}>
+              <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
+              <Typography level="h6" color="neutral" variant="soft">Pogingen:{lives}</Typography>
+            </Stack >
+          )}
+          {currentLevel === 1 && (
+            <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
+              position: 'absolute',
+              bottom: '32px',
+              left: '12px',
+              userSelect: 'none',
+              userEvents: 'none',
+              zIndex: 10000,
+            }}>
+              {/* Left Panel */}
+              <Stack spacing={1} p={2}
+                sx={{
+                  borderRadius: 2,
+                  boxShadow: 2,
+                  opacity: 0.95,
+                  backgroundColor: '#181c20',
+                  userSelect: 'none',
+                  userEvents: 'none',
+                }}
+              >
+                <Button>Activeren</Button>
+                <Button>Reset</Button>
+              </Stack>
+              {/* Right Panel */}
+              <Stack direction="column" spacing={1} justifyContent="center" p={1}
+                sx={{
+                  userSelect: 'none',
+                  userEvents: 'none',
+                  borderRadius: 2,
+                  boxShadow: 2,
+                  opacity: 0.95,
+                  backgroundColor: '#181c20',
+                }}
+              >
+                <GaugeComponent
+                  style={{
+                    width: '240px',
+                  }}
+                  type="semicircle"
+                  value={speed}
+                  minValue={0}
+                  maxValue={2}
+                  arc={{
+                    width: 0.22,
+                    padding: 0,
+                    cornerRadius: 0,
+                    subArcs: [
+                      { limit: 0.5, color: '#EA4228', showTick: true },
+                      { limit: 0.9, color: '#F5CD19', showTick: true },
+                      { limit: 1.1, color: '#5BE12C', showTick: true },
+                      { limit: 1.5, color: '#F5CD19', showTick: true },
+                      { color: '#EA4228' }
+                    ]
+                  }}
+                  pointer={{
+                    color: '#3c93ff',
+                    length: 0.80,
+                    width: 14,
+                    elastic: true,
+                    animationDuration: 1000
+                  }}
+                  labels={{
+                    tickLabels: {
+                      defaultTickValueConfig: {
+                        style: { fontSize: 18 }
+                      }
+                    }
+                  }}
+                />
+                <Typography level="h5" color="danger">Pogingen: {lives}</Typography>
 
-      ) : gameWon ? (
+              </Stack >
+            </Stack>
+          )}
+        </>
+      ) : gameWon ? ( // If game is won show win screen
         <>
           <WinScreen onRetry={retry} />
         </>
-      ) : (
+      ) : ( // If game is lost show game over screen
         <GameOverScreen onRetry={retry} />
       )
       }
 
+      <div className="ignore-select"
+        style={{
+          width: 350,
+          position: "absolute",
+          right: 0,
+          top: 0,
+          zIndex: 100,
+          opacity: 0.95
+        }}
+      >
+        <Leva fill />
+      </div>
       <Canvas
         dpr={[1, 1.5]}
         shadows
         camera={{ position: [0, 0, 5], fov: 60 }}
-        gl={{ alpha: true }}
+        gl={{ alpha: true, localClippingEnabled: true }}
       >
         <Suspense fallback={<Loader />}>
           <Physics >
             {/* <Debug> */}
-            <Scene cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
+            {currentLevel === 0 && (
+              <Level01 cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
+            )}
+            {currentLevel === 1 && (
+              <Level02 speed={speed} setSpeed={setSpeed} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
+            )}
+
             {/* </Debug> */}
           </Physics>
         </Suspense>
@@ -101,14 +252,14 @@ function App() {
           <img src="tudelft-nmc-200px.png" />
         </div>
       </div>
-    </>
 
+    </>
   )
 }
 
 function GameOverScreen({ onRetry }) {
   return (
-    <Box
+    <Stack spacing={2}
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -124,15 +275,15 @@ function GameOverScreen({ onRetry }) {
         userSelect: 'none'
       }}
     >
-      <Typography variant="h2" color="error">Game Over</Typography>
-      <Button onClick={onRetry} variant="contained" color="error">Retry</Button>
-    </Box>
-  );
+      <Typography level="h2" color="danger">Game Over</Typography>
+      <Button onClick={onRetry} variant="solid" color="danger">Opnieuw proberen</Button>
+    </Stack>
+  )
 }
 
 function WinScreen({ onRetry }) {
   return (
-    <Box
+    <Stack spacing={2}
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -145,19 +296,52 @@ function WinScreen({ onRetry }) {
         height: '100%',
         bgcolor: 'rgba(0, 0, 0, 0.7)',
         zIndex: 10000,
-        userSelect: 'none'
+        userSelect: 'none',
       }}
     >
       <ConfettiExplosion particleCount={200} duration={4000} />
 
-      <Typography variant="h2" color="green">You Win!</Typography>
-      <Button onClick={onRetry} variant="contained" color="success">Retry</Button>
-    </Box>
+      <Typography level="h2" color="success">Level completed!</Typography>
+      <Button onClick={onRetry} variant="solid" size="lg" color="success">Openiuw proberen</Button>
+    </Stack>
   );
 }
 
+function TimeRemaining({ timeRemaining, totalTimeInMinutes }) {
+  let percentageLeft = timeRemaining / totalTimeInMinutes * 100
+
+  return (
+    <LinearProgress
+      determinate
+      color="neutral"
+      thickness={32}
+      value={Number(percentageLeft)}
+      sx={{
+        position: 'absolute',
+        left: '0',
+        bottom: '0',
+        width: '100%',
+        height: '32px',
+        bgcolor: 'rgba(0, 0, 0, 0.9)',
+        zIndex: 20000,
+        userSelect: 'none',
+        pointerEvents: 'none'
+      }}
+    >
+      <Typography
+        level="body-xs"
+        fontWeight="xl"
+        textColor="common.white"
+        sx={{ mixBlendMode: 'difference' }}
+      >
+        Tijd over: {`${Math.round(timeRemaining)} minuten`}
+      </Typography>
+    </LinearProgress >
+  )
+}
+
 function Loader() {
-  const { progress } = useProgress();
+  const { progress } = useProgress()
   return (
     <Html center>
       <CircularProgress
