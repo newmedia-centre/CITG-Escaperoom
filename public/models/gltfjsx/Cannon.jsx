@@ -8,11 +8,12 @@ import React, { forwardRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 
 export const Cannon = forwardRef((props, ref) => {
+  const { setSelectedObject, selectedObject } = props
   const { nodes, materials } = useGLTF('models/gltfjsx/Cannon-transformed.glb')
 
   return (
-    <group {...props} dispose={null}>
-      <mesh geometry={nodes.Cannon.geometry} material={materials.PaintedMetal} position={[-0.261, 5.667, 4.789]} scale={0.549} />
+    <group name='cannon' {...props} dispose={null} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
+      <mesh geometry={nodes.Cannon.geometry} material={materials.PaintedMetal} position={[-0.261, 5.667, 4.789]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={0.549} />
       <mesh ref={ref} geometry={nodes.CannonBarrel.geometry} material={materials.DarkGrayMetal} position={[-0.261, 6.324, 4.789]} scale={0.482} />
     </group>
   )

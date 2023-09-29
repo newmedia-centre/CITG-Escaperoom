@@ -11,13 +11,17 @@ import {
   ContactShadows,
 } from "@react-three/drei";
 import * as THREE from "three";
-import { useThree, useFrame } from "@react-three/fiber";
+import { useThree } from "@react-three/fiber";
 import { useControls } from "leva";
 import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing";
-import React, { useEffect, useRef, useState, useTransition } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Model as CannonLevel } from "../public/models/gltfjsx/CannonLevel";
 import { Cannon } from "../public/models/gltfjsx/Cannon";
 import { Target } from "../public/models/gltfjsx/Target";
+import { CannonBallHint } from "../public/models/gltfjsx/CannonBallHint"
+import { WaterLevel } from "../public/models/gltfjsx/WaterLevel"
+import { WindowBlueprint } from "../public/models/gltfjsx/WindowBlueprint"
+import { PilarBlueprint } from "../public/models/gltfjsx/PilarBlueprint"
 import { useSphere, usePlane, useBox } from '@react-three/cannon'
 import Ocean from "./Ocean";
 
@@ -43,10 +47,32 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     onCollide: (e) => handleCollision(e, "ground")
   }))
 
+  const [cameraFocus, setCameraFocus] = useState('default')
+  const [selectedObject, setSelectedObject] = useState([])
+
+  const changeCamera = (scene) => {
+    switch (scene) {
+      case "cannon":
+        setCameraFocus(scene)
+        cameraControlsRef.current?.setLookAt(-2, 11, 38, -2, 8, 33, true)
+        break;
+      case "blueprint":
+        setCameraFocus(scene)
+        cameraControlsRef.current?.setLookAt(6, 9, 34, 7, 9, 34, true)
+        break;
+      default:
+        setCameraFocus('default')
+        cameraControlsRef.current?.setLookAt(-2, 11, 38, -2, 8, 33, true)
+    }
+  }
+
   let hitHandled = false
   const [elapsed, setElapsed] = useState(0) // time elapsed
-  const waterRisingDuration = 60 // duration of transition in seconds
-  const gameOverThreshold = 18 // water level at which game is over
+
+  const waterLevel = 2.5
+  if (oceanRef.current) {
+    oceanRef.current.position.y = waterLevel
+  }
 
   const handleCollision = (event, name) => {
     if (name === "cannonBall" && !hitHandled && !gameOver && !gameWon) {
@@ -90,7 +116,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
       const cannonRotation = cannonRef.current.getWorldQuaternion(new THREE.Quaternion())
 
       // Create a direction vector pointing in the direction of the cannon barrel
-      const direction = new THREE.Vector3(0, 0, -1); // 1 unit along the y-axis
+      const direction = new THREE.Vector3(0, 1, 0); // 1 unit along the y-axis
       direction.applyQuaternion(cannonRotation);
 
       // Scale the direction by the magnitude of the force to be applied
@@ -118,9 +144,17 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   camera.minZoom = 0
 
   useEffect(() => {
-    if (cameraControlsRef.current) {
-      cameraControlsRef.current?.setLookAt(-2, 9, 40, -2, 9, 35, true)
+    changeCamera("cannon")
+    if (resetGame) {
+      setResetGame(false)
     }
+  }, [])
+
+  useEffect(() => {
+    changeCamera(selectedObject?.name)
+  }, [selectedObject])
+
+  useEffect(() => {
     if (cannonBallRef.current && cannonRef.current) {
       switchMass()
       let worldPos = new THREE.Vector3()
@@ -134,29 +168,11 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     setFireFunction(() => fireCannon)
   }, [setFireFunction])
 
-  // Rises the water level over time
-  // useFrame((state, delta) => {
-  //   if (oceanRef.current && !gameWon && !gameOver) {
-  //     setElapsed((prev) => prev + delta);
-  //     const fraction = Math.min(elapsed / waterRisingDuration, 1);
-  //     const newPosition = THREE.MathUtils.lerp(0, gameOverThreshold, fraction);
-  //     oceanRef.current.position.y = newPosition;
-
-  //     if (newPosition >= gameOverThreshold) {
-  //       setGameOver(true)
-  //     }
-  //   }
-  // })
-  const { waterLevel, cannonAngle } = useControls({
-    waterLevel: {
-      value: 0, min: 0, max: 10, step: 0.01,
-      onChange: (value) => oceanRef.current.position.y = value,
-      label: "Water Level in Meters"
-    },
+  useControls({
     cannonAngle: {
-      value: 0.000, min: -Math.PI / 2, max: Math.PI / 2, step: 0.001,
-      onChange: (value) => cannonRef.current.rotation.x = value,
-      label: "Cannon Angle in Radians"
+      value: 0.000, min: (THREE.MathUtils.RAD2DEG * -Math.PI / 2), max: 0, step: 0.001,
+      onChange: (value) => cannonRef.current.rotation.x = THREE.MathUtils.DEG2RAD * value,
+      label: "Kanon hoek in graden"
     }
   })
 
@@ -165,8 +181,12 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
       <group position={[0, 0, 0]}>
         <Center top>
           <CannonLevel ref={meshRef} />
-          <Cannon position={[-2, 0, 0]} ref={cannonRef} />
+          <Cannon position={[-2, 0, 0]} ref={cannonRef} setSelectedObject={setSelectedObject} />
 
+          <WaterLevel position={[2, 0, 1.56]} />
+          <WindowBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
+          <PilarBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
+          <CannonBallHint />
           {/* Cannonball display */}
           {
             Array(lives).fill().map((_, index) => (
@@ -186,6 +206,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
         {/* <Effects /> */}
         <spotLight intensity={0.8} angle={1} penumbra={0.2} position={[25, 25, 0]} castShadow />
         <Env />
+
         <Ground />
         <Ocean ref={oceanRef} />
         <ContactShadows position={[0, 0, 0]} opacity={0.25} scale={10} blur={1.5} far={0.8} />
@@ -195,36 +216,15 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
           dollySpeed={0}
           truckSpeed={0}
         />
-      </group>
+      </group >
     </>
   );
 }
 
 function Env() {
   const [preset, setPreset] = useState("sunset");
-  const [degraded, degrade] = useState(false);
-  // You can use the "inTransition" boolean to react to the loading in-between state,
-  // For instance by showing a message
-  const [inTransition, startTransition] = useTransition();
-  const { blur } = useControls({
-    blur: { value: 0.65, min: 0, max: 1 },
-    preset: {
-      value: preset,
-      options: [
-        "sunset",
-        "dawn",
-        "night",
-        "warehouse",
-        "forest",
-        "apartment",
-        "studio",
-        "city",
-        "park",
-        "lobby",
-      ],
-      onChange: (value) => startTransition(() => setPreset(value)),
-    },
-  });
+  const blur = 0.65
+
   return (
     <>
       <PerformanceMonitor onDecline={() => degrade(true)} />
