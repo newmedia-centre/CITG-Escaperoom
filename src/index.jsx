@@ -21,7 +21,7 @@ function App() {
   const [gameOver, setGameOver] = useState(false)
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
-  const [currentLevel, setCurrentLevel] = useState(1)
+  const [currentLevel, setCurrentLevel] = useState(0)
   const [speed, setSpeed] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(0)
   const [playerID, setPlayerID] = useState("test")
@@ -115,17 +115,17 @@ function App() {
           <TimeRemaining timeRemaining={90} totalTimeInMinutes={totalTimeInMinutes} />
 
           {currentLevel === 0 && (
-            <Stack direction="column" spacing={2} justifyContent="center"
+            <Stack direction="row" spacing={3} justifyContent="center"
               sx={{
                 position: 'absolute',
-                bottom: '0%',
+                bottom: '32px',
                 left: '50%',
                 transform: 'translate(-50%, -20%)',
                 userSelect: 'none',
               }}
               zIndex={10000}>
               <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
-              <Typography level="h6" color="neutral" variant="soft">Pogingen: {lives}</Typography>
+              <Typography level="h6" color="neutral" variant="soft">Pogingen:{lives}</Typography>
             </Stack >
           )}
           {currentLevel === 1 && (

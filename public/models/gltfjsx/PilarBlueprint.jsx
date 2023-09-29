@@ -7,9 +7,10 @@ import React, { useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 
 export function PilarBlueprint(props) {
+  const { setSelectedObject, selectedObject } = props
   const { nodes, materials } = useGLTF('models/gltfjsx/PilarBlueprint-transformed.glb')
   return (
-    <group {...props} dispose={null}>
+    <group name='blueprint' {...props} dispose={null} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
       <mesh geometry={nodes.PilarBlueprint.geometry} material={materials['WindowBlueprint.001']} position={[13, 9.003, 5]} />
     </group>
   )

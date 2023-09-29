@@ -7,9 +7,10 @@ import React, { forwardRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 
 export const WindowBlueprint = forwardRef((props, ref) => {
+  const { setSelectedObject, selectedObject } = props
   const { nodes, materials } = useGLTF('models/gltfjsx/WindowBlueprint-transformed.glb')
   return (
-    <group {...props} dispose={null}>
+    <group name='blueprint' {...props} dispose={null} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
       <mesh geometry={nodes.WindowBlueprint.geometry} material={materials.WindowBlueprint} position={[13, 7, 5.038]} scale={1} />
     </group>
   )

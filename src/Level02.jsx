@@ -7,16 +7,17 @@ import {
   PerformanceMonitor,
   CameraControls,
   ContactShadows,
-} from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
-import * as THREE from "three";
-import { useControls } from "leva";
-import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing";
-import React, { useEffect, useMemo, useRef, useState, useTransition } from "react";
+} from "@react-three/drei"
+import { useFrame, useThree } from "@react-three/fiber"
+import * as THREE from "three"
+import { useControls } from "leva"
+import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing"
+import React, { useEffect, useMemo, useRef, useState, useTransition } from "react"
 import { Level02Model } from "../public/models/gltfjsx/Level02Model"
 import { useSpring, animated } from '@react-spring/three'
+import WeightRack from "./WeightRack"
 
-export default function Level01({ speed, setSpeed, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
+export default function Level02({ speed, setSpeed, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
   const weightRef = useRef()
   const cabinetRef = useRef()
   const cameraControlsRef = useRef()
@@ -25,6 +26,8 @@ export default function Level01({ speed, setSpeed, lives, setLives, setGameOver,
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [weightHit, setWeightHit] = useState(false)
   const [selectedObject, setSelectedObject] = useState([])
+  const [cameraFocus, setCameraFocus] = useState('default')
+  const [selectedSolution, setSelectedSolution] = useState(null)
   const [progress, setProgress] = useSpring(() => ({
     progress: 0,
     config: {
@@ -56,25 +59,31 @@ export default function Level01({ speed, setSpeed, lives, setLives, setGameOver,
   const changeCamera = (scene) => {
     switch (scene) {
       case "cabinet":
+        setCameraFocus(scene)
         setCameraFollowing({})
-        cameraControlsRef.current?.setLookAt(0.2, 1.6, 1.209, -2, 1, 1.209, true)
+        cameraControlsRef.current?.setLookAt(1.2, 1.6, 1.209, -2, 1.2, 1.209, true)
         break;
       case "door":
+        setCameraFocus(scene)
         setCameraFollowing({})
         cameraControlsRef.current?.setLookAt(2, 2, 1, -1, 1, -0.5, true)
         break;
       case "bench":
+        setCameraFocus(scene)
         setCameraFollowing({})
         cameraControlsRef.current?.setLookAt(16, 9, 3, 0, 0, 0, true)
         break;
       case "weight":
+        setCameraFocus(scene)
         cameraControlsRef.current?.fitToBox(weightRef.current?.children[0], true, { cover: false, paddingLeft: 0.5, paddingRight: 0.5, paddingBottom: 0.5, paddingTop: 0.5 })
         setCameraFollowing(weightRef)
         break;
       case "object":
+        setCameraFocus(scene)
         cameraControlsRef.current?.fitToBox(selectedObject.current, true, { cover: false, paddingLeft: 0.5, paddingRight: 0.5, paddingBottom: 0.5, paddingTop: 0.5 })
         setCameraFollowing(selectedObject)
       default:
+        setCameraFocus('default')
         setCameraFollowing({})
         cameraControlsRef.current?.setLookAt(16, 9, 3, 0, 0, 0, true)
     }
@@ -102,6 +111,24 @@ export default function Level01({ speed, setSpeed, lives, setLives, setGameOver,
   useEffect(() => {
     changeCamera(selectedObject?.name)
   }, [selectedObject])
+
+  useEffect(() => {
+    if (selectedSolution) {
+      switch (selectedSolution.name) {
+        case "cylinder":
+          playAnimation(0.5)
+          break;
+        case "sphere":
+          playAnimation(0.75)
+          break;
+        case "ring":
+          playAnimation(1)
+          break;
+        default:
+          playAnimation(0)
+      }
+    }
+  }, [selectedSolution])
 
   useControls({
     progressValue: {
@@ -164,11 +191,15 @@ export default function Level01({ speed, setSpeed, lives, setLives, setGameOver,
         }}
           progress={progress.progress}
         >
+          <WeightRack onPointerDown={(obj) => setSelectedSolution(obj.eventObject)} objectType={'cylinder'} scale={1} position={[-2.55, 1.23, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+          <WeightRack onPointerDown={(obj) => setSelectedSolution(obj.eventObject)} objectType={'sphere'} scale={1} position={[-2.55, .81, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+          <WeightRack onPointerDown={(obj) => setSelectedSolution(obj.eventObject)} objectType={'ring'} scale={1} position={[-2.55, .42, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
           <Level02Model ref={{
-            weightRef: weightRef, laserRef: laserRef, cabinetRef: cabinetRef, selectedObject: selectedObject
+            weightRef: weightRef, laserRef: laserRef, cabinetRef: cabinetRef,
           }}
             progress={progress.progress}
             setSelectedObject={setSelectedObject}
+            selectedObject={selectedObject}
           />
         </animated.group>
 

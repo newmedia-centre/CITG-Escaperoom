@@ -47,6 +47,25 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     onCollide: (e) => handleCollision(e, "ground")
   }))
 
+  const [cameraFocus, setCameraFocus] = useState('default')
+  const [selectedObject, setSelectedObject] = useState([])
+
+  const changeCamera = (scene) => {
+    switch (scene) {
+      case "cannon":
+        setCameraFocus(scene)
+        cameraControlsRef.current?.setLookAt(-2, 11, 38, -2, 8, 33, true)
+        break;
+      case "blueprint":
+        setCameraFocus(scene)
+        cameraControlsRef.current?.setLookAt(6, 9, 34, 7, 9, 34, true)
+        break;
+      default:
+        setCameraFocus('default')
+        cameraControlsRef.current?.setLookAt(-2, 11, 38, -2, 8, 33, true)
+    }
+  }
+
   let hitHandled = false
   const [elapsed, setElapsed] = useState(0) // time elapsed
 
@@ -125,10 +144,17 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   camera.minZoom = 0
 
   useEffect(() => {
-    if (cameraControlsRef.current) {
-      // Camera position
-      cameraControlsRef.current?.setLookAt(-2, 11, 38, -2, 8, 33, true)
+    changeCamera("cannon")
+    if (resetGame) {
+      setResetGame(false)
     }
+  }, [])
+
+  useEffect(() => {
+    changeCamera(selectedObject?.name)
+  }, [selectedObject])
+
+  useEffect(() => {
     if (cannonBallRef.current && cannonRef.current) {
       switchMass()
       let worldPos = new THREE.Vector3()
@@ -155,11 +181,11 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
       <group position={[0, 0, 0]}>
         <Center top>
           <CannonLevel ref={meshRef} />
-          <Cannon position={[-2, 0, 0]} ref={cannonRef} />
+          <Cannon position={[-2, 0, 0]} ref={cannonRef} setSelectedObject={setSelectedObject} />
 
           <WaterLevel position={[2, 0, 1.56]} />
-          <WindowBlueprint />
-          <PilarBlueprint />
+          <WindowBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
+          <PilarBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
           <CannonBallHint />
           {/* Cannonball display */}
           {
