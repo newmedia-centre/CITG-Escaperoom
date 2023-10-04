@@ -2,7 +2,8 @@ import { React, useState } from 'react'
 import Ring from '../public/models/gltfjsx/Ring'
 import Cylinder from '../public/models/gltfjsx/Cylinder'
 import Sphere from '../public/models/gltfjsx/Sphere'
-import { useSpring, config, animated } from '@react-spring/three'
+import { useSpring, animated } from '@react-spring/three'
+import { Text } from '@react-three/drei'
 
 export default function WeightRack(props) {
     const { objectType, position, offsetZ, scale } = props
@@ -24,7 +25,7 @@ export default function WeightRack(props) {
 
     const objectRack = Array.from({ length: totalDisplays }).map((_, index) => {
         const positionOffset = [0, 0, index * offsetZ]
-        let object;
+        let object
 
         switch (objectType) {
             case 'ring':
@@ -48,21 +49,23 @@ export default function WeightRack(props) {
         let positionOffset = [0, 0, 0]
 
         if (object.userData.display < 2) {
-            setWeight(weight - 1)
+            // Set the weight to the min or max if it goes out of bounds
+            if (weight < 1) {
+                setWeight(0)
+            }
+            else {
+                setWeight(weight - 1)
+            }
             positionOffset = [0, 0, offsetZ]
         }
         else if (object.userData.display > 2) {
-            setWeight(weight + 1)
+            if (weight >= weights.length - 1) {
+                setWeight(weights.length)
+            }
+            else {
+                setWeight(weight + 1)
+            }
             positionOffset = [0, 0, -offsetZ]
-        }
-
-        // Set the weight to the min or max if it goes out of bounds
-        if (weight < 0) {
-            setWeight(0)
-        }
-
-        if (weight > weights.length - 1) {
-            setWeight(weights.length - 1)
         }
 
         // Update the spring animation with the new position offset
@@ -71,9 +74,12 @@ export default function WeightRack(props) {
 
     return <group position={position}>
         {objectRack.map((object, index) => (
-            <animated.group key={index} position={objectAnim.positionOffset}>
-                {object}
-            </animated.group>
+            <>
+                <Text fontSize={0.2} rotation={[0, Math.PI / 2, 0]} position={[0, .3, offsetZ * 2]}>{weight}</Text>
+                <animated.group key={index} position={objectAnim.positionOffset}>
+                    {object}
+                </animated.group>
+            </>
         ))}
     </group>
 }
