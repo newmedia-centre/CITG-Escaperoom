@@ -25,7 +25,9 @@ function App() {
   const [speed, setSpeed] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(0)
   const [playerID, setPlayerID] = useState("test")
+  const [animationProgress, setAnimationProgress] = useState(0)
 
+  const level02Ref = useRef()
   const totalTimeInMinutes = 90
 
   // Adds player to database and starts the game
@@ -50,6 +52,17 @@ function App() {
     if (fireCannon) {
       fireCannon()
     }
+  }
+
+  const handleActivateClick = () => {
+    level02Ref.current.playAnimation(1)
+    level02Ref.current.changeCamera("weight")
+  }
+
+  const handleResetClick = () => {
+    level02Ref.current.playAnimation(0)
+    level02Ref.current.setCameraFollowing({})
+    level02Ref.current.changeCamera("bench")
   }
 
   // Reset game
@@ -148,8 +161,10 @@ function App() {
                   userEvents: 'none',
                 }}
               >
-                <Button>Activeren</Button>
-                <Button>Reset</Button>
+                <Button onClick={() => {
+                  handleActivateClick()
+                }}>Activeren</Button>
+                <Button onClick={() => handleResetClick()}>Reset</Button>
               </Stack>
               {/* Right Panel */}
               <Stack direction="column" spacing={1} justifyContent="center" p={1}
@@ -237,7 +252,19 @@ function App() {
               <Level01 cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
             )}
             {currentLevel === 1 && (
-              <Level02 speed={speed} setSpeed={setSpeed} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
+              <Level02
+                ref={level02Ref}
+                speed={speed}
+                setSpeed={setSpeed}
+                lives={lives}
+                setLives={setLives}
+                setGameWon={setGameWon}
+                gameWon={gameWon}
+                gameOver={gameOver}
+                setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame}
+                animationProgress={animationProgress}
+                setAnimationProgress={setAnimationProgress}
+              />
             )}
 
             {/* </Debug> */}
