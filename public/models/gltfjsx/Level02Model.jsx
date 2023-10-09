@@ -5,13 +5,16 @@ Command: npx gltfjsx@6.2.3 Level02.glb --transform
 
 import React, { forwardRef, useRef, useState, createRef } from 'react'
 import { useFrame } from "@react-three/fiber"
-import { useGLTF, Box } from '@react-three/drei'
+import { useGLTF, Text3D } from '@react-three/drei'
 import * as THREE from 'three'
 import { MathUtils } from 'three'
+import Ring from './Ring'
+import Cylinder from './Cylinder'
+import Sphere from './Sphere'
 
 export const Level02Model = forwardRef((props, ref) => {
-  const { weightRef, laserRef, cabinetRef } = ref
-  var { progress, setSelectedObject, selectedObject } = props
+  const { weightRef, laserRef, cabinetRef, solutionRef } = ref
+  var { progress, setSelectedObject, weights } = props
 
   const rope001Ref = useRef()
   const rope002Ref = useRef()
@@ -106,18 +109,29 @@ export const Level02Model = forwardRef((props, ref) => {
         {/* <Box position={[0, 0.178, -2.467]} scale={[1, 3, 1]} >
         </Box> */}
       </group>
+
       <mesh ref={rope004Ref} geometry={nodes.Rope004.geometry} material={materials.Rope} position={[0, 0.356, -2.518]} />
       <mesh ref={circle003Ref} geometry={nodes.Circle003.geometry} material={materials.Rope} position={[0, 0.355, -2.418]} />
-      <mesh geometry={nodes.Ring.geometry} material={nodes.Ring.material} position={[0, 0.595, 2.5]} />
       <mesh geometry={nodes.Ground.geometry} position={[0, -0.0005, 0]} material={materials.Ground} />
-      <mesh geometry={nodes.Sphere.geometry} material={nodes.Sphere.material} position={[0, 0.6, 2.5]} />
       <mesh ref={rope003Ref} geometry={nodes.Rope003.geometry} material={materials.Rope} position={[0, 0.548, -2.416]} rotation={[0, 0, -Math.PI]} />
-      <mesh ref={rope001Ref} geometry={nodes.Rope001.geometry} material={materials.Rope} position={[0, 0.6, 2.304]} rotation={[Math.PI / 2, 0, 0]} />
+      <mesh ref={rope001Ref} geometry={nodes.Rope001.geometry} material={materials.Rope} position={[0, 0.6, 2.304]} rotation={[Math.PI / 2, 0, 0]} >
+        <group name="solution" position={[0, 0.1, -0.2]} scale={2} rotation={[Math.PI / 2, Math.PI / 2, 0]} ref={solutionRef} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
+          <Ring position={[-0.22, 0, 0]} />
+          <Cylinder position={[-0.42, 0, 0]} />
+          <Sphere />
+          <group rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]}>
+            <Text3D height={.04} size={0.07} font="/Roboto_Regular.json">
+              <meshStandardMaterial color="white" />{weights.weightSphere}kg</Text3D>
+            <Text3D position={[0.21, 0, 0]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights.weightRing}kg</Text3D>
+            <Text3D position={[0.42, 0, 0]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights.weightCylinder}kg</Text3D>
+          </group>
+        </group>
+
+      </mesh>
       <group position={[0, -4, -2.077]} rotation={[-Math.PI, 0, -Math.PI]}>
         <mesh geometry={nodes.Laser_1.geometry} material={materials.Alluminium} />
         <mesh ref={laserRef} rotation={[0, 0, 0]} geometry={nodes.Laser_2.geometry} material={materials.Laser} />
       </group>
-      <mesh geometry={nodes.Cylinder.geometry} material={nodes.Cylinder.material} position={[0, 0.595, 2.5]} scale={[1.196, 0.598, 1.196]} />
       <mesh ref={benchRef} name='bench' geometry={nodes.Bench.geometry} material={materials.Wood} position={[0, 0.35, 0.231]} onPointerDown={(obj) => setSelectedObject(obj.eventObject)} />
       <mesh geometry={nodes.Foots.geometry} material={materials.Wood} position={[0.155, 0.233, -1.95]} />
       <mesh geometry={nodes.Pulley.geometry} material={materials.BlackMetal} position={[0, 0.348, -2.02]} rotation={[Math.PI / 6, 0, 0]} scale={[0.336, 1, 1]} />
