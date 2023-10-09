@@ -6,7 +6,7 @@ import {
   Environment,
   PerformanceMonitor,
   CameraControls,
-  ContactShadows,
+  ContactShadows
 } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
@@ -92,7 +92,7 @@ export const Level02 = forwardRef((props, ref) => {
     if (Object.keys(cameraFollowing) != 0 && cameraControlsRef.current) {
       var pos = cameraFollowing.current.children[0].getWorldPosition(new THREE.Vector3())
       var offset = cameraFollowing.current.children[0].position
-      cameraControlsRef.current?.moveTo(pos.x, pos.y, offset.z, pos.x, pos.y, offset.z, true)
+      cameraControlsRef.current.moveTo(pos.x, pos.y, offset.z, pos.x, pos.y, offset.z, true)
     }
   }
 
@@ -185,6 +185,7 @@ export const Level02 = forwardRef((props, ref) => {
           <WeightRack weight={weightCylinder} setWeight={setWeightCylinder} objectType={'cylinder'} scale={1} position={[-2.55, 1.23, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
           <WeightRack weight={weightSphere} setWeight={setWeightSphere} objectType={'sphere'} scale={1} position={[-2.55, .81, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
           <WeightRack weight={weightRing} setWeight={setWeightRing} objectType={'ring'} scale={1} position={[-2.55, .42, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+
           <Level02Model ref={{
             weightRef: weightRef,
             laserRef: laserRef,
@@ -194,6 +195,7 @@ export const Level02 = forwardRef((props, ref) => {
             progress={progress.progress}
             setSelectedObject={setSelectedObject}
             selectedObject={selectedObject}
+            weights={{ weightSphere, weightRing, weightCylinder }}
           />
         </animated.group>
 

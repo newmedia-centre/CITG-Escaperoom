@@ -5,7 +5,7 @@ Command: npx gltfjsx@6.2.3 Level02.glb --transform
 
 import React, { forwardRef, useRef, useState, createRef } from 'react'
 import { useFrame } from "@react-three/fiber"
-import { useGLTF, Box } from '@react-three/drei'
+import { useGLTF, Text3D } from '@react-three/drei'
 import * as THREE from 'three'
 import { MathUtils } from 'three'
 import Ring from './Ring'
@@ -14,7 +14,7 @@ import Sphere from './Sphere'
 
 export const Level02Model = forwardRef((props, ref) => {
   const { weightRef, laserRef, cabinetRef, solutionRef } = ref
-  var { progress, setSelectedObject } = props
+  var { progress, setSelectedObject, weights } = props
 
   const rope001Ref = useRef()
   const rope002Ref = useRef()
@@ -119,7 +119,14 @@ export const Level02Model = forwardRef((props, ref) => {
           <Ring position={[-0.22, 0, 0]} />
           <Cylinder position={[-0.42, 0, 0]} />
           <Sphere />
+          <group rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]}>
+            <Text3D height={.04} size={0.07} font="/Roboto_Regular.json">
+              <meshStandardMaterial color="white" />{weights.weightSphere}kg</Text3D>
+            <Text3D position={[0.21, 0, 0]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights.weightRing}kg</Text3D>
+            <Text3D position={[0.42, 0, 0]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights.weightCylinder}kg</Text3D>
+          </group>
         </group>
+
       </mesh>
       <group position={[0, -4, -2.077]} rotation={[-Math.PI, 0, -Math.PI]}>
         <mesh geometry={nodes.Laser_1.geometry} material={materials.Alluminium} />
