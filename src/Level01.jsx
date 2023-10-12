@@ -69,7 +69,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   let hitHandled = false
   const [elapsed, setElapsed] = useState(0) // time elapsed
 
-  const waterLevel = 2.5
+  const waterLevel = 1.4
   if (oceanRef.current) {
     oceanRef.current.position.y = waterLevel
   }
@@ -106,6 +106,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     cannonBallApi.mass.set(newMass);
   }
 
+  // Cannon speed is 7.5 m/s
   const fireCannon = (forceMagnitude = 1000) => {
     if (cannonRef.current && cannonBallRef.current) {
 

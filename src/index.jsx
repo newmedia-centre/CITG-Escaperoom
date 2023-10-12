@@ -55,6 +55,7 @@ function App() {
   }
 
   const handleActivateClick = () => {
+    level02Ref.current.playDropAnimation()
     level02Ref.current.playAnimation(1)
     level02Ref.current.changeCamera("weight")
   }

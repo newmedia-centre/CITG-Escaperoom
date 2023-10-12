@@ -18,7 +18,7 @@ import { useSpring, animated } from '@react-spring/three'
 import { WeightRack } from "./WeightRack"
 
 export const Level02 = forwardRef((props, ref) => {
-  const { speed, setSpeed, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame } = props
+  const { speed: acceleration, setSpeed: setAcceleration, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame } = props
   const weightRef = useRef()
   const cabinetRef = useRef()
   const cameraControlsRef = useRef()
@@ -31,6 +31,7 @@ export const Level02 = forwardRef((props, ref) => {
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [weightHit, setWeightHit] = useState(false)
   const [selectedObject, setSelectedObject] = useState([])
+  const [selectedSolution, setSelectedSolution] = useState()
   const [progress, setProgress] = useSpring(() => ({
     progress: 0,
     config: {
@@ -41,11 +42,35 @@ export const Level02 = forwardRef((props, ref) => {
     },
   }))
 
+  const accelerations = {
+    sphere: [
+      -4.2, -3.4, -2.6, -1.8, -1.0, -0.2, 0.6, 1.4, 2.2, 3.0, 3.8, 4.6, 5.4, 6.2
+    ],
+    cylinder: [
+      -5.6, -5.0, -4.4, -3.8, -3.2, -2.6, -2.0, -1.4, -0.8, -0.2, 0.4, 1.0, 1.6, 2.2
+    ],
+    ring: [
+      -5.9, -5.3, -4.8, -4.2, -3.7, -3.1, -2.5, -2.0, -1.4, -0.85, -0.3, 0.3, 0.8, 1.4
+    ]
+  }
+
   // Function to trigger the animation with a new 'to' value
   const playAnimation = (newValue) => {
     setProgress({
       progress: newValue,
     })
+    switch (selectedSolution) {
+      case "sphere":
+        setAcceleration(accelerations.sphere[weightSphere - 1])
+        break;
+      case "cylinder":
+        setAcceleration(accelerations.cylinder[weightCylinder - 1])
+        break;
+      case "ring":
+        setAcceleration(accelerations.ring[weightRing - 1])
+        break;
+
+    }
   }
 
   var timer = 0
@@ -96,10 +121,15 @@ export const Level02 = forwardRef((props, ref) => {
     }
   }
 
+  const playDropAnimation = () => {
+
+  }
+
   useImperativeHandle(ref, () => ({
     playAnimation: (value) => playAnimation(value),
     changeCamera: (scene) => changeCamera(scene),
     setCameraFollowing: (object) => setCameraFollowing(object),
+    playDropAnimation: () => playDropAnimation(),
   }))
 
   useEffect(() => {
@@ -147,8 +177,8 @@ export const Level02 = forwardRef((props, ref) => {
       timer = 0
     }
 
-    // Sets the speed of the spring animation
-    setSpeed((Math.abs(progress.progress.velocity) * 100000) / 10)
+    // Sets the acceleration of the spring animation
+    // setAcceleration((Math.abs(progress.progress.velocity) * 100000) / 10)
 
     // Updates the camera position to follow the model
     followModelPosition()
@@ -158,7 +188,7 @@ export const Level02 = forwardRef((props, ref) => {
       const intersections = laserRaycast()
       if (intersections.length > 3) {
         setWeightHit(true)
-        if (speed >= 0.9 && speed <= 1.0) {
+        if (acceleration >= 0.9 && acceleration <= 1.0) {
           setGameWon(true)
         }
         else {
@@ -182,9 +212,9 @@ export const Level02 = forwardRef((props, ref) => {
         }}
           progress={progress.progress}
         >
-          <WeightRack weight={weightCylinder} setWeight={setWeightCylinder} objectType={'cylinder'} scale={1} position={[-2.55, 1.23, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
-          <WeightRack weight={weightSphere} setWeight={setWeightSphere} objectType={'sphere'} scale={1} position={[-2.55, .81, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
-          <WeightRack weight={weightRing} setWeight={setWeightRing} objectType={'ring'} scale={1} position={[-2.55, .42, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+          <WeightRack weight={weightSphere} setWeight={setWeightSphere} setSelectedSolution={setSelectedSolution} objectType={'sphere'} scale={1} position={[-2.55, .81, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+          <WeightRack weight={weightCylinder} setWeight={setWeightCylinder} setSelectedSolution={setSelectedSolution} objectType={'cylinder'} scale={1} position={[-2.55, 1.23, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+          <WeightRack weight={weightRing} setWeight={setWeightRing} setSelectedSolution={setSelectedSolution} objectType={'ring'} scale={1} position={[-2.55, .42, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
 
           <Level02Model ref={{
             weightRef: weightRef,
@@ -194,7 +224,7 @@ export const Level02 = forwardRef((props, ref) => {
           }}
             progress={progress.progress}
             setSelectedObject={setSelectedObject}
-            selectedObject={selectedObject}
+            selectedSolution={selectedSolution}
             weights={{ weightSphere, weightRing, weightCylinder }}
           />
         </animated.group>

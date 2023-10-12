@@ -6,7 +6,7 @@ import { useSpring, animated } from '@react-spring/three'
 import { Text } from '@react-three/drei'
 
 export const WeightRack = forwardRef((props, ref) => {
-    const { objectType, position, offsetZ, weight, setWeight } = props
+    const { objectType, position, offsetZ, weight, setWeight, setSelectedSolution } = props
 
     const weights = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
     const totalDisplays = 5
@@ -36,29 +36,33 @@ export const WeightRack = forwardRef((props, ref) => {
 
         switch (objectType) {
             case 'ring':
-                object = <Ring {...props} position={positionOffset} key={index} userData={{ display: index }} onPointerDown={(obj) => scrollObject(obj.eventObject)} />
+                object = <Ring {...props} position={positionOffset} key={index} userData={{ display: index }} onPointerDown={(obj) => handleClick(obj.eventObject)} />
                 break
             case 'cylinder':
-                object = <Cylinder {...props} position={positionOffset} key={index} userData={{ display: index }} onPointerDown={(obj) => scrollObject(obj.eventObject)} />
+                object = <Cylinder {...props} position={positionOffset} key={index} userData={{ display: index }} onPointerDown={(obj) => handleClick(obj.eventObject)} />
                 break
             case 'sphere':
-                object = <Sphere  {...props} position={positionOffset} key={index} userData={{ display: index }} onPointerDown={(obj) => scrollObject(obj.eventObject)} />
+                object = <Sphere  {...props} position={positionOffset} key={index} userData={{ display: index }} onPointerDown={(obj) => handleClick(obj.eventObject)} />
                 break
             default:
-                object = <Ring {...props} position={positionOffset} key={index} userData={{ display: index }} onPointerDown={(obj) => scrollObject(obj.eventObject)} />
+                object = <Ring {...props} position={positionOffset} key={index} userData={{ display: index }} onPointerDown={(obj) => handleClick(obj.eventObject)} />
                 break
         }
 
         return object
     })
 
-    const scrollObject = (object) => {
+    const handleClick = (object) => {
         let positionOffset = [0, 0, 0]
+
+        if (object.userData.display === 2) {
+            setSelectedSolution(objectType)
+        }
 
         if (object.userData.display < 2) {
             // Set the weight to the min or max if it goes out of bounds
-            if (weight < 1) {
-                setWeight(0)
+            if (weight < 2) {
+                setWeight(1)
                 return
             }
             else {
