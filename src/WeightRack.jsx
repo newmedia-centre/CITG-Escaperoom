@@ -55,9 +55,8 @@ export const WeightRack = forwardRef((props, ref) => {
     const handleClick = (object) => {
         let positionOffset = [0, 0, 0]
 
-        if (object.userData.display === 2) {
-            setSelectedSolution(objectType)
-        }
+        // Set the selected solution to the current object type when clicked
+        setSelectedSolution(objectType)
 
         if (object.userData.display < 2) {
             // Set the weight to the min or max if it goes out of bounds

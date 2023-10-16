@@ -14,7 +14,7 @@ import { useControls } from "leva"
 import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing"
 import React, { useEffect, useMemo, useRef, forwardRef, useImperativeHandle, useState, useTransition } from "react"
 import { Level02Model } from "../public/models/gltfjsx/Level02Model"
-import { useSpring, animated } from '@react-spring/three'
+import { useSpring, animated, easings } from '@react-spring/three'
 import { WeightRack } from "./WeightRack"
 
 export const Level02 = forwardRef((props, ref) => {
@@ -35,30 +35,58 @@ export const Level02 = forwardRef((props, ref) => {
   const [progress, setProgress] = useSpring(() => ({
     progress: 0,
     config: {
-      mass: 30,
-      friction: 130,
-      tension: 120,
-      // velocity: 4,
+      duration: 2500,
+      easing: easings.easeOutQuart,
     },
+  }))
+  const [cameraPosition, setCameraPosition] = useSpring(() => ({
+    position: 0,
+    config: {
+      duration: 5000,
+    }
   }))
 
   const accelerations = {
-    sphere: [
+    ring: [
       -4.2, -3.4, -2.6, -1.8, -1.0, -0.2, 0.6, 1.4, 2.2, 3.0, 3.8, 4.6, 5.4, 6.2
     ],
     cylinder: [
       -5.6, -5.0, -4.4, -3.8, -3.2, -2.6, -2.0, -1.4, -0.8, -0.2, 0.4, 1.0, 1.6, 2.2
     ],
-    ring: [
+    sphere: [
       -5.9, -5.3, -4.8, -4.2, -3.7, -3.1, -2.5, -2.0, -1.4, -0.85, -0.3, 0.3, 0.8, 1.4
     ]
+  }
+
+  const resetLevel = () => {
+    playAnimation(0)
+    setCameraFollowing({})
+    changeCamera("bench")
+  }
+
+  const activatePulley = () => {
+    playAnimation(1)
+    setCameraPosition({
+      position: 2,
+      onChange: ({ value }) => {
+        console.log(value)
+      }
+    })
   }
 
   // Function to trigger the animation with a new 'to' value
   const playAnimation = (newValue) => {
     setProgress({
       progress: newValue,
+      onResolve: ({ value }) => {
+        if (value === 0) {
+          // Reset the hit it's at the start of the animation
+          setWeightHit(false)
+        }
+      },
     })
+
+    // Set the acceleration based on the selected solution and weight
     switch (selectedSolution) {
       case "sphere":
         setAcceleration(accelerations.sphere[weightSphere - 1])
@@ -121,15 +149,12 @@ export const Level02 = forwardRef((props, ref) => {
     }
   }
 
-  const playDropAnimation = () => {
-
-  }
-
   useImperativeHandle(ref, () => ({
+    resetLevel: () => resetLevel(),
     playAnimation: (value) => playAnimation(value),
     changeCamera: (scene) => changeCamera(scene),
     setCameraFollowing: (object) => setCameraFollowing(object),
-    playDropAnimation: () => playDropAnimation(),
+    activatePulley: () => activatePulley(),
   }))
 
   useEffect(() => {
@@ -146,10 +171,6 @@ export const Level02 = forwardRef((props, ref) => {
   useEffect(() => {
     changeCamera(selectedObject?.name)
   }, [selectedObject])
-
-  useEffect(() => {
-
-  }, [weightCylinder, weightSphere, weightRing])
 
   useControls({
     progressValue: {
@@ -188,19 +209,21 @@ export const Level02 = forwardRef((props, ref) => {
       const intersections = laserRaycast()
       if (intersections.length > 3) {
         setWeightHit(true)
-        if (acceleration >= 0.9 && acceleration <= 1.0) {
+        if (acceleration <= -0.9 && acceleration >= -1.0) {
           setGameWon(true)
         }
         else {
           takeLive()
-          if (lives === 0) {
-            setGameOver(true)
-          }
         }
       }
     }
-
   })
+
+  useEffect(() => {
+    if (lives < 1) {
+      setGameOver(true)
+    }
+  }, [lives])
 
   return (
     <>

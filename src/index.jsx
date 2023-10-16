@@ -55,15 +55,11 @@ function App() {
   }
 
   const handleActivateClick = () => {
-    level02Ref.current.playDropAnimation()
-    level02Ref.current.playAnimation(1)
-    level02Ref.current.changeCamera("weight")
+    level02Ref.current.activatePulley()
   }
 
   const handleResetClick = () => {
-    level02Ref.current.playAnimation(0)
-    level02Ref.current.setCameraFollowing({})
-    level02Ref.current.changeCamera("bench")
+    level02Ref.current.resetLevel()
   }
 
   // Reset game
@@ -184,17 +180,17 @@ function App() {
                   }}
                   type="semicircle"
                   value={speed}
-                  minValue={0}
-                  maxValue={2}
+                  minValue={-2}
+                  maxValue={0}
                   arc={{
                     width: 0.22,
                     padding: 0,
                     cornerRadius: 0,
                     subArcs: [
-                      { limit: 0.5, color: '#EA4228', showTick: true },
-                      { limit: 0.9, color: '#F5CD19', showTick: true },
-                      { limit: 1.1, color: '#5BE12C', showTick: true },
-                      { limit: 1.5, color: '#F5CD19', showTick: true },
+                      { limit: -1.5, color: '#EA4228', showTick: true },
+                      { limit: -1.1, color: '#F5CD19', showTick: true },
+                      { limit: -0.9, color: '#5BE12C', showTick: true },
+                      { limit: -0.5, color: '#F5CD19', showTick: true },
                       { color: '#EA4228' }
                     ]
                   }}
