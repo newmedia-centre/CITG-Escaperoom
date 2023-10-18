@@ -101,6 +101,10 @@ export const Level02Model = forwardRef((props, ref) => {
     rope004Ref.current.position.y = MathUtils.lerp(initRope004Position.y, -4, progress.get())
     weightRef.current.position.y = MathUtils.lerp(initWeightPosition.y, -4.35, progress.get())
 
+    solutionRef.current.position.x = rope001Ref.current.position.x
+    solutionRef.current.position.y = rope001Ref.current.position.y + 0.2
+    solutionRef.current.position.z = rope001Ref.current.position.z
+
     ropeScaler()
 
     // Well clipping plane
@@ -126,24 +130,22 @@ export const Level02Model = forwardRef((props, ref) => {
       <mesh ref={circle003Ref} geometry={nodes.Circle003.geometry} material={materials.Rope} position={[0, 0.355, -2.418]} />
       <mesh geometry={nodes.Ground.geometry} position={[0, -0.0005, 0]} material={materials.Ground} />
       <mesh ref={rope003Ref} geometry={nodes.Rope003.geometry} material={materials.Rope} position={[0, 0.548, -2.416]} rotation={[0, 0, -Math.PI]} />
-      <mesh ref={rope001Ref} geometry={nodes.Rope001.geometry} material={materials.Rope} position={[0, 0.6, 2.304]} rotation={[Math.PI / 2, 0, 0]} >
-        <group name="solution" position={[0, 0, -0.2]} scale={2} rotation={[Math.PI / 2, Math.PI / 2, 0]} ref={solutionRef} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
-          <group name="ring" visible={false}>
-            <Ring />
-            <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights.weightRing}kg</Text3D>
-          </group>
-          <group name="cylinder" visible={false}>
-            <Cylinder />
-            <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights.weightCylinder}kg</Text3D>
-          </group>
-          <group name="sphere" visible={false}>
-            <Sphere />
-            <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json">
-              <meshStandardMaterial color="white" />{weights.weightSphere}kg</Text3D>
-          </group>
+      <mesh ref={rope001Ref} geometry={nodes.Rope001.geometry} material={materials.Rope} position={[0, 0.6, 2.304]} rotation={[Math.PI / 2, 0, 0]} />
+      <group name="solution" position={[0, 0, -0.2]} scale={2} ref={solutionRef} rotation={[0, Math.PI / 2, Math.PI]} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
+        <group name="ring" visible={false}>
+          <Ring />
+          <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights.weightRing}kg</Text3D>
         </group>
-
-      </mesh>
+        <group name="cylinder" visible={false}>
+          <Cylinder />
+          <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights.weightCylinder}kg</Text3D>
+        </group>
+        <group name="sphere" visible={false}>
+          <Sphere />
+          <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json">
+            <meshStandardMaterial color="white" />{weights.weightSphere}kg</Text3D>
+        </group>
+      </group>
       <group position={[0, -4, -2.077]} rotation={[-Math.PI, 0, -Math.PI]}>
         <mesh geometry={nodes.Laser_1.geometry} material={materials.Alluminium} />
         <mesh ref={laserRef} rotation={[0, 0, 0]} geometry={nodes.Laser_2.geometry} material={materials.Laser} />

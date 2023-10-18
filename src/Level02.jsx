@@ -34,15 +34,29 @@ export const Level02 = forwardRef((props, ref) => {
   const [selectedSolution, setSelectedSolution] = useState()
   const [progress, setProgress] = useSpring(() => ({
     progress: 0,
+    reset: true,
     config: {
-      duration: 2500,
+      duration: 8500,
       easing: easings.easeOutQuart,
     },
   }))
   const [cameraPosition, setCameraPosition] = useSpring(() => ({
-    position: 0,
+    lerp: 0,
+    reset: true,
     config: {
-      duration: 5000,
+      duration: 3000,
+      easing: easings.easeInOutCubic
+    },
+    onChange: ({ value }) => {
+      var w = weightRef.current?.children[0].getWorldPosition(new THREE.Vector3())
+      var s = solutionRef.current?.getWorldPosition(new THREE.Vector3())
+      cameraControlsRef.current?.lerpLookAt(
+        s.x + 4, s.y, s.z, // Position A
+        s.x, s.y, s.z, // Target A
+        w.x + 2, w.y, w.z - 1, // Position B
+        w.x, w.y - 0.5, w.z, // Target B
+        value.lerp, // Lerp value
+      )
     }
   }))
 
@@ -59,33 +73,30 @@ export const Level02 = forwardRef((props, ref) => {
   }
 
   const resetLevel = () => {
-    playAnimation(0)
-    setCameraFollowing({})
     changeCamera("bench")
+    setProgress({
+      progress: 0,
+    })
+    progress.progress.set(0)
+    setWeightHit(false)
+    setCameraPosition({
+      lerp: 0,
+    })
+
   }
 
   const activatePulley = () => {
-    playAnimation(1)
+    setProgress({
+      progress: 1,
+    })
+    updateAcceleration()
     setCameraPosition({
-      position: 2,
-      onChange: ({ value }) => {
-        console.log(value)
-      }
+      lerp: 1,
     })
   }
 
   // Function to trigger the animation with a new 'to' value
-  const playAnimation = (newValue) => {
-    setProgress({
-      progress: newValue,
-      onResolve: ({ value }) => {
-        if (value === 0) {
-          // Reset the hit it's at the start of the animation
-          setWeightHit(false)
-        }
-      },
-    })
-
+  const updateAcceleration = () => {
     // Set the acceleration based on the selected solution and weight
     switch (selectedSolution) {
       case "sphere":
@@ -97,7 +108,6 @@ export const Level02 = forwardRef((props, ref) => {
       case "ring":
         setAcceleration(accelerations.ring[weightRing - 1])
         break;
-
     }
   }
 
@@ -151,7 +161,6 @@ export const Level02 = forwardRef((props, ref) => {
 
   useImperativeHandle(ref, () => ({
     resetLevel: () => resetLevel(),
-    playAnimation: (value) => playAnimation(value),
     changeCamera: (scene) => changeCamera(scene),
     setCameraFollowing: (object) => setCameraFollowing(object),
     activatePulley: () => activatePulley(),
@@ -179,7 +188,7 @@ export const Level02 = forwardRef((props, ref) => {
       max: 1,
       step: 0.01,
       onChange: (value) => {
-        playAnimation(value)
+        setProgress({ progress: value })
       },
     },
     // Switch camera list
@@ -197,9 +206,6 @@ export const Level02 = forwardRef((props, ref) => {
     if (timer > 0.1) {
       timer = 0
     }
-
-    // Sets the acceleration of the spring animation
-    // setAcceleration((Math.abs(progress.progress.velocity) * 100000) / 10)
 
     // Updates the camera position to follow the model
     followModelPosition()
