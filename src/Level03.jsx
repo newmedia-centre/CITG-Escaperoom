@@ -50,12 +50,10 @@ export const Level03 = forwardRef((props, ref) => {
         setTimeout(() => {
           setCamControls(false)
         }, 20) // Wait for camera to move in place
-        console.log("table")
         break;
       case "ground":
         setCamControls(true)
         cameraControlsRef.current?.setLookAt(2, 2, 0, .2, 1, 0, false)
-        console.log("ground")
         break;
     }
   }
@@ -116,7 +114,12 @@ export const Level03 = forwardRef((props, ref) => {
         <Level03Model ref={{ tableRef }}
           setSelectedObject={setSelectedObject}
         />
-        <PuzzlePiece position={[0, 2.2, 0]} />
+        <group name="Pieces" position={[0.193, 0.871, -0.505]}>
+          <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} />
+          <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} />
+          <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} />
+          <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} />
+        </group>
 
         <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
           <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />

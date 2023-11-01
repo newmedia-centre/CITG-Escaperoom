@@ -4,27 +4,39 @@ import { useGesture } from '@use-gesture/react'
 import { useSpring, a } from '@react-spring/three'
 
 function PuzzlePiece({ ...props }) {
+    const yPos = props.position[1]
     const { size, viewport } = useThree()
     const aspect = size.width / viewport.width
+    const scale = [0.4, 0.05, 0.4]
+    const scaleFactor = 1.1
     const [spring, set] = useSpring(() => ({
-        scale: [1, 1, 1],
-        position: [0, 0, 0],
+        scale: scale,
+        position: props.position,
         rotation: [0, 0, 0],
-        config: { friction: 10 }
+        config: { friction: 10 },
+        color: "white"
     }))
     const bind = useGesture({
-        onDrag: ({ offset: [x, y] }) => {
-            set({ position: [y / aspect, 0, -x / aspect], rotation: [y / aspect, x / aspect, 0] })
-            console.log("hi")
-            // TODO: Fix dragging when table is selected
+        onDrag: ({ event, dragging, offset: [x, y] }) => {
+            event.stopPropagation()
+            set({ position: [y / aspect, yPos, -x / aspect] })
+            set({ color: dragging ? 'gray' : 'white' })
         },
-        onHover: ({ hovering }) => set({ scale: hovering ? [1.2, 1.2, 1.2] : [1, 1, 1] })
+        onHover: ({ event, hovering }) => {
+            event.stopPropagation()
+            set({
+                scale: hovering ? scale.map((value) => value * scaleFactor) : scale
+            })
+        },
+        onClick: () => {
+            console.log("hi")
+        }
     })
 
     return (
         <a.mesh {...spring} {...bind()} castShadow>
             <boxBufferGeometry />
-            <meshStandardMaterial color="white" />
+            <a.meshStandardMaterial color={spring.color} />
         </a.mesh >
     )
 }
