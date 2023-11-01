@@ -3,8 +3,9 @@ import "./style.css";
 import ReactDOM from "react-dom/client";
 import { Canvas } from "@react-three/fiber";
 import { Html, useProgress } from "@react-three/drei";
-import Level01 from "./Level01";
-import Level02 from "./Level02";
+import Level01 from "./Level01"
+import Level02 from "./Level02"
+import Level03 from "./Level03"
 import { Suspense, useRef, useState, useEffect } from "react";
 import { CircularProgress, Typography, Button, LinearProgress, Input } from "@mui/joy";
 import { Stack } from '@mui/material';
@@ -21,7 +22,7 @@ function App() {
   const [gameOver, setGameOver] = useState(false)
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
-  const [currentLevel, setCurrentLevel] = useState(1)
+  const [currentLevel, setCurrentLevel] = useState(2)
   const [speed, setSpeed] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(0)
   const [playerID, setPlayerID] = useState("test")
@@ -262,6 +263,9 @@ function App() {
                 animationProgress={animationProgress}
                 setAnimationProgress={setAnimationProgress}
               />
+            )}
+            {currentLevel === 2 && (
+              <Level03 lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
             )}
 
             {/* </Debug> */}
