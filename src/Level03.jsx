@@ -15,11 +15,13 @@ import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing"
 import React, { useEffect, useMemo, useRef, forwardRef, useImperativeHandle, useState, useTransition } from "react"
 import { Level03Model } from "../public/models/gltfjsx/Level03Model"
 import { useSpring, animated, easings } from '@react-spring/three'
+import PuzzlePiece from "./PuzzlePiece"
 
 export const Level03 = forwardRef((props, ref) => {
   const { lives, setLives, setGameWon, gameWon, gameOver, setGameOver, setResetGame, resetGame } = props
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [camControlsEnabled, setCamControls] = useState(true)
+  const [selectedObject, setSelectedObject] = useState([])
   const cameraControlsRef = useRef()
   const tableRef = useRef()
   const { camera } = useThree()
@@ -47,12 +49,14 @@ export const Level03 = forwardRef((props, ref) => {
         })
         setTimeout(() => {
           setCamControls(false)
-        }, 200) // Wait for camera to move in place
+        }, 20) // Wait for camera to move in place
+        console.log("table")
         break;
-      default:
+      case "ground":
         setCamControls(true)
-        setCameraFollowing({})
-        cameraControlsRef.current?.setLookAt(2, 2, 0, .2, 1, 0, true)
+        cameraControlsRef.current?.setLookAt(2, 2, 0, .2, 1, 0, false)
+        console.log("ground")
+        break;
     }
   }
 
@@ -71,10 +75,15 @@ export const Level03 = forwardRef((props, ref) => {
   }))
 
   useEffect(() => {
+    changeCamera("ground")
     if (resetGame) {
       setResetGame(false)
     }
   }, [])
+
+  useEffect(() => {
+    changeCamera(selectedObject?.name)
+  }, [selectedObject])
 
   useControls({
     // Switch camera list
@@ -104,7 +113,10 @@ export const Level03 = forwardRef((props, ref) => {
         <Center top>
         </Center>
 
-        <Level03Model ref={{ tableRef }} />
+        <Level03Model ref={{ tableRef }}
+          setSelectedObject={setSelectedObject}
+        />
+        <PuzzlePiece position={[0, 2.2, 0]} />
 
         <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
           <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />
