@@ -13,6 +13,7 @@ function PuzzlePiece({ ...props }) {
         scale: scale,
         position: props.position,
         rotation: [0, 0, 0],
+        index: props.index,
         config: { friction: 10 },
         color: "white"
     }))
@@ -28,9 +29,17 @@ function PuzzlePiece({ ...props }) {
                 scale: hovering ? scale.map((value) => value * scaleFactor) : scale
             })
         },
-        onClick: () => {
-            console.log("hi")
-        }
+        onPointerUp: ({ event, dragging }) => {
+            if (dragging) return
+
+            // Finish animation when piece is rotating
+
+            set({
+                index: spring.index.get() - 1,
+                rotation: [0, (Math.PI / 2) * spring.index.get(), 0]
+            })
+            event.stopPropagation()
+        },
     })
 
     return (

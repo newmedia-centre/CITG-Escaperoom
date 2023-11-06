@@ -17,7 +17,6 @@ export const Level03Model = forwardRef((props, ref) => {
         <group name="Puzzle" position={[0.193, 0.244, 0]}>
           <group ref={tableRef} name="table" position={[0, 0, 0.5]} scale={[1.317, 0.859, 1.317]} onClick={(obj) => {
             obj.stopPropagation()
-            console.log(obj.eventObject)
             setSelectedObject(obj.eventObject)
           }}>
             <mesh name="Cube004" geometry={nodes.Cube004.geometry} material={materials.Wood} />

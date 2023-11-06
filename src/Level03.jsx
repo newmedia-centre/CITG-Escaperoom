@@ -115,10 +115,10 @@ export const Level03 = forwardRef((props, ref) => {
           setSelectedObject={setSelectedObject}
         />
         <group name="Pieces" position={[0.193, 0.871, -0.505]}>
-          <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} />
-          <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} />
-          <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} />
-          <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} />
+          <PuzzlePiece puzzleId={0} index={0} position={[0.221, 0.013, 0.217]} />
+          <PuzzlePiece puzzleId={1} index={1} position={[-0.221, 0.013, 0.217]} />
+          <PuzzlePiece puzzleId={2} index={2} position={[-0.221, 0.013, -0.217]} />
+          <PuzzlePiece puzzleId={3} index={3} position={[0.221, 0.013, -0.217]} />
         </group>
 
         <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
