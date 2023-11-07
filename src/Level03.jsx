@@ -6,25 +6,28 @@ import {
   Environment,
   PerformanceMonitor,
   CameraControls,
-  ContactShadows
+  ContactShadows,
+  Box,
 } from "@react-three/drei"
+import { Physics, useBox, useRaycastAll } from "@react-three/cannon"
 import { useFrame, useThree } from "@react-three/fiber"
-import * as THREE from "three"
+import { BufferGeometry, Line, Vector3, LineBasicMaterial, Mesh, BoxGeometry } from "three"
 import { useControls } from "leva"
-import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing"
 import React, { useEffect, useMemo, useRef, forwardRef, useImperativeHandle, useState, useTransition } from "react"
 import { Level03Model } from "../public/models/gltfjsx/Level03Model"
 import { useSpring, animated, easings } from '@react-spring/three'
 import PuzzlePiece from "./PuzzlePiece"
+import JSONPretty from 'react-json-pretty'
 
 export const Level03 = forwardRef((props, ref) => {
   const { lives, setLives, setGameWon, gameWon, gameOver, setGameOver, setResetGame, resetGame } = props
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [camControlsEnabled, setCamControls] = useState(true)
   const [selectedObject, setSelectedObject] = useState([])
+  const { camera } = useThree()
+
   const cameraControlsRef = useRef()
   const tableRef = useRef()
-  const { camera } = useThree()
 
   const resetLevel = () => {
   }
@@ -60,7 +63,7 @@ export const Level03 = forwardRef((props, ref) => {
 
   const followModelPosition = () => {
     if (Object.keys(cameraFollowing) != 0 && cameraControlsRef.current) {
-      var pos = cameraFollowing.current.children[0].getWorldPosition(new THREE.Vector3())
+      var pos = cameraFollowing.current.children[0].getWorldPosition(new Vector3())
       var offset = cameraFollowing.current.children[0].position
       cameraControlsRef.current.moveTo(pos.x, pos.y, offset.z, pos.x, pos.y, offset.z, true)
     }
@@ -114,12 +117,20 @@ export const Level03 = forwardRef((props, ref) => {
         <Level03Model ref={{ tableRef }}
           setSelectedObject={setSelectedObject}
         />
-        <group name="Pieces" position={[0.193, 0.871, -0.505]}>
-          <PuzzlePiece puzzleId={0} index={0} position={[0.221, 0.013, 0.217]} />
-          <PuzzlePiece puzzleId={1} index={1} position={[-0.221, 0.013, 0.217]} />
-          <PuzzlePiece puzzleId={2} index={2} position={[-0.221, 0.013, -0.217]} />
-          <PuzzlePiece puzzleId={3} index={3} position={[0.221, 0.013, -0.217]} />
-        </group>
+
+        <Physics iterations={6}>
+          <group name="Pieces" position={[0.193, 0.871, -0.505]}>
+            <PuzzlePiece puzzleId={0} index={0} position={[0.221, 0.013, 0.217]} />
+            <PuzzlePiece puzzleId={1} index={1} position={[-0.221, 0.013, 0.217]} />
+            <PuzzlePiece puzzleId={2} index={2} position={[-0.221, 0.013, -0.217]} />
+            <PuzzlePiece puzzleId={3} index={3} position={[0.221, 0.013, -0.217]} />
+            <PuzzleSlot puzzleId={0} index={1} position={[-0.221, 0.013, 1.217]} />
+            <PuzzleSlot puzzleId={1} index={3} position={[-0.221, 0.013, 0.783]} />
+            <PuzzleSlot puzzleId={2} index={2} position={[0.221, 0.013, 1.217]} />
+            <PuzzleSlot puzzleId={3} index={0} position={[0.221, 0.013, 0.783]} />
+          </group>
+
+        </Physics>
 
         <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
           <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />
@@ -161,41 +172,18 @@ function Env() {
   )
 }
 
-function Effects() {
-  const { ambinentOcclusion, smaa } = useControls({
-    ambinentOcclusion: { value: true },
-    smaa: { value: true },
-  })
+function PuzzleSlot({ position, puzzleId, index }) {
+  const size = [0.35, 0.2, 0.35]
+
+  const [physicsRef, api] = useBox(() => ({
+    args: size,
+    position: position,
+    type: 'Static',
+  }))
 
   return (
-    <>
-      <EffectComposer disableNormalPass multisampling={0}>
-        {ambinentOcclusion && (
-          <N8AO
-            aoRadius={0.2}
-            intensity={2}
-            aoSamples={6}
-            denoiseSamples={4}
-          />
-        )}
-        {smaa && <SMAA />}
-      </EffectComposer>
-
-    </>
+    <Box args={size} position={position} ref={physicsRef} name={puzzleId} userData={{ index }}>
+      <meshBasicMaterial visible={false} />
+    </Box>
   )
-}
-
-// Currently uses layer 1 to raycast
-const useForwardRaycast = (obj) => {
-  const raycaster = useMemo(() => new THREE.Raycaster(), [])
-  const pos = useMemo(() => new THREE.Vector3(), [])
-  const dir = useMemo(() => new THREE.Vector3(), [])
-  const scene = useThree((state) => state.scene)
-
-  return () => {
-    if (!obj.current) return []
-
-    raycaster.set(obj.current.getWorldPosition(pos), obj.current.getWorldDirection(dir))
-    return raycaster.intersectObjects(scene.children)
-  }
 }
