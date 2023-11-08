@@ -45,7 +45,7 @@ function PuzzlePiece({ ...props }) {
                 var hitPos = hit?.body?.position.toArray()
 
                 set({
-                    position: [hitPos[0], hitPos[1] + 0, hitPos[2]],
+                    position: hitPos,
                     color: 'white',
                 })
 
