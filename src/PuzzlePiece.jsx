@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useThree } from "@react-three/fiber"
-import { Svg } from '@react-three/drei'
+import { Svg, Point, Points, PointMaterial } from '@react-three/drei'
 import { useGesture } from '@use-gesture/react'
 import { useSpring, a } from '@react-spring/three'
 import { useRaycastAll } from '@react-three/cannon'
 
 function PuzzlePiece({ ...props }) {
     const yPos = props.position[1]
-    const { puzzleId, position, svg, setPuzzleInPlace } = props
+    const { puzzleId, position, svg, setPuzzleInPlace, setPuzzleSolved, solutionCoords } = props
     const { size, viewport } = useThree()
     const index = Math.floor(Math.random() * 4)
 
@@ -17,11 +17,14 @@ function PuzzlePiece({ ...props }) {
     const originalPosition = position
 
     const svgHint = useRef()
+    const solutionRef = useRef()
+    const inputRef = useRef()
 
     const [isDragging, setDragging] = useState(false); // Add state to track dragging
     const [currentIndex, setCurrentIndex] = useState(index); // State for index
     const [interactable, setInteractable] = useState(true); // State for index
     const [hint, setHint] = useState(0) // State for hints
+    const [solved, setSolved] = useState(false) // State for puzzle solved internally
 
     const [spring, set] = useSpring(() => ({
         scale: scale,
@@ -29,13 +32,13 @@ function PuzzlePiece({ ...props }) {
         rotation: [0, (currentIndex * Math.PI) / 2, 0], // Rotate based on currentIndex
         index: index,
         config: { friction: 10 },
-        color: "white"
+        color: "gray"
     }))
 
     useEffect(() => {
         switch (hint) {
             case 0:
-                svgHint.current.visible = true
+                // svgHint.current.visible = true
                 break;
         }
     }, [hint])
@@ -79,7 +82,7 @@ function PuzzlePiece({ ...props }) {
         onDrag: ({ event, dragging, movement: [x, y] }) => {
             event.stopPropagation()
 
-            if (!interactable) return
+            if (!interactable || solved) return
 
             if (dragging) {
                 if (x > 0.5 || y > 0.5) {
@@ -95,35 +98,54 @@ function PuzzlePiece({ ...props }) {
         onHover: ({ event, hovering }) => {
             event.stopPropagation()
 
-            if (!interactable) return
+            if (!interactable || solved) return
 
             set({
+                color: hovering ? 'white' : 'gray',
                 scale: hovering ? scale.map((value) => value * scaleFactor) : scale
             })
         },
         onPointerUp: ({ event }) => {
             event.stopPropagation()
 
-            if (!interactable) return
+            if (!interactable || solved) return
 
             set({
                 position: originalPosition,
-                color: 'white',
+                color: 'gray',
             })
 
             setDragging(false)
         },
-        onClick: () => {
+        onClick: ({ event }) => {
 
-            if (!interactable) return
+            if (solved) return
 
-            if (!isDragging) {
+            if (!isDragging && interactable) {
                 // Increase the currentIndex by 1 when clicked
                 const nextIndex = (currentIndex + 1) % 4;
                 setCurrentIndex(nextIndex);
                 set({
                     rotation: [0, (nextIndex * Math.PI) / 2, 0], // Rotate based on currentIndex
                 })
+            }
+
+            // If the piece is not interactable, the user can input the solution
+            if (!interactable) {
+                // Set the position of input ref to the event position
+                inputRef.current?.position.set(event.uv.x - 0.5, 0.6, -event.uv.y + 0.5)
+
+                // Calculate the distance between the solution and the input
+                var distance = inputRef.current?.position.distanceTo(solutionRef.current?.position)
+
+                // If the distance is less than 0.1, the puzzle is solved
+                if (distance < 0.1) {
+                    setPuzzleSolved()
+                    setSolved(true)
+                }
+                else {
+                    takeLive()
+                }
             }
         }
     })
@@ -148,9 +170,18 @@ function PuzzlePiece({ ...props }) {
                     rotation={[-Math.PI / 2, 0, Math.PI / 2]}
                 />
             </a.group>
+            <a.group {...spring}>
+                <Points >
+                    <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthWrite={false} toneMapped={false} />
+
+                    <Point name='solution' ref={solutionRef} position={solutionCoords} color={"red"} />
+                    <Point name='input' ref={inputRef} position={[0, 0, 0]} color={"yellow"} />
+                </Points>
+            </a.group>
             <a.mesh {...spring} {...bind()} castShadow>
                 <boxBufferGeometry />
                 <a.meshStandardMaterial color={spring.color} />
+
             </a.mesh >
             <Raycast puzzleId={puzzleId} index={index} position={spring.position.get()} />
         </>

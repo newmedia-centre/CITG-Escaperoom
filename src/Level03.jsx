@@ -34,6 +34,7 @@ export const Level03 = forwardRef((props, ref) => {
   const tableRef = useRef()
   const puzzleSlotViewRef = useRef()
 
+
   const resetLevel = () => {
   }
 
@@ -68,13 +69,14 @@ export const Level03 = forwardRef((props, ref) => {
         }
         break;
       case "puzzleslot":
+        setCamControls(true)
         cameraControlsRef.current?.setLookAt(.2, 3, 0, 0, .1, 0, false)
-        // cameraControlsRef.current?.fitToBox(puzzleSlotViewRef.current, false, {
-        //   cover: true,
-        // })
-        // setTimeout(() => {
-        //   setCamControls(false)
-        // }, 20)
+        cameraControlsRef.current?.fitToBox(puzzleSlotViewRef.current, false, {
+          cover: true,
+        })
+        setTimeout(() => {
+          setCamControls(false)
+        }, 20)
         break;
     }
   }
@@ -147,19 +149,22 @@ export const Level03 = forwardRef((props, ref) => {
         <Level03Model ref={{ tableRef }}
           setSelectedObject={setSelectedObject}
         />
-        <Text3D font={fontUrl} {...textOptions}>
-          Hello world!
-          <meshNormalMaterial />
-        </Text3D>
+        <Center rotation={[0, Math.PI / 2, 0]} position={[0.7, 0.91, 0]} >
+          <Text3D font="/Roboto_Regular.json" size={0.1} rotation={[-Math.PI / 3, 0, 0]} height={0.02} textAlign="center">
+            <meshStandardMaterial color="#356e73" />
+            Instantanious Center
+          </Text3D>
+
+        </Center>
 
         <Box ref={puzzleSlotViewRef} args={[1.5, .1, 1.5]} position={[0.2, 0.8, 0.5]} visible={false} />
 
         <Physics iterations={6}>
           <group name="Pieces" position={[0.193, 0.871, -0.505]}>
-            <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} svg="/svg/puzzle01/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} />
-            <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} svg="/svg/puzzle02/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} />
-            <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} svg="/svg/puzzle03/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} />
-            <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} svg="/svg/puzzle04/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} />
+            <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} svg="/svg/puzzle01/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.47, 0.6, -0.18]} />
+            <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} svg="/svg/puzzle02/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.41, 0.6, 0.4]} />
+            <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} svg="/svg/puzzle03/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.33, 0.6, -0.11]} />
+            <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} svg="/svg/puzzle04/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[0.16, 0.6, -0.15]} />
             <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} svg="/svg/puzzle01/" />
             <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} svg="/svg/puzzle02/" />
             <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} svg="/svg/puzzle03/" />
@@ -212,24 +217,43 @@ function PuzzleSlot({ position, puzzleId, svg }) {
   const size = [0.35, 0.2, 0.35]
   const index = 0
 
+  const [hint, setHint] = useState(0)
+
+  const svgHint = useRef()
+
   const [physicsRef, api] = useBox(() => ({
     args: size,
     position: position,
     type: 'Static',
   }))
 
+  useEffect(() => {
+    switch (hint) {
+      case 0:
+        // svgHint.current.visible = true
+        break;
+    }
+  }, [hint])
+
   return (
     <>
       <Box args={size} position={position} ref={physicsRef} name={puzzleId} userData={{ index }}>
         <meshBasicMaterial visible={false} />
         <Svg
-          fillMaterial={{
-            wireframe: false
-          }}
+          name='puzzle'
+          scale={0.00074}
+          src={svg + "Puzzle.svg"}
           position={[-size[0] / 2, 0, size[2] / 2]}
           rotation={[-Math.PI / 2, 0, Math.PI / 2]}
+        />
+        <Svg
+          ref={svgHint}
+          visible={false}
+          name='hint'
           scale={0.00074}
-          src={svg}
+          src={svg + "Hint.svg"}
+          position={[-size[0] / 2, 0, size[2] / 2]}
+          rotation={[-Math.PI / 2, 0, Math.PI / 2]}
         />
       </Box>
 
