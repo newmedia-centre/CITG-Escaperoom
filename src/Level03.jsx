@@ -8,12 +8,13 @@ import {
   CameraControls,
   ContactShadows,
   Box,
+  Svg,
 } from "@react-three/drei"
-import { Physics, useBox, useRaycastAll } from "@react-three/cannon"
+import { Physics, useBox } from "@react-three/cannon"
 import { useFrame, useThree } from "@react-three/fiber"
-import { BufferGeometry, Line, Vector3, LineBasicMaterial, Mesh, BoxGeometry } from "three"
+import { Vector3 } from "three"
 import { useControls } from "leva"
-import React, { useEffect, useMemo, useRef, forwardRef, useImperativeHandle, useState, useTransition } from "react"
+import React, { useEffect, useRef, forwardRef, useImperativeHandle, useState, useTransition } from "react"
 import { Level03Model } from "../public/models/gltfjsx/Level03Model"
 import { useSpring, animated, easings } from '@react-spring/three'
 import PuzzlePiece from "./PuzzlePiece"
@@ -24,6 +25,7 @@ export const Level03 = forwardRef((props, ref) => {
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [camControlsEnabled, setCamControls] = useState(true)
   const [selectedObject, setSelectedObject] = useState([])
+  const [puzzleSolved, setPuzzleSolved] = useState(0)
   const { camera } = useThree()
 
   const cameraControlsRef = useRef()
@@ -86,6 +88,14 @@ export const Level03 = forwardRef((props, ref) => {
     changeCamera(selectedObject?.name)
   }, [selectedObject])
 
+  useEffect(() => {
+    console.log(puzzleSolved)
+
+    if (puzzleSolved == 4) {
+      setGameWon(true)
+    }
+  }, [puzzleSolved])
+
   useControls({
     // Switch camera list
     camera: {
@@ -120,14 +130,14 @@ export const Level03 = forwardRef((props, ref) => {
 
         <Physics iterations={6}>
           <group name="Pieces" position={[0.193, 0.871, -0.505]}>
-            <PuzzlePiece puzzleId={0} index={0} position={[0.221, 0.013, 0.217]} />
-            <PuzzlePiece puzzleId={1} index={1} position={[-0.221, 0.013, 0.217]} />
-            <PuzzlePiece puzzleId={2} index={2} position={[-0.221, 0.013, -0.217]} />
-            <PuzzlePiece puzzleId={3} index={3} position={[0.221, 0.013, -0.217]} />
-            <PuzzleSlot puzzleId={0} index={1} position={[-0.221, 0.013, 1.217]} />
-            <PuzzleSlot puzzleId={1} index={3} position={[-0.221, 0.013, 0.783]} />
-            <PuzzleSlot puzzleId={2} index={2} position={[0.221, 0.013, 1.217]} />
-            <PuzzleSlot puzzleId={3} index={0} position={[0.221, 0.013, 0.783]} />
+            <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} svg="/svg/EscapeRoom-Level03-Puzzle01.svg" setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} />
+            <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} svg="/svg/EscapeRoom-Level03-Puzzle02.svg" setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} />
+            <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} svg="/svg/EscapeRoom-Level03-Puzzle03.svg" setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} />
+            <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} svg="/svg/EscapeRoom-Level03-Puzzle04.svg" setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} />
+            <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} svg="/svg/EscapeRoom-Level03-Puzzle01.svg" />
+            <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} svg="/svg/EscapeRoom-Level03-Puzzle02.svg" />
+            <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} svg="/svg/EscapeRoom-Level03-Puzzle03.svg" />
+            <PuzzleSlot puzzleId={3} position={[0.221, 0.013, 0.783]} svg="/svg/EscapeRoom-Level03-Puzzle04.svg" />
           </group>
 
         </Physics>
@@ -172,8 +182,9 @@ function Env() {
   )
 }
 
-function PuzzleSlot({ position, puzzleId, index }) {
+function PuzzleSlot({ position, puzzleId, svg }) {
   const size = [0.35, 0.2, 0.35]
+  const index = 0
 
   const [physicsRef, api] = useBox(() => ({
     args: size,
@@ -182,8 +193,20 @@ function PuzzleSlot({ position, puzzleId, index }) {
   }))
 
   return (
-    <Box args={size} position={position} ref={physicsRef} name={puzzleId} userData={{ index }}>
-      <meshBasicMaterial visible={false} />
-    </Box>
+    <>
+      <Box args={size} position={position} ref={physicsRef} name={puzzleId} userData={{ index }}>
+        <meshBasicMaterial visible={false} />
+        <Svg
+          fillMaterial={{
+            wireframe: false
+          }}
+          position={[-size[0] / 2, 0, size[2] / 2]}
+          rotation={[-Math.PI / 2, 0, Math.PI / 2]}
+          scale={0.00074}
+          src={svg}
+        />
+      </Box>
+
+    </>
   )
 }

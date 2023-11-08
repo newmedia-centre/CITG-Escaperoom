@@ -1,14 +1,15 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react'
-import { useThree, useFrame } from "@react-three/fiber"
-import { Vector3, BoxGeometry } from 'three'
+import React, { useState, useRef, useEffect } from 'react'
+import { useThree } from "@react-three/fiber"
+import { Svg } from '@react-three/drei'
 import { useGesture } from '@use-gesture/react'
 import { useSpring, a } from '@react-spring/three'
-import { useBox, useRaycastAll } from '@react-three/cannon'
+import { useRaycastAll } from '@react-three/cannon'
 
 function PuzzlePiece({ ...props }) {
     const yPos = props.position[1]
-    const { puzzleId, index, position } = props
+    const { puzzleId, position, svg, setPuzzleSolved } = props
     const { size, viewport } = useThree()
+    const index = Math.floor(Math.random() * 4)
 
     const aspect = size.width / viewport.width
     const scale = [0.4, 0.05, 0.4]
@@ -41,6 +42,14 @@ function PuzzlePiece({ ...props }) {
             // Checks if the piece collided with the correct puzzle piece with the right orientation
             if (hit?.body?.name == puzzleId && hit?.body?.userData?.index == currentIndex) {
                 setInteractable(false)
+                var hitPos = hit?.body?.position.toArray()
+
+                set({
+                    position: [hitPos[0], hitPos[1] + 0, hitPos[2]],
+                    color: 'white',
+                })
+
+                setPuzzleSolved()
             }
         }, [hit])
 
@@ -62,7 +71,7 @@ function PuzzlePiece({ ...props }) {
             if (!interactable) return
 
             if (dragging) {
-                if (x > 1 || y > 1) {
+                if (x > 0.5 || y > 0.5) {
                     setDragging(true)
                 }
 
@@ -97,11 +106,10 @@ function PuzzlePiece({ ...props }) {
 
             if (!interactable) return
 
-            // Increase the currentIndex by 1 when clicked
-            const nextIndex = (currentIndex + 1) % 4;
-            setCurrentIndex(nextIndex);
-
             if (!isDragging) {
+                // Increase the currentIndex by 1 when clicked
+                const nextIndex = (currentIndex + 1) % 4;
+                setCurrentIndex(nextIndex);
                 set({
                     rotation: [0, (nextIndex * Math.PI) / 2, 0], // Rotate based on currentIndex
                 })
@@ -111,7 +119,14 @@ function PuzzlePiece({ ...props }) {
 
     return (
         <>
-
+            <a.group position={spring.position} rotation={spring.rotation}>
+                <Svg
+                    scale={0.00074}
+                    src={svg}
+                    position={[-scale[0] / 2, .0289, scale[2] / 2]}
+                    rotation={[-Math.PI / 2, 0, Math.PI / 2]}
+                />
+            </a.group>
             <a.mesh {...spring} {...bind()} castShadow>
                 <boxBufferGeometry />
                 <a.meshStandardMaterial color={spring.color} />
