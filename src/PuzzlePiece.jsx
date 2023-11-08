@@ -23,7 +23,7 @@ function PuzzlePiece({ ...props }) {
     const [isDragging, setDragging] = useState(false); // Add state to track dragging
     const [currentIndex, setCurrentIndex] = useState(index); // State for index
     const [interactable, setInteractable] = useState(true); // State for index
-    const [hint, setHint] = useState(0) // State for hints
+    const [hint, setHint] = useState(5) // State for hints
     const [solved, setSolved] = useState(false) // State for puzzle solved internally
 
     const [spring, set] = useSpring(() => ({
@@ -37,8 +37,11 @@ function PuzzlePiece({ ...props }) {
 
     useEffect(() => {
         switch (hint) {
-            case 0:
-                // svgHint.current.visible = true
+            case 4:
+                svgHint.current.visible = true
+                break;
+            case 3:
+                solutionRef.current.parent.visible = true
                 break;
         }
     }, [hint])
@@ -139,12 +142,15 @@ function PuzzlePiece({ ...props }) {
                 var distance = inputRef.current?.position.distanceTo(solutionRef.current?.position)
 
                 // If the distance is less than 0.1, the puzzle is solved
-                if (distance < 0.1) {
+                if (distance < 0.06) {
                     setPuzzleSolved()
                     setSolved(true)
+                    inputRef.current?.color.set("green")
+                    solutionRef.current.parent.visible = true
                 }
                 else {
-                    takeLive()
+                    // TODO: Take away a life
+                    // takeLive()
                 }
             }
         }
@@ -171,10 +177,14 @@ function PuzzlePiece({ ...props }) {
                 />
             </a.group>
             <a.group {...spring}>
-                <Points >
-                    <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthWrite={false} toneMapped={false} />
 
+                <Points visible={false}>
+                    <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthWrite={false} toneMapped={false} />
                     <Point name='solution' ref={solutionRef} position={solutionCoords} color={"red"} />
+                </Points>
+
+                <Points>
+                    <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthWrite={false} toneMapped={false} />
                     <Point name='input' ref={inputRef} position={[0, 0, 0]} color={"yellow"} />
                 </Points>
             </a.group>
