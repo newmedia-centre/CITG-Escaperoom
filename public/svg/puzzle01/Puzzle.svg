@@ -1,6 +1,2 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 426 391"><defs><symbol id="a" data-name="Arrow 25" viewBox="0 0 45.72 26.28"><path style="stroke-width:0;fill:none" d="M0 0h45.72v26.28H0z"/><path style="fill:#231f20;stroke-width:0" d="M0 16.31h22.93v9.97l22.79-13.14L22.93 0v9.97H0v6.34z"/></symbol></defs><path style="stroke-linejoin:round;stroke:#3fa9f5;stroke-width:14px;stroke-linecap:round;fill:none" d="M370 378 13 7"/><path style="stroke-width:8px;stroke-linecap:round;stroke:#000;stroke-miterlimit:10;fill:none" d="M370.3 378 13 7"/><use width="45.72" height="26.28" transform="matrix(0 1.01 -.99 0 26 28)" xlink:href="#a"/><use width="45.72" height="26.28" transform="matrix(1.01 0 0 .99 380 365)" xlink:href="#a"/>
-
-<!-- Hint -->
-<path d="M294 215.2 281 202l-13 13 12.57-12.55c.19-.2.54-.12.61.15C289 230.08 210.6 296.97 166 241c-51-64 38-115 38-115" style="stroke:#c1272d;stroke-linejoin:round;stroke-width:8px;stroke-linecap:round;fill:none"/><text transform="translate(217.2 151.4)" style="fill:#c1272d;font-family:ForteMT,Forte;font-size:36px"><tspan x="0" y="0">W</tspan></text>
-
 </svg>

@@ -7,7 +7,7 @@ import { useRaycastAll } from '@react-three/cannon'
 
 function PuzzlePiece({ ...props }) {
     const yPos = props.position[1]
-    const { puzzleId, position, svg, setPuzzleSolved } = props
+    const { puzzleId, position, svg, setPuzzleInPlace } = props
     const { size, viewport } = useThree()
     const index = Math.floor(Math.random() * 4)
 
@@ -16,9 +16,12 @@ function PuzzlePiece({ ...props }) {
     const scaleFactor = 1.1
     const originalPosition = position
 
+    const svgHint = useRef()
+
     const [isDragging, setDragging] = useState(false); // Add state to track dragging
     const [currentIndex, setCurrentIndex] = useState(index); // State for index
     const [interactable, setInteractable] = useState(true); // State for index
+    const [hint, setHint] = useState(0) // State for hints
 
     const [spring, set] = useSpring(() => ({
         scale: scale,
@@ -28,6 +31,14 @@ function PuzzlePiece({ ...props }) {
         config: { friction: 10 },
         color: "white"
     }))
+
+    useEffect(() => {
+        switch (hint) {
+            case 0:
+                svgHint.current.visible = true
+                break;
+        }
+    }, [hint])
 
     function Raycast({ puzzleId, index, position }) {
         const [hit, setHit] = useState({})
@@ -49,7 +60,7 @@ function PuzzlePiece({ ...props }) {
                     color: 'white',
                 })
 
-                setPuzzleSolved()
+                setPuzzleInPlace()
             }
         }, [hit])
 
@@ -121,8 +132,18 @@ function PuzzlePiece({ ...props }) {
         <>
             <a.group position={spring.position} rotation={spring.rotation}>
                 <Svg
+                    name='puzzle'
                     scale={0.00074}
-                    src={svg}
+                    src={svg + "Puzzle.svg"}
+                    position={[-scale[0] / 2, .0289, scale[2] / 2]}
+                    rotation={[-Math.PI / 2, 0, Math.PI / 2]}
+                />
+                <Svg
+                    ref={svgHint}
+                    visible={false}
+                    name='hint'
+                    scale={0.00074}
+                    src={svg + "Hint.svg"}
                     position={[-scale[0] / 2, .0289, scale[2] / 2]}
                     rotation={[-Math.PI / 2, 0, Math.PI / 2]}
                 />
