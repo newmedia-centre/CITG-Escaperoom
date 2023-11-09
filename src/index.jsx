@@ -110,6 +110,28 @@ function App() {
     get()
   }, [playerID])
 
+  // Game over when time runs out
+  useEffect(() => {
+    if (!playerState) return
+
+    if (playerState.StartTime + 5400000 < Date.now()) {
+      setGameOver(true)
+      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + 5400000 }))
+    }
+  }, [playerState])
+
+  // Update database on game won or game over
+  useEffect(() => {
+    const update = async () => {
+      const token = await DatabaseClient.auth().catch(() => setPlayerState(null))
+      await DatabaseClient.update(playerID, playerState, token)
+    }
+
+    if (gameWon || gameOver) {
+      update()
+    }
+  }, [gameOver, gameWon, playerID, playerState])
+
   // return loading page if playerstate is undefined
   if (playerState === undefined) {
     return (<div style={{ padding: '16px' }}>Loading...</div>)
