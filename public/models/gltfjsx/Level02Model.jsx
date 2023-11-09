@@ -5,7 +5,7 @@ Command: npx gltfjsx@6.2.3 Level02.glb --transform
 
 import React, { forwardRef, useRef, useState, createRef, useEffect } from 'react'
 import { useFrame } from "@react-three/fiber"
-import { useGLTF, Text3D } from '@react-three/drei'
+import { useGLTF, Text3D, Text } from '@react-three/drei'
 import * as THREE from 'three'
 import { MathUtils } from 'three'
 import Ring from './Ring'
@@ -128,7 +128,13 @@ export const Level02Model = forwardRef((props, ref) => {
 
       <mesh ref={rope004Ref} geometry={nodes.Rope004.geometry} material={materials.Rope} position={[0, 0.356, -2.518]} />
       <mesh ref={circle003Ref} geometry={nodes.Circle003.geometry} material={materials.Rope} position={[0, 0.355, -2.418]} />
-      <mesh geometry={nodes.Ground.geometry} position={[0, -0.0005, 0]} material={materials.Ground} />
+      <mesh geometry={nodes.Ground.geometry} position={[0, -0.0005, 0]} material={materials.Ground}>
+        <group position={[0, -0.15, -2.09]} rotation={[0, -Math.PI, 0]} scale={[.2, .2, .2]}>
+          <Text color="white" anchorX="center" anchorY="middle">
+            Gewicht: 10kg
+          </Text>
+        </group>
+      </mesh>
       <mesh ref={rope003Ref} geometry={nodes.Rope003.geometry} material={materials.Rope} position={[0, 0.548, -2.416]} rotation={[0, 0, -Math.PI]} />
       <mesh ref={rope001Ref} geometry={nodes.Rope001.geometry} material={materials.Rope} position={[0, 0.6, 2.304]} rotation={[Math.PI / 2, 0, 0]} />
       <group name="solution" position={[0, 0, -0.2]} scale={2} ref={solutionRef} rotation={[0, Math.PI / 2, Math.PI]} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
@@ -158,7 +164,14 @@ export const Level02Model = forwardRef((props, ref) => {
       <group name='cabinet' ref={cabinetRef} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
         <mesh geometry={nodes.Cabinet.geometry} material={materials.Alluminium} position={[-2.75, 0, 1.209]} />
         <mesh geometry={nodes.CabinetDoor.geometry} material={materials.AlluminiumDark} position={[-2.307, 0, 1.893]} rotation={[-Math.PI, -0.527, -Math.PI]} />
-        <mesh geometry={nodes.CabinetDoor001.geometry} material={materials.AlluminiumDark} position={[-2.307, 0, 0.526]} rotation={[-Math.PI, Math.PI / 6, -Math.PI]} />
+        <mesh geometry={nodes.CabinetDoor001.geometry} material={materials.AlluminiumDark} position={[-2.307, 0, 0.526]} rotation={[-Math.PI, Math.PI / 6, -Math.PI]} >
+
+          <group position={[0, 1.5, 0.05]} rotation={[0, -Math.PI / 2, 0]} scale={[0.05, 0.05, 0.05]}>
+            <Text text={"Radius objecten: 0.2m \nAcceleratie: 9.81m/s^2"} color="white" anchorX="left" anchorY="middle">
+            </Text>
+          </group>
+
+        </mesh>
       </group>
       <mesh geometry={nodes.Plane.geometry} material={materials.AlluminiumDark} position={[-2.694, 0.4, 1.209]} scale={[0.286, 0.656, 0.656]} />
       <mesh geometry={nodes.Ceiling.geometry} material={materials.Walls} position={[0, 3, -0.5]} rotation={[-Math.PI, 0, 0]} />

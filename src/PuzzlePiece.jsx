@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useThree } from "@react-three/fiber"
-import { Svg, Point, Points, PointMaterial } from '@react-three/drei'
+import { Svg, Point, Points, PointMaterial, useTexture } from '@react-three/drei'
 import { useGesture } from '@use-gesture/react'
 import { useSpring, a } from '@react-spring/three'
 import { useRaycastAll } from '@react-three/cannon'
@@ -9,6 +9,7 @@ function PuzzlePiece({ ...props }) {
     const yPos = props.position[1]
     const { puzzleId, position, svg, setPuzzleInPlace, setPuzzleSolved, solutionCoords } = props
     const { size, viewport } = useThree()
+    const texture = useTexture("grid-pattern.png")
     const index = Math.floor(Math.random() * 4)
 
     const aspect = size.width / viewport.width
@@ -25,6 +26,7 @@ function PuzzlePiece({ ...props }) {
     const [interactable, setInteractable] = useState(true); // State for index
     const [hint, setHint] = useState(5) // State for hints
     const [solved, setSolved] = useState(false) // State for puzzle solved internally
+    const [showTexture, setShowTexture] = useState(false) // State for showing the grid texture
 
     const [spring, set] = useSpring(() => ({
         scale: scale,
@@ -141,8 +143,8 @@ function PuzzlePiece({ ...props }) {
                 // Calculate the distance between the solution and the input
                 var distance = inputRef.current?.position.distanceTo(solutionRef.current?.position)
 
-                // If the distance is less than 0.1, the puzzle is solved
-                if (distance < 0.06) {
+                // If the distance is less than 0.08, the puzzle is solved
+                if (distance < 0.08) {
                     setPuzzleSolved()
                     setSolved(true)
                     inputRef.current?.color.set("green")
@@ -190,8 +192,7 @@ function PuzzlePiece({ ...props }) {
             </a.group>
             <a.mesh {...spring} {...bind()} castShadow>
                 <boxBufferGeometry />
-                <a.meshStandardMaterial color={spring.color} />
-
+                <a.meshStandardMaterial color={spring.color} map={texture} />
             </a.mesh >
             <Raycast puzzleId={puzzleId} index={index} position={spring.position.get()} />
         </>

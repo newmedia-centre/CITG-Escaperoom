@@ -54,7 +54,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     switch (scene) {
       case "cannon":
         setCameraFocus(scene)
-        cameraControlsRef.current?.setLookAt(-2, 11, 38, -2, 8, 33, true)
+        cameraControlsRef.current?.setLookAt(-2, 8, 40, -2, 6, 33, true)
         break;
       case "blueprint":
         setCameraFocus(scene)
@@ -187,11 +187,12 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
           <WaterLevel position={[2, 0, 1.56]} />
           <WindowBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
           <PilarBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
-          <CannonBallHint />
+          {/* <CannonBallHint /> */}
+
           {/* Cannonball display */}
           {
             Array(lives).fill().map((_, index) => (
-              <CannonBall key={index} position={[-0.7 + index * 1, 6.04, 5]} />
+              <CannonBall key={index} position={[-0.7 + index * 1, 3.8, 5]} />
             ))
           }
           <Target ref={targetRef} />
