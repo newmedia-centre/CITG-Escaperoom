@@ -14,6 +14,7 @@ import ConfettiExplosion from "react-confetti-explosion";
 import GaugeComponent from "react-gauge-component";
 import { Leva } from "leva"
 import DatabaseClient from "./DatabaseClient"
+import hints from 'hints'
 
 function App() {
   const cannonRef = useRef()
@@ -22,6 +23,7 @@ function App() {
   const [gameOver, setGameOver] = useState(false)
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
+  const [showHintPopup, setShowHintPopup] = useState(false)
   const [speed, setSpeed] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(5400)
   const [playerID, setPlayerID] = useState(localStorage.getItem('player') ?? '')
@@ -443,6 +445,49 @@ function Loader() {
         {Math.trunc(progress)}%
       </CircularProgress>
     </Html>
+  );
+}
+
+function HintPopup({ playerState, setPlayerState, currentLevel }) {
+
+  const [currentHintIndex, setCurrentHintIndex] = useState(0)
+  const unlockedHints = playerState[`Level${currentLevel + 1}`].hints || 0
+
+  const previous = () => {
+    setCurrentHintIndex(prev => prev === 0 ? unlockedHints : prev - 1)
+  }
+
+  const next = () => {
+    setCurrentHintIndex(prev => prev === (unlockedHints - 1) ? 0 : prev + 1)
+  }
+
+  const unlock = () => {
+    if (unlockedHints !== 5) {
+      setPlayerState(prev => {
+        const level = { ...playerState[`Level${currentLevel + 1}`], hints: unlockedHints + 1 }
+        return {
+          ...prev, [`Level${currentLevel + 1}`]: level
+        }
+      })
+    }
+  }
+
+  // load text from hints file
+  const text = useMemo(() => {
+    if (unlockedHints < 1) return 'Press unlock to unlock a hint'
+    return hints[currentLevel][currentHintIndex]
+  }, [currentLevel, currentHintIndex])
+
+  const { progress } = useProgress()
+  return (
+    <div>
+      <p>{text}</p>
+      <div>
+        <button onClick={previous} disabled={currentHintIndex === 0}>Previous</button>
+        <button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Next</button>
+        <button onClick={unlock} disabled={unlockedHints >= 5}>Unlock Hint</button>
+      </div>
+    </div>
   );
 }
 
