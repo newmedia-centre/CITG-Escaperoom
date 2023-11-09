@@ -23,14 +23,14 @@ function App() {
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
   const [speed, setSpeed] = useState(0)
-  const [timeRemaining, setTimeRemaining] = useState(0)
+  const [timeRemaining, setTimeRemaining] = useState(5400)
   const [playerID, setPlayerID] = useState(localStorage.getItem('player') ?? '')
   const [playerState, setPlayerState] = useState()
   const [playerIDInput, setPlayerIDInput] = useState('')
   const [animationProgress, setAnimationProgress] = useState(0)
 
   const level02Ref = useRef()
-  const totalTimeInMinutes = 90
+  const totalTimeInMilliseconds = 90 * 60 * 1000
 
   // Sets the current level based on the url query params
   const currentLevel = useMemo(() => {
@@ -114,9 +114,9 @@ function App() {
   useEffect(() => {
     if (!playerState) return
 
-    if (playerState.StartTime + 5400000 < Date.now()) {
+    if (playerState.StartTime + totalTimeInMilliseconds < Date.now()) {
       setGameOver(true)
-      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + 5400000 }))
+      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds }))
     }
   }, [playerState])
 
@@ -131,6 +131,16 @@ function App() {
       update()
     }
   }, [gameOver, gameWon, playerID, playerState])
+
+  // Set TimeRemaining
+  useEffect(() => {
+    if (!playerState) return
+
+    const interval = setInterval(() => {
+      setTimeRemaining((playerState.StartTime + totalTimeInMilliseconds - Date.now()) / 1000)
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [playerState])
 
   // return loading page if playerstate is undefined
   if (playerState === undefined) {
@@ -174,7 +184,7 @@ function App() {
 
       {!gameOver && !gameWon ? (
         <>
-          <TimeRemaining timeRemaining={90} totalTimeInMinutes={totalTimeInMinutes} />
+          <TimeRemaining timeRemaining={timeRemaining} totalTimeInMilliseconds={totalTimeInMilliseconds} />
 
           {currentLevel === 0 && (
             <Stack direction="row" spacing={3} justifyContent="center"
@@ -386,8 +396,8 @@ function WinScreen({ onRetry }) {
   );
 }
 
-function TimeRemaining({ timeRemaining, totalTimeInMinutes }) {
-  let percentageLeft = timeRemaining / totalTimeInMinutes * 100
+function TimeRemaining({ timeRemaining, totalTimeInMilliseconds }) {
+  let percentageLeft = timeRemaining / totalTimeInMilliseconds * 100
 
   return (
     <LinearProgress
@@ -413,7 +423,7 @@ function TimeRemaining({ timeRemaining, totalTimeInMinutes }) {
         textColor="common.white"
         sx={{ mixBlendMode: 'difference' }}
       >
-        Tijd over: {`${Math.round(timeRemaining)} minuten`}
+        Tijd over: {`${String(Math.floor(timeRemaining / 60)).padStart(2, "0")}:${String(Math.floor(timeRemaining % 60)).padStart(2, "0")}`}
       </Typography>
     </LinearProgress >
   )
