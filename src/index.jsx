@@ -120,7 +120,7 @@ function App() {
     }
   }, [playerState])
 
-  // Update database on game won or game over
+  // Update database on state change
   useEffect(() => {
     const update = async () => {
       const token = await DatabaseClient.auth().catch(() => setPlayerState(null))
