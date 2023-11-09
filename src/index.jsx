@@ -24,7 +24,9 @@ function App() {
   const [resetGame, setResetGame] = useState(false)
   const [speed, setSpeed] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(0)
-  const [playerID, setPlayerID] = useState("test")
+  const [playerID, setPlayerID] = useState(localStorage.getItem('player') ?? '')
+  const [playerState, setPlayerState] = useState()
+  const [playerIDInput, setPlayerIDInput] = useState('')
   const [animationProgress, setAnimationProgress] = useState(0)
 
   const level02Ref = useRef()
@@ -46,20 +48,21 @@ function App() {
   }, [window.location.search])
 
   // Adds player to database and starts the game
-  const registerPlayer = async (playerId) => {
-    console.log("TODO: register player")
-    const token = await fetchAuthToken()
+  const registerPlayer = async () => {
+    if (!playerIDInput) return
 
-    setPlayerID(playerId)
-    const date = Date.now()
-    let startTime = Math.round(date / 1000)
-    const jsonPayload = {
-      data: {
-        level: currentLevel,
-        start_time: startTime,
-      }
+    // store player in localStorage and state
+    localStorage.setItem('player', playerIDInput)
+    setPlayerID(playerIDInput)
+
+    // check to see if player exists
+    const token = await DatabaseClient.auth()
+    const existing = await DatabaseClient.read(playerIDInput, token)
+
+    // create player if it doesnt exist
+    if (!existing) {
+      await DatabaseClient.add(playerIDInput, { StartTime: Date.now() }, token)
     }
-    await postStartGameTime(playerID, jsonPayload, token)
   }
 
   // Fire cannon
@@ -96,14 +99,26 @@ function App() {
     e.preventDefault()
   }
 
+  // Get player state from database
   useEffect(() => {
-    DatabaseClient()
-  }, [])
+    const get = async () => {
+      const token = await DatabaseClient.auth().catch(() => setPlayerState(null))
+      const state = await DatabaseClient.read(playerID, token).catch(() => setPlayerState(null))
+      setPlayerState(state ?? null)
+    }
+
+    get()
+  }, [playerID])
+
+  // return loading page if playerstate is undefined
+  if (playerState === undefined) {
+    return (<div style={{ padding: '16px' }}>Loading...</div>)
+  }
 
   return (
     <>
       {/* If player name is not found register new Player */}
-      {playerID === "" && (
+      {playerState === null && (
         <>
           <Stack
             spacing={2}
@@ -126,7 +141,7 @@ function App() {
             <Typography level="body-md">Create your group name to play the game</Typography>
             <form onSubmit={onSubmit} >
               <Stack spacing={1}>
-                <Input placeholder="Enter your group name..." variant="solid" required />
+                <Input placeholder="Enter your group name..." variant="solid" required value={playerIDInput} onChange={e => setPlayerIDInput(e.target.value)} />
                 <Button type={"submit"} onClick={registerPlayer} size="lg">Play</Button>
               </Stack>
             </form>
