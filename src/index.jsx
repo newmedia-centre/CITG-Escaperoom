@@ -116,7 +116,7 @@ function App() {
 
     if (playerState.StartTime + totalTimeInMilliseconds < Date.now()) {
       setGameOver(true)
-      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds }))
+      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Lost: true }))
     }
   }, [playerState])
 
@@ -127,10 +127,10 @@ function App() {
       await DatabaseClient.update(playerID, playerState, token)
     }
 
-    if (gameWon || gameOver) {
+    if (playerState) {
       update()
     }
-  }, [gameOver, gameWon, playerID, playerState])
+  }, [playerID, playerState])
 
   // Set TimeRemaining
   useEffect(() => {
