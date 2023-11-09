@@ -14,6 +14,7 @@ import ConfettiExplosion from "react-confetti-explosion";
 import GaugeComponent from "react-gauge-component";
 import { Leva } from "leva"
 import DatabaseClient from "./DatabaseClient"
+import hints from 'hints'
 
 function App() {
   const cannonRef = useRef()
@@ -22,13 +23,16 @@ function App() {
   const [gameOver, setGameOver] = useState(false)
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
+  const [showHintPopup, setShowHintPopup] = useState(false)
   const [speed, setSpeed] = useState(0)
-  const [timeRemaining, setTimeRemaining] = useState(0)
-  const [playerID, setPlayerID] = useState("test")
+  const [timeRemaining, setTimeRemaining] = useState(5400)
+  const [playerID, setPlayerID] = useState(localStorage.getItem('player') ?? '')
+  const [playerState, setPlayerState] = useState()
+  const [playerIDInput, setPlayerIDInput] = useState('')
   const [animationProgress, setAnimationProgress] = useState(0)
 
   const level02Ref = useRef()
-  const totalTimeInMinutes = 90
+  const totalTimeInMilliseconds = 90 * 60 * 1000
 
   // Sets the current level based on the url query params
   const currentLevel = useMemo(() => {
@@ -46,20 +50,21 @@ function App() {
   }, [window.location.search])
 
   // Adds player to database and starts the game
-  const registerPlayer = async (playerId) => {
-    console.log("TODO: register player")
-    const token = await fetchAuthToken()
+  const registerPlayer = async () => {
+    if (!playerIDInput) return
 
-    setPlayerID(playerId)
-    const date = Date.now()
-    let startTime = Math.round(date / 1000)
-    const jsonPayload = {
-      data: {
-        level: currentLevel,
-        start_time: startTime,
-      }
+    // store player in localStorage and state
+    localStorage.setItem('player', playerIDInput)
+    setPlayerID(playerIDInput)
+
+    // check to see if player exists
+    const token = await DatabaseClient.auth()
+    const existing = await DatabaseClient.read(playerIDInput, token)
+
+    // create player if it doesnt exist
+    if (!existing) {
+      await DatabaseClient.add(playerIDInput, { StartTime: Date.now() }, token)
     }
-    await postStartGameTime(playerID, jsonPayload, token)
   }
 
   // Fire cannon
@@ -96,14 +101,58 @@ function App() {
     e.preventDefault()
   }
 
+  // Get player state from database
   useEffect(() => {
-    DatabaseClient()
-  }, [])
+    const get = async () => {
+      const token = await DatabaseClient.auth().catch(() => setPlayerState(null))
+      const state = await DatabaseClient.read(playerID, token).catch(() => setPlayerState(null))
+      setPlayerState(state ?? null)
+    }
+
+    get()
+  }, [playerID])
+
+  // Game over when time runs out
+  useEffect(() => {
+    if (!playerState) return
+
+    if (playerState.StartTime + totalTimeInMilliseconds < Date.now()) {
+      setGameOver(true)
+      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Lost: true }))
+    }
+  }, [playerState])
+
+  // Update database on state change
+  useEffect(() => {
+    const update = async () => {
+      const token = await DatabaseClient.auth().catch(() => setPlayerState(null))
+      await DatabaseClient.update(playerID, playerState, token)
+    }
+
+    if (playerState) {
+      update()
+    }
+  }, [playerID, playerState])
+
+  // Set TimeRemaining
+  useEffect(() => {
+    if (!playerState) return
+
+    const interval = setInterval(() => {
+      setTimeRemaining((playerState.StartTime + totalTimeInMilliseconds - Date.now()) / 1000)
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [playerState])
+
+  // return loading page if playerstate is undefined
+  if (playerState === undefined) {
+    return (<div style={{ padding: '16px' }}>Loading...</div>)
+  }
 
   return (
     <>
       {/* If player name is not found register new Player */}
-      {playerID === "" && (
+      {playerState === null && (
         <>
           <Stack
             spacing={2}
@@ -126,7 +175,7 @@ function App() {
             <Typography level="body-md">Create your group name to play the game</Typography>
             <form onSubmit={onSubmit} >
               <Stack spacing={1}>
-                <Input placeholder="Enter your group name..." variant="solid" required />
+                <Input placeholder="Enter your group name..." variant="solid" required value={playerIDInput} onChange={e => setPlayerIDInput(e.target.value)} />
                 <Button type={"submit"} onClick={registerPlayer} size="lg">Play</Button>
               </Stack>
             </form>
@@ -137,7 +186,7 @@ function App() {
 
       {!gameOver && !gameWon ? (
         <>
-          <TimeRemaining timeRemaining={90} totalTimeInMinutes={totalTimeInMinutes} />
+          <TimeRemaining timeRemaining={timeRemaining} totalTimeInMilliseconds={totalTimeInMilliseconds} />
 
           {currentLevel === 0 && (
             <Stack direction="row" spacing={3} justifyContent="center"
@@ -349,8 +398,8 @@ function WinScreen({ onRetry }) {
   );
 }
 
-function TimeRemaining({ timeRemaining, totalTimeInMinutes }) {
-  let percentageLeft = timeRemaining / totalTimeInMinutes * 100
+function TimeRemaining({ timeRemaining, totalTimeInMilliseconds }) {
+  let percentageLeft = timeRemaining / totalTimeInMilliseconds * 100
 
   return (
     <LinearProgress
@@ -376,7 +425,7 @@ function TimeRemaining({ timeRemaining, totalTimeInMinutes }) {
         textColor="common.white"
         sx={{ mixBlendMode: 'difference' }}
       >
-        Tijd over: {`${Math.round(timeRemaining)} minuten`}
+        Tijd over: {`${String(Math.floor(timeRemaining / 60)).padStart(2, "0")}:${String(Math.floor(timeRemaining % 60)).padStart(2, "0")}`}
       </Typography>
     </LinearProgress >
   )
@@ -396,6 +445,49 @@ function Loader() {
         {Math.trunc(progress)}%
       </CircularProgress>
     </Html>
+  );
+}
+
+function HintPopup({ playerState, setPlayerState, currentLevel }) {
+
+  const [currentHintIndex, setCurrentHintIndex] = useState(0)
+  const unlockedHints = playerState[`Level${currentLevel + 1}`].hints || 0
+
+  const previous = () => {
+    setCurrentHintIndex(prev => prev === 0 ? unlockedHints : prev - 1)
+  }
+
+  const next = () => {
+    setCurrentHintIndex(prev => prev === (unlockedHints - 1) ? 0 : prev + 1)
+  }
+
+  const unlock = () => {
+    if (unlockedHints !== 5) {
+      setPlayerState(prev => {
+        const level = { ...playerState[`Level${currentLevel + 1}`], hints: unlockedHints + 1 }
+        return {
+          ...prev, [`Level${currentLevel + 1}`]: level
+        }
+      })
+    }
+  }
+
+  // load text from hints file
+  const text = useMemo(() => {
+    if (unlockedHints < 1) return 'Press unlock to unlock a hint'
+    return hints[currentLevel][currentHintIndex]
+  }, [currentLevel, currentHintIndex])
+
+  const { progress } = useProgress()
+  return (
+    <div>
+      <p>{text}</p>
+      <div>
+        <button onClick={previous} disabled={currentHintIndex === 0}>Previous</button>
+        <button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Next</button>
+        <button onClick={unlock} disabled={unlockedHints >= 5}>Unlock Hint</button>
+      </div>
+    </div>
   );
 }
 
