@@ -6,7 +6,7 @@ import { Html, useProgress } from "@react-three/drei";
 import Level01 from "./Level01"
 import Level02 from "./Level02"
 import Level03 from "./Level03"
-import { Suspense, useRef, useState, useEffect } from "react";
+import { Suspense, useRef, useState, useEffect, useMemo } from "react";
 import { CircularProgress, Typography, Button, LinearProgress, Input } from "@mui/joy";
 import { Stack } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
@@ -22,7 +22,6 @@ function App() {
   const [gameOver, setGameOver] = useState(false)
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
-  const [currentLevel, setCurrentLevel] = useState(2)
   const [speed, setSpeed] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(0)
   const [playerID, setPlayerID] = useState("test")
@@ -30,6 +29,21 @@ function App() {
 
   const level02Ref = useRef()
   const totalTimeInMinutes = 90
+
+  // Sets the current level based on the url query params
+  const currentLevel = useMemo(() => {
+    const urlLevel = new URLSearchParams(window.location.search).get('zwvkhnpl')
+    switch (urlLevel) {
+      case 'wjaejhjc':
+        return 0;
+      case 'uijyaqlq':
+        return 1;
+      case 'jjsnavux':
+        return 2;
+      default:
+        return 0;
+    }
+  }, [window.location.search])
 
   // Adds player to database and starts the game
   const registerPlayer = async (playerId) => {
