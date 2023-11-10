@@ -116,6 +116,8 @@ function App() {
 
   // Set lives to player state
   useEffect(() => {
+    if (!playerState) return
+
     setPlayerState(prev => {
       // TODO: check if this is correct
       if (!prev.Lost && !prev.Won) {
