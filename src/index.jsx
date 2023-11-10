@@ -22,8 +22,8 @@ function App() {
   const cannonRef = useRef()
   const [fireCannon, setFireCannon] = useState(null)
   const [lives, setLives] = useState(3)
-  const [gameOver, setGameOver] = useState(true)
-  const [gameWon, setGameWon] = useState(false)
+  const [gameOver, setGameOver] = useState(false)
+  const [gameWon, setGameWon] = useState(true)
   const [resetGame, setResetGame] = useState(false)
   const [showHintPopup, setShowHintPopup] = useState(false)
   const [speed, setSpeed] = useState(0)
@@ -472,8 +472,16 @@ function WinScreen({ onRetry, currentLevel }) {
     >
       <ConfettiExplosion particleCount={200} duration={4000} />
 
-      <Typography level="h2" color="success">Level completed!</Typography>
-      <Button onClick={onRetry} variant="solid" size="lg" color="success">Openiuw proberen</Button>
+      <Card color="neutral" sx={{
+        backgroundColor: 'rgba(22, 22, 22, 1)',
+        p: 2,
+        textAlign: 'center',
+        color: "gray"
+      }}>
+        <Typography level="h2" color="success">Level behaald!</Typography>
+        <Typography level="body-md">{gameMessages.messages[currentLevel].win}</Typography>
+        <Typography level="body-md">{gameMessages.messages[currentLevel].instruction}</Typography>
+      </Card>
     </Stack>
   );
 }
