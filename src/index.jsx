@@ -23,7 +23,7 @@ function App() {
   const [fireCannon, setFireCannon] = useState(null)
   const [lives, setLives] = useState(3)
   const [gameOver, setGameOver] = useState(false)
-  const [gameWon, setGameWon] = useState(true)
+  const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
   const [showHintPopup, setShowHintPopup] = useState(false)
   const [speed, setSpeed] = useState(0)
@@ -114,11 +114,42 @@ function App() {
     get()
   }, [playerID])
 
+  // Set lives to player state
+  useEffect(() => {
+    setPlayerState(prev => {
+      // TODO: check if this is correct
+      if (!prev.Lost && !prev.Won) {
+        const levelState = { ...prev[`Level${currentLevel + 1}`], lives: lives }
+        return {
+          ...prev, [`Level${currentLevel + 1}`]: levelState
+        }
+      }
+
+      // If player has no lives left in current level set lost in currentlevel to true
+      if (prev[`Level${currentLevel + 1}`].lives === 0 && !prev.Won && !prev.Lost) {
+        setGameOver(true)
+        return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Lost: true } }
+      }
+
+      return prev
+    })
+  }, [lives, currentLevel])
+
+  useEffect(() => {
+    if (!playerState) return
+
+    // If player has won set won to true
+    if (gameWon && !playerState.Won && !playerState.Lost) {
+      setGameWon(true)
+      return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true } }
+    }
+  }, [gameWon, currentLevel])
+
   // Game over when time runs out
   useEffect(() => {
     if (!playerState) return
 
-    if (playerState.StartTime + totalTimeInMilliseconds < Date.now()) {
+    if (playerState.StartTime + totalTimeInMilliseconds < Date.now() && !playerState.Won) {
       setGameOver(true)
       setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Lost: true }))
     }
