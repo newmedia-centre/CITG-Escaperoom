@@ -533,11 +533,12 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
         <Button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Next</Button>
         <Button onClick={unlock} disabled={unlockedHints >= 5}>Unlock Hint</Button>
       </ButtonGroup>
-      <IconButton color="danger" onClick={() => setShowHintPopup(false)} sx={{
+      <IconButton color="danger" onClick={() => setShowHintPopup(false)} size="sm" sx={{
         position: 'absolute',
         top: '0',
         right: '0',
         m: 1,
+        mt: 0.4,
       }}>
         <Close />
       </IconButton>
