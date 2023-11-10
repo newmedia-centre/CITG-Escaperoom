@@ -20,6 +20,7 @@ function PuzzlePiece({ ...props }) {
     const svgHint = useRef()
     const solutionRef = useRef()
     const inputRef = useRef()
+    const materialRef = useRef()
 
     const [isDragging, setDragging] = useState(false); // Add state to track dragging
     const [currentIndex, setCurrentIndex] = useState(index); // State for index
@@ -138,16 +139,18 @@ function PuzzlePiece({ ...props }) {
             // If the piece is not interactable, the user can input the solution
             if (!interactable) {
                 // Set the position of input ref to the event position
-                inputRef.current?.position.set(event.uv.x - 0.5, 0.6, -event.uv.y + 0.5)
+                inputRef.current?.position.set(event.uv.x - 0.5, 0, -event.uv.y + 0.5)
+                inputRef.current.visible = true
 
                 // Calculate the distance between the solution and the input
                 var distance = inputRef.current?.position.distanceTo(solutionRef.current?.position)
+                console.log(distance)
 
                 // If the distance is less than 0.08, the puzzle is solved
                 if (distance < 0.08) {
                     setPuzzleSolved()
                     setSolved(true)
-                    inputRef.current?.color.set("green")
+                    materialRef.current?.color.set("green")
                     solutionRef.current.parent.visible = true
                 }
                 else {
@@ -181,13 +184,13 @@ function PuzzlePiece({ ...props }) {
             <a.group {...spring}>
 
                 <Points visible={false}>
-                    <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthWrite={false} toneMapped={false} />
+                    <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthTest={false} depthWrite={false} toneMapped={false} />
                     <Point name='solution' ref={solutionRef} position={solutionCoords} color={"red"} />
                 </Points>
 
-                <Points>
-                    <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthWrite={false} toneMapped={false} />
-                    <Point name='input' ref={inputRef} position={[0, 0, 0]} color={"yellow"} />
+                <Points ref={inputRef} position={[0, 0, 0]} visible={false}>
+                    <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthTest={false} depthWrite={false} toneMapped={false} />
+                    <Point name='input' position={[0, 0, 0]} ref={materialRef} color={"yellow"} />
                 </Points>
             </a.group>
             <a.mesh {...spring} {...bind()} castShadow>
