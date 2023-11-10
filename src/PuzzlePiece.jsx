@@ -144,7 +144,6 @@ function PuzzlePiece({ ...props }) {
 
                 // Calculate the distance between the solution and the input
                 var distance = inputRef.current?.position.distanceTo(solutionRef.current?.position)
-                console.log(distance)
 
                 // If the distance is less than 0.08, the puzzle is solved
                 if (distance < 0.08) {

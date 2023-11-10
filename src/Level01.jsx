@@ -54,7 +54,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     switch (scene) {
       case "cannon":
         setCameraFocus(scene)
-        cameraControlsRef.current?.setLookAt(-2, 8, 40, -2, 6, 33, true)
+        cameraControlsRef.current?.setLookAt(-2, 7, 39, -2, 6, 33, true)
         break;
       case "blueprint":
         setCameraFocus(scene)
@@ -62,7 +62,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
         break;
       default:
         setCameraFocus('default')
-        cameraControlsRef.current?.setLookAt(-2, 11, 38, -2, 8, 33, true)
+        cameraControlsRef.current?.setLookAt(-2, 7, 39, -2, 6, 33, true)
     }
   }
 
@@ -117,7 +117,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
       const cannonRotation = cannonRef.current.getWorldQuaternion(new THREE.Quaternion())
 
       // Create a direction vector pointing in the direction of the cannon barrel
-      const direction = new THREE.Vector3(0, 1, 0); // 1 unit along the y-axis
+      const direction = new THREE.Vector3(0, 0, -1); // 1 unit along the y-axis
       direction.applyQuaternion(cannonRotation);
 
       // Scale the direction by the magnitude of the force to be applied
@@ -171,7 +171,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
   useControls({
     cannonAngle: {
-      value: 0.000, min: (THREE.MathUtils.RAD2DEG * -Math.PI / 2), max: 0, step: 0.001,
+      value: 0.000, min: 0, max: (THREE.MathUtils.RAD2DEG * Math.PI / 2), step: 0.001,
       onChange: (value) => cannonRef.current.rotation.x = THREE.MathUtils.DEG2RAD * value,
       label: "Kanon hoek in graden"
     }

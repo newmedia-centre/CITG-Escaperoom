@@ -130,11 +130,9 @@ export const Level02Model = forwardRef((props, ref) => {
       <mesh ref={circle003Ref} geometry={nodes.Circle003.geometry} material={materials.Rope} position={[0, 0.355, -2.418]} />
       <mesh geometry={nodes.Ground.geometry} position={[0, -0.0005, 0]} material={materials.Ground}>
         <group position={[0, -0.15, -2.09]} rotation={[0, -Math.PI, 0]} scale={[.2, .2, .2]}>
-          <Text color="white" anchorX="center" anchorY="middle">
-            Gewicht: 10kg
-          </Text>
+          <Text color="white" anchorX="center" anchorY="middle" scale={[0.4, 0.4, 0.4]} text={"Gewicht: 10kg \n Acceleratie: -1"} />
         </group>
-      </mesh>
+      </mesh >
       <mesh ref={rope003Ref} geometry={nodes.Rope003.geometry} material={materials.Rope} position={[0, 0.548, -2.416]} rotation={[0, 0, -Math.PI]} />
       <mesh ref={rope001Ref} geometry={nodes.Rope001.geometry} material={materials.Rope} position={[0, 0.6, 2.304]} rotation={[Math.PI / 2, 0, 0]} />
       <group name="solution" position={[0, 0, -0.2]} scale={2} ref={solutionRef} rotation={[0, Math.PI / 2, Math.PI]} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
@@ -167,7 +165,7 @@ export const Level02Model = forwardRef((props, ref) => {
         <mesh geometry={nodes.CabinetDoor001.geometry} material={materials.AlluminiumDark} position={[-2.307, 0, 0.526]} rotation={[-Math.PI, Math.PI / 6, -Math.PI]} >
 
           <group position={[0, 1.5, 0.05]} rotation={[0, -Math.PI / 2, 0]} scale={[0.05, 0.05, 0.05]}>
-            <Text text={"Radius objecten: 0.2m \nAcceleratie: 9.81m/s^2"} color="white" anchorX="left" anchorY="middle">
+            <Text text={"Radius objecten: 0.2m \nAcceleratie: 2 \nHoekversnelling: 10"} color="white" anchorX="left" anchorY="middle">
             </Text>
           </group>
 
@@ -199,7 +197,7 @@ export const Level02Model = forwardRef((props, ref) => {
           </Plane>
         ))}
       </group> */}
-    </group>
+    </group >
   )
 })
 

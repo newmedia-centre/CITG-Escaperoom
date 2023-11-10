@@ -15,7 +15,7 @@ export const Cannon = forwardRef((props, ref) => {
     <group name='cannon' {...props} dispose={null} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
       <mesh geometry={nodes.Cannon.geometry} material={materials.PaintedMetal} position={[-0.261, 3.4, 4.789]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={0.549}>
         <Text color="black" scale={0.3} rotation={[-Math.PI / 2, Math.PI, 0]} position={[0, -1.3, -0.52]}>
-          g = 9.81
+          {/* v = 7.5 */}
         </Text>
       </mesh>
       <mesh ref={ref} geometry={nodes.CannonBarrel.geometry} material={materials.DarkGrayMetal} position={[-0.261, 4.0, 4.789]} scale={0.482} />

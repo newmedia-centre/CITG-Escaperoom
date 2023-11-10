@@ -7,14 +7,15 @@ import Level01 from "./Level01"
 import Level02 from "./Level02"
 import Level03 from "./Level03"
 import { Suspense, useRef, useState, useEffect, useMemo } from "react";
-import { CircularProgress, Typography, Button, LinearProgress, Input } from "@mui/joy";
+import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Input, Card } from "@mui/joy";
+import { QuestionMark, Close } from "@mui/icons-material";
 import { Stack } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
 import ConfettiExplosion from "react-confetti-explosion";
 import GaugeComponent from "react-gauge-component";
 import { Leva } from "leva"
 import DatabaseClient from "./DatabaseClient"
-import hints from 'hints'
+import hints from './hints'
 
 function App() {
   const cannonRef = useRef()
@@ -152,7 +153,7 @@ function App() {
   return (
     <>
       {/* If player name is not found register new Player */}
-      {playerState === null && (
+      {playerState !== null && (
         <>
           <Stack
             spacing={2}
@@ -184,9 +185,33 @@ function App() {
       )
       }
 
+      {showHintPopup && (
+        <HintPopup playerState={playerState} setPlayerState={setPlayerState} currentLevel={currentLevel} setShowHintPopup={setShowHintPopup} />
+      )}
+
+
       {!gameOver && !gameWon ? (
         <>
-          <TimeRemaining timeRemaining={timeRemaining} totalTimeInMilliseconds={totalTimeInMilliseconds} />
+          <Stack direction="column" spacing={3} sx={{
+            position: 'absolute',
+            width: '100%',
+            bottom: '4px',
+            right: '0',
+            zIndex: 20000,
+          }}>
+            <IconButton variant="solid" color="warning" aria-label="Open in new tab" onClick={() => setShowHintPopup(!showHintPopup)}
+              sx={{
+                position: 'absolute',
+                bottom: '38px',
+                right: '20px',
+                pr: 1.4,
+              }}>
+              <QuestionMark />
+              Hints
+            </IconButton>
+            <TimeRemaining timeRemaining={timeRemaining} totalTimeInMilliseconds={totalTimeInMilliseconds} />
+          </Stack>
+
 
           {currentLevel === 0 && (
             <Stack direction="row" spacing={3} justifyContent="center"
@@ -448,10 +473,11 @@ function Loader() {
   );
 }
 
-function HintPopup({ playerState, setPlayerState, currentLevel }) {
+function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup }) {
 
   const [currentHintIndex, setCurrentHintIndex] = useState(0)
-  const unlockedHints = playerState[`Level${currentLevel + 1}`].hints || 0
+  const unlockedHints = 5
+  // const unlockedHints = playerState[`Level${currentLevel + 1}`].hints || 0
 
   const previous = () => {
     setCurrentHintIndex(prev => prev === 0 ? unlockedHints : prev - 1)
@@ -474,20 +500,48 @@ function HintPopup({ playerState, setPlayerState, currentLevel }) {
 
   // load text from hints file
   const text = useMemo(() => {
-    if (unlockedHints < 1) return 'Press unlock to unlock a hint'
-    return hints[currentLevel][currentHintIndex]
+    if (unlockedHints < 1)
+      return <Typography level="title-md">
+        Press unlock to unlock a hint.
+      </Typography>
+
+    return <Typography level="title-md">
+      {hints[currentLevel][currentHintIndex]}
+    </Typography>
   }, [currentLevel, currentHintIndex])
 
   const { progress } = useProgress()
   return (
-    <div>
+    <Card variant="outlined" sx={
+      // Move to middle of screen
+      {
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '80%',
+        maxWidth: '600px',
+        transition: 'opacity 1s ease-in-out',
+        zIndex: 100000,
+        position: 'absolute',
+      }}>
       <p>{text}</p>
-      <div>
-        <button onClick={previous} disabled={currentHintIndex === 0}>Previous</button>
-        <button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Next</button>
-        <button onClick={unlock} disabled={unlockedHints >= 5}>Unlock Hint</button>
-      </div>
-    </div>
+      <ButtonGroup
+        orientation="horizontal"
+        size="sm"
+        variant="soft">
+        <Button onClick={previous} disabled={currentHintIndex === 0}>Previous</Button>
+        <Button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Next</Button>
+        <Button onClick={unlock} disabled={unlockedHints >= 5}>Unlock Hint</Button>
+      </ButtonGroup>
+      <IconButton color="danger" onClick={() => setShowHintPopup(false)} sx={{
+        position: 'absolute',
+        top: '0',
+        right: '0',
+        m: 1,
+      }}>
+        <Close />
+      </IconButton>
+    </ Card >
   );
 }
 
