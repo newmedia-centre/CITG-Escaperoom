@@ -54,7 +54,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     switch (scene) {
       case "cannon":
         setCameraFocus(scene)
-        cameraControlsRef.current?.setLookAt(-2, 11, 38, -2, 8, 33, true)
+        cameraControlsRef.current?.setLookAt(-2, 7, 39, -2, 6, 33, true)
         break;
       case "blueprint":
         setCameraFocus(scene)
@@ -62,14 +62,14 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
         break;
       default:
         setCameraFocus('default')
-        cameraControlsRef.current?.setLookAt(-2, 11, 38, -2, 8, 33, true)
+        cameraControlsRef.current?.setLookAt(-2, 7, 39, -2, 6, 33, true)
     }
   }
 
   let hitHandled = false
   const [elapsed, setElapsed] = useState(0) // time elapsed
 
-  const waterLevel = 2.5
+  const waterLevel = 1.4
   if (oceanRef.current) {
     oceanRef.current.position.y = waterLevel
   }
@@ -106,6 +106,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     cannonBallApi.mass.set(newMass);
   }
 
+  // Cannon speed is 7.5 m/s
   const fireCannon = (forceMagnitude = 1000) => {
     if (cannonRef.current && cannonBallRef.current) {
 
@@ -116,7 +117,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
       const cannonRotation = cannonRef.current.getWorldQuaternion(new THREE.Quaternion())
 
       // Create a direction vector pointing in the direction of the cannon barrel
-      const direction = new THREE.Vector3(0, 1, 0); // 1 unit along the y-axis
+      const direction = new THREE.Vector3(0, 0, -1); // 1 unit along the y-axis
       direction.applyQuaternion(cannonRotation);
 
       // Scale the direction by the magnitude of the force to be applied
@@ -170,7 +171,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
   useControls({
     cannonAngle: {
-      value: 0.000, min: (THREE.MathUtils.RAD2DEG * -Math.PI / 2), max: 0, step: 0.001,
+      value: 0.000, min: 0, max: (THREE.MathUtils.RAD2DEG * Math.PI / 2), step: 0.001,
       onChange: (value) => cannonRef.current.rotation.x = THREE.MathUtils.DEG2RAD * value,
       label: "Kanon hoek in graden"
     }
@@ -186,11 +187,12 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
           <WaterLevel position={[2, 0, 1.56]} />
           <WindowBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
           <PilarBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
-          <CannonBallHint />
+          {/* <CannonBallHint /> */}
+
           {/* Cannonball display */}
           {
             Array(lives).fill().map((_, index) => (
-              <CannonBall key={index} position={[-0.7 + index * 1, 6.04, 5]} />
+              <CannonBall key={index} position={[-0.7 + index * 1, 3.8, 5]} />
             ))
           }
           <Target ref={targetRef} />

@@ -28,6 +28,7 @@
     "@react-three/fiber": "^8.13.3",
     "@react-three/postprocessing": "^2.14.10",
     "@react-three/xr": "^5.5.0",
+    "@use-gesture/react": "^10.3.0",
     "@vanilla-extract/css": "^1.9.5",
     "events": "^3.3.0",
     "leva": "^0.9.35",
@@ -36,6 +37,7 @@
     "react-confetti-explosion": "^2.1.2",
     "react-dom": "18.2",
     "react-gauge-component": "^1.1.20",
+    "react-json-pretty": "^2.2.0",
     "three": "^0.150.1"
   }
 }

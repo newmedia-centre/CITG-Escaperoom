@@ -12,37 +12,103 @@ import { useFrame, useThree } from "@react-three/fiber"
 import * as THREE from "three"
 import { useControls } from "leva"
 import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing"
-import React, { useEffect, useMemo, useRef, useState, useTransition } from "react"
+import React, { useEffect, useMemo, useRef, forwardRef, useImperativeHandle, useState, useTransition } from "react"
 import { Level02Model } from "../public/models/gltfjsx/Level02Model"
-import { useSpring, animated } from '@react-spring/three'
-import WeightRack from "./WeightRack"
+import { useSpring, animated, easings } from '@react-spring/three'
+import { WeightRack } from "./WeightRack"
 
-export default function Level02({ speed, setSpeed, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
+export const Level02 = forwardRef((props, ref) => {
+  const { speed: acceleration, setSpeed: setAcceleration, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame } = props
   const weightRef = useRef()
   const cabinetRef = useRef()
   const cameraControlsRef = useRef()
   const laserRef = useRef()
+  const solutionRef = useRef()
+  const [weightRing, setWeightRing] = useState(1)
+  const [weightSphere, setWeightSphere] = useState(1)
+  const [weightCylinder, setWeightCylinder] = useState(1)
   const { camera } = useThree()
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [weightHit, setWeightHit] = useState(false)
   const [selectedObject, setSelectedObject] = useState([])
-  const [cameraFocus, setCameraFocus] = useState('default')
-  const [selectedSolution, setSelectedSolution] = useState(null)
+  const [selectedSolution, setSelectedSolution] = useState()
   const [progress, setProgress] = useSpring(() => ({
     progress: 0,
+    reset: true,
     config: {
-      mass: 30,
-      friction: 130,
-      tension: 120,
-      // velocity: 4,
+      duration: 8500,
+      easing: easings.easeOutQuart,
     },
   }))
+  const [cameraPosition, setCameraPosition] = useSpring(() => ({
+    lerp: 0,
+    reset: true,
+    config: {
+      duration: 3000,
+      easing: easings.easeInOutCubic
+    },
+    onChange: ({ value }) => {
+      var w = weightRef.current?.children[0].getWorldPosition(new THREE.Vector3())
+      var s = solutionRef.current?.getWorldPosition(new THREE.Vector3())
+      cameraControlsRef.current?.lerpLookAt(
+        s.x + 4, s.y, s.z, // Position A
+        s.x, s.y, s.z, // Target A
+        w.x + 2, w.y, w.z - 1, // Position B
+        w.x, w.y - 0.5, w.z, // Target B
+        value.lerp, // Lerp value
+      )
+    }
+  }))
+
+  const accelerations = {
+    ring: [
+      -4.2, -3.4, -2.6, -1.8, -1.0, -0.2, 0.6, 1.4, 2.2, 3.0, 3.8, 4.6, 5.4, 6.2
+    ],
+    cylinder: [
+      -5.6, -5.0, -4.4, -3.8, -3.2, -2.6, -2.0, -1.4, -0.8, -0.2, 0.4, 1.0, 1.6, 2.2
+    ],
+    sphere: [
+      -5.9, -5.3, -4.8, -4.2, -3.7, -3.1, -2.5, -2.0, -1.4, -0.85, -0.3, 0.3, 0.8, 1.4
+    ]
+  }
+
+  const resetLevel = () => {
+    changeCamera("bench")
+    setProgress({
+      progress: 0,
+    })
+    progress.progress.set(0)
+    setWeightHit(false)
+    setCameraPosition({
+      lerp: 0,
+    })
+
+  }
+
+  const activatePulley = () => {
+    setProgress({
+      progress: 1,
+    })
+    updateAcceleration()
+    setCameraPosition({
+      lerp: 1,
+    })
+  }
 
   // Function to trigger the animation with a new 'to' value
-  const playAnimation = (newValue) => {
-    setProgress({
-      progress: newValue,
-    })
+  const updateAcceleration = () => {
+    // Set the acceleration based on the selected solution and weight
+    switch (selectedSolution) {
+      case "sphere":
+        setAcceleration(accelerations.sphere[weightSphere - 1])
+        break;
+      case "cylinder":
+        setAcceleration(accelerations.cylinder[weightCylinder - 1])
+        break;
+      case "ring":
+        setAcceleration(accelerations.ring[weightRing - 1])
+        break;
+    }
   }
 
   var timer = 0
@@ -59,31 +125,27 @@ export default function Level02({ speed, setSpeed, lives, setLives, setGameOver,
   const changeCamera = (scene) => {
     switch (scene) {
       case "cabinet":
-        setCameraFocus(scene)
         setCameraFollowing({})
         cameraControlsRef.current?.setLookAt(1.2, 1.6, 1.209, -2, 1.2, 1.209, true)
         break;
       case "door":
-        setCameraFocus(scene)
         setCameraFollowing({})
         cameraControlsRef.current?.setLookAt(2, 2, 1, -1, 1, -0.5, true)
         break;
       case "bench":
-        setCameraFocus(scene)
         setCameraFollowing({})
         cameraControlsRef.current?.setLookAt(16, 9, 3, 0, 0, 0, true)
         break;
       case "weight":
-        setCameraFocus(scene)
         cameraControlsRef.current?.fitToBox(weightRef.current?.children[0], true, { cover: false, paddingLeft: 0.5, paddingRight: 0.5, paddingBottom: 0.5, paddingTop: 0.5 })
         setCameraFollowing(weightRef)
         break;
-      case "object":
-        setCameraFocus(scene)
-        cameraControlsRef.current?.fitToBox(selectedObject.current, true, { cover: false, paddingLeft: 0.5, paddingRight: 0.5, paddingBottom: 0.5, paddingTop: 0.5 })
-        setCameraFollowing(selectedObject)
+      case "solution":
+        setCameraFollowing({})
+        cameraControlsRef.current?.fitToBox(solutionRef.current, true, { cover: false, paddingLeft: 0.5, paddingRight: 0.5, paddingBottom: 0.5, paddingTop: 0.5 })
+        cameraControlsRef.current?.elevate(0.18, true)
+        break;
       default:
-        setCameraFocus('default')
         setCameraFollowing({})
         cameraControlsRef.current?.setLookAt(16, 9, 3, 0, 0, 0, true)
     }
@@ -93,9 +155,16 @@ export default function Level02({ speed, setSpeed, lives, setLives, setGameOver,
     if (Object.keys(cameraFollowing) != 0 && cameraControlsRef.current) {
       var pos = cameraFollowing.current.children[0].getWorldPosition(new THREE.Vector3())
       var offset = cameraFollowing.current.children[0].position
-      cameraControlsRef.current?.moveTo(pos.x, pos.y, offset.z, pos.x, pos.y, offset.z, true)
+      cameraControlsRef.current.moveTo(pos.x, pos.y, offset.z, pos.x, pos.y, offset.z, true)
     }
   }
+
+  useImperativeHandle(ref, () => ({
+    resetLevel: () => resetLevel(),
+    changeCamera: (scene) => changeCamera(scene),
+    setCameraFollowing: (object) => setCameraFollowing(object),
+    activatePulley: () => activatePulley(),
+  }))
 
   useEffect(() => {
     if (cameraControlsRef.current) {
@@ -112,24 +181,6 @@ export default function Level02({ speed, setSpeed, lives, setLives, setGameOver,
     changeCamera(selectedObject?.name)
   }, [selectedObject])
 
-  useEffect(() => {
-    if (selectedSolution) {
-      switch (selectedSolution.name) {
-        case "cylinder":
-          playAnimation(0.5)
-          break;
-        case "sphere":
-          playAnimation(0.75)
-          break;
-        case "ring":
-          playAnimation(1)
-          break;
-        default:
-          playAnimation(0)
-      }
-    }
-  }, [selectedSolution])
-
   useControls({
     progressValue: {
       value: 0,
@@ -137,13 +188,13 @@ export default function Level02({ speed, setSpeed, lives, setLives, setGameOver,
       max: 1,
       step: 0.01,
       onChange: (value) => {
-        playAnimation(value)
+        setProgress({ progress: value })
       },
     },
     // Switch camera list
     camera: {
       value: "bench",
-      options: ["cabinet", "door", "bench", "weight", "object"],
+      options: ["cabinet", "door", "bench", "weight", "solution"],
       onChange: (value) => {
         changeCamera(value)
       },
@@ -156,9 +207,6 @@ export default function Level02({ speed, setSpeed, lives, setLives, setGameOver,
       timer = 0
     }
 
-    // Sets the speed of the spring animation
-    setSpeed((Math.abs(progress.progress.velocity) * 100000) / 10)
-
     // Updates the camera position to follow the model
     followModelPosition()
 
@@ -167,19 +215,21 @@ export default function Level02({ speed, setSpeed, lives, setLives, setGameOver,
       const intersections = laserRaycast()
       if (intersections.length > 3) {
         setWeightHit(true)
-        if (speed >= 0.9 && speed <= 1.0) {
+        if (acceleration <= -0.9 && acceleration >= -1.0) {
           setGameWon(true)
         }
         else {
           takeLive()
-          if (lives === 0) {
-            setGameOver(true)
-          }
         }
       }
     }
-
   })
+
+  useEffect(() => {
+    if (lives < 1) {
+      setGameOver(true)
+    }
+  }, [lives])
 
   return (
     <>
@@ -191,15 +241,20 @@ export default function Level02({ speed, setSpeed, lives, setLives, setGameOver,
         }}
           progress={progress.progress}
         >
-          <WeightRack onPointerDown={(obj) => setSelectedSolution(obj.eventObject)} objectType={'cylinder'} scale={1} position={[-2.55, 1.23, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
-          <WeightRack onPointerDown={(obj) => setSelectedSolution(obj.eventObject)} objectType={'sphere'} scale={1} position={[-2.55, .81, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
-          <WeightRack onPointerDown={(obj) => setSelectedSolution(obj.eventObject)} objectType={'ring'} scale={1} position={[-2.55, .42, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+          <WeightRack weight={weightSphere} setWeight={setWeightSphere} setSelectedSolution={setSelectedSolution} objectType={'sphere'} scale={1} position={[-2.55, .81, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+          <WeightRack weight={weightCylinder} setWeight={setWeightCylinder} setSelectedSolution={setSelectedSolution} objectType={'cylinder'} scale={1} position={[-2.55, 1.23, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+          <WeightRack weight={weightRing} setWeight={setWeightRing} setSelectedSolution={setSelectedSolution} objectType={'ring'} scale={1} position={[-2.55, .42, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+
           <Level02Model ref={{
-            weightRef: weightRef, laserRef: laserRef, cabinetRef: cabinetRef,
+            weightRef: weightRef,
+            laserRef: laserRef,
+            cabinetRef: cabinetRef,
+            solutionRef: solutionRef,
           }}
             progress={progress.progress}
             setSelectedObject={setSelectedObject}
-            selectedObject={selectedObject}
+            selectedSolution={selectedSolution}
+            weights={{ weightSphere, weightRing, weightCylinder }}
           />
         </animated.group>
 
@@ -218,8 +273,10 @@ export default function Level02({ speed, setSpeed, lives, setLives, setGameOver,
         />
       </group>
     </>
-  );
-}
+  )
+})
+
+export default Level02
 
 function Env() {
   const [preset, setPreset] = useState("sunset");
