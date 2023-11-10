@@ -92,12 +92,6 @@ function App() {
     setResetGame(true)
   }
 
-  const postStartGameTime = async (playerName) => {
-    const token = await fetchAuthToken()
-    const date = Date.now()
-    let dateUnix = Math.round(date / 1000)
-  }
-
   // To prevent page refresh on form submit
   const onSubmit = (e) => {
     e.preventDefault()
@@ -114,13 +108,31 @@ function App() {
     get()
   }, [playerID])
 
+  // Set StartTime to player state inside the current level object
+  useEffect(() => {
+    if (!playerState) return
+
+    // Only set StartTime if it is not already set
+    if (playerState[`Level${currentLevel + 1}`]?.StartTime) return
+
+    setPlayerState(prev => {
+      if (!prev[`Level${currentLevel + 1}`]) {
+        return {
+          ...prev, [`Level${currentLevel + 1}`]: { StartTime: Date.now() }
+        }
+      }
+
+      return prev
+    })
+  }, [currentLevel])
+
   // Set lives to player state
   useEffect(() => {
     if (!playerState) return
 
     setPlayerState(prev => {
       // TODO: check if this is correct
-      if (!prev.Lost && !prev.Won) {
+      if (!prev?.Lost && !prev?.Won) {
         const levelState = { ...prev[`Level${currentLevel + 1}`], lives: lives }
         return {
           ...prev, [`Level${currentLevel + 1}`]: levelState
@@ -141,7 +153,7 @@ function App() {
     if (!playerState) return
 
     // If player has won set won to true
-    if (gameWon && !playerState.Won && !playerState.Lost) {
+    if (gameWon && !playerState?.Won && !playerState?.Lost) {
       setGameWon(true)
       return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true } }
     }
