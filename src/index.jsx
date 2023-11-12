@@ -6,6 +6,7 @@ import { Html, useProgress } from "@react-three/drei";
 import Level01 from "./Level01"
 import Level02 from "./Level02"
 import Level03 from "./Level03"
+import Level04 from "./Level04"
 import { Suspense, useRef, useState, useEffect, useMemo } from "react";
 import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Input, Card, Sheet, List, ListItem, Divider } from "@mui/joy";
 import { QuestionMark, Close } from "@mui/icons-material";
@@ -34,6 +35,7 @@ function App() {
   const [animationProgress, setAnimationProgress] = useState(0)
 
   const level02Ref = useRef()
+  const level04Ref = useRef()
   const totalTimeInMilliseconds = 90 * 60 * 1000
 
   // Sets the current level based on the url query params
@@ -46,6 +48,8 @@ function App() {
         return 1;
       case 'jjsnavux':
         return 2;
+      case 'dweqiufh':
+        return 3;
       default:
         return 0;
     }
@@ -395,6 +399,17 @@ function App() {
                 </Stack >
               </Stack>
             )}
+            {currentLevel === 3 && (
+              <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
+                position: 'absolute',
+                m: 1,
+                bottom: '32px',
+                left: '0',
+                zIndex: 10000,
+              }}>
+                <Button onClick={() => level04Ref.current.play()}>Duw boot</Button>
+              </Stack>
+            )}
           </>
         ) : gameWon ? ( // If game is won show win screen
           <>
@@ -446,6 +461,9 @@ function App() {
             )}
             {currentLevel === 2 && (
               <Level03 lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
+            )}
+            {currentLevel === 3 && (
+              <Level04 ref={level04Ref} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
             )}
 
             {/* </Debug> */}
