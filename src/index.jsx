@@ -6,8 +6,9 @@ import { Html, useProgress } from "@react-three/drei";
 import Level01 from "./Level01"
 import Level02 from "./Level02"
 import Level03 from "./Level03"
+import Level04 from "./Level04"
 import { Suspense, useRef, useState, useEffect, useMemo } from "react";
-import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Input, Card } from "@mui/joy";
+import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Input, Card, Sheet, List, ListItem, Divider } from "@mui/joy";
 import { QuestionMark, Close } from "@mui/icons-material";
 import { Stack } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
@@ -16,6 +17,7 @@ import GaugeComponent from "react-gauge-component";
 import { Leva } from "leva"
 import DatabaseClient from "./DatabaseClient"
 import hints from './hints'
+import gameMessages from "./game-messages"
 
 function App() {
   const cannonRef = useRef()
@@ -33,6 +35,7 @@ function App() {
   const [animationProgress, setAnimationProgress] = useState(0)
 
   const level02Ref = useRef()
+  const level04Ref = useRef()
   const totalTimeInMilliseconds = 90 * 60 * 1000
 
   // Sets the current level based on the url query params
@@ -45,6 +48,8 @@ function App() {
         return 1;
       case 'jjsnavux':
         return 2;
+      case 'dweqiufh':
+        return 3;
       default:
         return 0;
     }
@@ -91,12 +96,6 @@ function App() {
     setResetGame(true)
   }
 
-  const postStartGameTime = async (playerName) => {
-    const token = await fetchAuthToken()
-    const date = Date.now()
-    let dateUnix = Math.round(date / 1000)
-  }
-
   // To prevent page refresh on form submit
   const onSubmit = (e) => {
     e.preventDefault()
@@ -113,11 +112,62 @@ function App() {
     get()
   }, [playerID])
 
+  // Set StartTime to player state inside the current level object
+  useEffect(() => {
+    if (!playerState) return
+
+    // Only set StartTime if it is not already set
+    if (playerState[`Level${currentLevel + 1}`]?.StartTime) return
+
+    setPlayerState(prev => {
+      if (!prev[`Level${currentLevel + 1}`]) {
+        return {
+          ...prev, [`Level${currentLevel + 1}`]: { StartTime: Date.now() }
+        }
+      }
+
+      return prev
+    })
+  }, [currentLevel])
+
+  // Set lives to player state
+  useEffect(() => {
+    if (!playerState) return
+
+    setPlayerState(prev => {
+      // TODO: check if this is correct
+      if (!prev?.Lost && !prev?.Won) {
+        const levelState = { ...prev[`Level${currentLevel + 1}`], lives: lives }
+        return {
+          ...prev, [`Level${currentLevel + 1}`]: levelState
+        }
+      }
+
+      // If player has no lives left in current level set lost in currentlevel to true
+      if (prev[`Level${currentLevel + 1}`].lives === 0 && !prev.Won && !prev.Lost) {
+        setGameOver(true)
+        return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Lost: true } }
+      }
+
+      return prev
+    })
+  }, [lives, currentLevel])
+
+  useEffect(() => {
+    if (!playerState) return
+
+    // If player has won set won to true
+    if (gameWon && !playerState?.Won && !playerState?.Lost) {
+      setGameWon(true)
+      return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true } }
+    }
+  }, [gameWon, currentLevel])
+
   // Game over when time runs out
   useEffect(() => {
     if (!playerState) return
 
-    if (playerState.StartTime + totalTimeInMilliseconds < Date.now()) {
+    if (playerState.StartTime + totalTimeInMilliseconds < Date.now() && !playerState.Won) {
       setGameOver(true)
       setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Lost: true }))
     }
@@ -166,151 +216,208 @@ function App() {
             height={"100vh"}
             width={"100vw"}
             sx={{
-              backgroundColor: "rgba(0,0,0,0.34)",
+              backgroundColor: "rgba(0,0,0,0.74)",
               userSelect: "none",
               zIndex: 90000,
             }}
           >
-            <Typography level="h1">Welcome to</Typography>
-            <Typography level="h2">CITG Escape Room</Typography>
-            <Typography level="body-md">Create your group name to play the game</Typography>
-            <form onSubmit={onSubmit} >
-              <Stack spacing={1}>
-                <Input placeholder="Enter your group name..." variant="solid" required value={playerIDInput} onChange={e => setPlayerIDInput(e.target.value)} />
-                <Button type={"submit"} onClick={registerPlayer} size="lg">Play</Button>
-              </Stack>
-            </form>
+            <Card variant="soft" sx={{
+              m: 2,
+              overflowY: 'scroll'
+            }}>
+              <Typography level="h1">Welkom!</Typography>
+              <Typography level="h3">Team van toegewijde civieltechnici, bij deze Dynamica escape room!</Typography>
+              <Typography level="body-md">Tegenwoordig bevinden we ons in een wereld waarin de effecten van zeespiegelstijging ons allemaal raken. Maar vandaag is er iets rampzaligs gebeurd. Door een storm is een deel van het land ondergelopen en het is jullie taak als civiel ingenieurs om ervoor te zorgen dat de Deltawerken geactiveerd worden.</Typography>
+              <Typography level="body-md">De oplossing voor het sluiten van de Deltawerken ligt verborgen in een reeks uitdagende dynamische puzzels. Deze opgaven testen jullie kennis en vaardigheden op het gebied van krachten en beweging. Alleen door teamwork, slim denken en de juiste toepassing van dynamische principes kunnen jullie deze puzzels oplossen en de deltawerken activeren voordat het te laat is.</Typography>
+              <Typography level="body-md">Let op: in deze escape room gebruiken we dat de gravitatieversnelling g gelijk is aan 9.81 m/s².</Typography>
+              <Typography level="body-md">Voordat we beginnen, laten we de spelregels en praktische zaken even doornemen.</Typography>
+              <List
+                sx={{
+                  textAlign: 'left',
+                  justifyContent: 'left',
+                  alignItems: 'left',
+                  listStyleType: 'disc',
+                  pl: 2,
+                  '& .MuiListItem-root': {
+                    display: 'list-item',
+                  },
+                }}>
+                <ListItem>
+                  Jullie missie omvat vier cruciale puzzels op verschillende locaties, maar hier is de catch: de volgende locatie wordt pas bekendgemaakt nadat jullie geprobeerd hebben de puzzel op te lossen.
+                </ListItem>
+                <ListItem>
+                  Om de puzzels te openen scan je de QR code met je telefoon.
+                </ListItem>
+                <ListItem>
+                  Jullie hebben in totaal 1,5 uur de tijd om deze missie te voltooien, dus houd de tijd goed in de gaten!
+                </ListItem>
+                <ListItem>
+                  We begrijpen dat zelfs de slimsten onder ons soms vastlopen, dus er zijn hints beschikbaar om jullie op weg te helpen. Maar let op: als je besluit een hint te gebruiken, verlies je kostbare punten, dus gebruik ze met mate!
+                </ListItem>
+                <ListItem>
+                  Jullie zullen de voortgang van andere teams kunnen volgen op ons leaderboard, dus zorg ervoor dat je je best doet om bovenaan te staan als ware dynamica-experts. Voor het winnende team is er zelfs een prijs!
+                </ListItem>
+                <ListItem>
+                  Hier is een cruciale tip: bij een fout antwoord verlies je punten, en je hebt slechts drie pogingen per vraag, dus denk goed na voordat je een antwoord indient. Per vraag kunnen jullie 100 punten verdienen. Per verkeerd antwoord gaan er 20 punten af en per gebruikte hint 10 punten.
+                </ListItem>
+              </List>
+              <Typography level="body-md">De klok tikt, de druk neemt toe en het lot van ons land ligt in jullie handen. Ga de uitdaging aan, werk samen als nooit tevoren en laat zien dat jullie de toekomst van ons land veilig kunnen stellen. Red onze kusten, sluit de deltawerken en triomfeer over de dynamica escape room!</Typography>
+              <Typography level="body-md">De eerste puzzel is te vinden waar je het onderzoek naar beton en staal kunt bewonderen. (Oftewel, ga naar Stevinlab 2.) De tijd start zodra jullie de QR code van de eerste puzzel op de locatie hebben gescand.</Typography>
+              <Divider />
+              <Typography variant="soft" level="body-md">Vul hieronder je groepsnaam in om te beginnen.</Typography>
+
+              <form onSubmit={onSubmit} >
+                <Stack spacing={1}>
+                  <Input placeholder="Voer een groepsnaam in..." variant="plain" required value={playerIDInput} onChange={e => setPlayerIDInput(e.target.value)} />
+                  <Button type={"submit"} onClick={registerPlayer} size="lg">Start</Button>
+                </Stack>
+              </form>
+            </Card>
           </Stack>
         </>
       )
       }
 
-      {showHintPopup && (
-        <HintPopup playerState={playerState} setPlayerState={setPlayerState} currentLevel={currentLevel} setShowHintPopup={setShowHintPopup} />
-      )}
+      {
+        showHintPopup && (
+          <HintPopup playerState={playerState} setPlayerState={setPlayerState} currentLevel={currentLevel} setShowHintPopup={setShowHintPopup} />
+        )
+      }
 
 
-      {!gameOver && !gameWon ? (
-        <>
-          <Stack direction="column" spacing={3} sx={{
-            position: 'absolute',
-            width: '100%',
-            bottom: '4px',
-            right: '0',
-            zIndex: 20000,
-          }}>
-            <IconButton variant="solid" color="warning" aria-label="Open in new tab" onClick={() => setShowHintPopup(!showHintPopup)}
-              sx={{
-                position: 'absolute',
-                bottom: '38px',
-                right: '20px',
-                pr: 1.4,
-              }}>
-              <QuestionMark />
-              Hints
-            </IconButton>
-            <TimeRemaining timeRemaining={timeRemaining} totalTimeInMilliseconds={totalTimeInMilliseconds} />
-          </Stack>
+      {
+        !gameOver && !gameWon ? (
+          <>
+            <Stack direction="column" spacing={3} sx={{
+              position: 'absolute',
+              width: '100%',
+              bottom: '4px',
+              right: '0',
+              zIndex: 20000,
+            }}>
+              <IconButton variant="solid" color="warning" aria-label="Open in new tab" onClick={() => setShowHintPopup(!showHintPopup)}
+                sx={{
+                  position: 'absolute',
+                  bottom: '38px',
+                  right: '20px',
+                  pr: 1.4,
+                }}>
+                <QuestionMark />
+                Hints
+              </IconButton>
+              <TimeRemaining timeRemaining={timeRemaining} totalTimeInMilliseconds={totalTimeInMilliseconds} />
+            </Stack>
 
 
-          {currentLevel === 0 && (
-            <Stack direction="row" spacing={3} justifyContent="center"
-              sx={{
+            {currentLevel === 0 && (
+              <Stack direction="row" spacing={3} justifyContent="center"
+                sx={{
+                  position: 'absolute',
+                  bottom: '32px',
+                  left: '50%',
+                  transform: 'translate(-50%, -20%)',
+                  userSelect: 'none',
+                }}
+                zIndex={10000}>
+                <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
+                <Typography level="h6" color="neutral" variant="soft">Pogingen:{lives}</Typography>
+              </Stack >
+            )}
+            {currentLevel === 1 && (
+              <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
                 position: 'absolute',
                 bottom: '32px',
-                left: '50%',
-                transform: 'translate(-50%, -20%)',
+                left: '12px',
                 userSelect: 'none',
-              }}
-              zIndex={10000}>
-              <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
-              <Typography level="h6" color="neutral" variant="soft">Pogingen:{lives}</Typography>
-            </Stack >
-          )}
-          {currentLevel === 1 && (
-            <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
-              position: 'absolute',
-              bottom: '32px',
-              left: '12px',
-              userSelect: 'none',
-              userEvents: 'none',
-              zIndex: 10000,
-            }}>
-              {/* Left Panel */}
-              <Stack spacing={1} p={2}
-                sx={{
-                  borderRadius: 2,
-                  boxShadow: 2,
-                  opacity: 0.95,
-                  backgroundColor: '#181c20',
-                  userSelect: 'none',
-                  userEvents: 'none',
-                }}
-              >
-                <Button onClick={() => {
-                  handleActivateClick()
-                }}>Activeren</Button>
-                <Button onClick={() => handleResetClick()}>Reset</Button>
-              </Stack>
-              {/* Right Panel */}
-              <Stack direction="column" spacing={1} justifyContent="center" p={1}
-                sx={{
-                  userSelect: 'none',
-                  userEvents: 'none',
-                  borderRadius: 2,
-                  boxShadow: 2,
-                  opacity: 0.95,
-                  backgroundColor: '#181c20',
-                }}
-              >
-                <GaugeComponent
-                  style={{
-                    width: '240px',
+                userEvents: 'none',
+                zIndex: 10000,
+              }}>
+                {/* Left Panel */}
+                <Stack spacing={1} p={2}
+                  sx={{
+                    borderRadius: 2,
+                    boxShadow: 2,
+                    opacity: 0.95,
+                    backgroundColor: '#181c20',
+                    userSelect: 'none',
+                    userEvents: 'none',
                   }}
-                  type="semicircle"
-                  value={speed}
-                  minValue={-2}
-                  maxValue={0}
-                  arc={{
-                    width: 0.22,
-                    padding: 0,
-                    cornerRadius: 0,
-                    subArcs: [
-                      { limit: -1.5, color: '#EA4228', showTick: true },
-                      { limit: -1.1, color: '#F5CD19', showTick: true },
-                      { limit: -0.9, color: '#5BE12C', showTick: true },
-                      { limit: -0.5, color: '#F5CD19', showTick: true },
-                      { color: '#EA4228' }
-                    ]
+                >
+                  <Button onClick={() => {
+                    handleActivateClick()
+                  }}>Activeren</Button>
+                  <Button onClick={() => handleResetClick()}>Reset</Button>
+                </Stack>
+                {/* Right Panel */}
+                <Stack direction="column" spacing={1} justifyContent="center" p={1}
+                  sx={{
+                    userSelect: 'none',
+                    userEvents: 'none',
+                    borderRadius: 2,
+                    boxShadow: 2,
+                    opacity: 0.95,
+                    backgroundColor: '#181c20',
                   }}
-                  pointer={{
-                    color: '#3c93ff',
-                    length: 0.80,
-                    width: 14,
-                    elastic: true,
-                    animationDuration: 1000
-                  }}
-                  labels={{
-                    tickLabels: {
-                      defaultTickValueConfig: {
-                        style: { fontSize: 18 }
+                >
+                  <GaugeComponent
+                    style={{
+                      width: '240px',
+                    }}
+                    type="semicircle"
+                    value={speed}
+                    minValue={-2}
+                    maxValue={0}
+                    arc={{
+                      width: 0.22,
+                      padding: 0,
+                      cornerRadius: 0,
+                      subArcs: [
+                        { limit: -1.5, color: '#EA4228', showTick: true },
+                        { limit: -1.1, color: '#F5CD19', showTick: true },
+                        { limit: -0.9, color: '#5BE12C', showTick: true },
+                        { limit: -0.5, color: '#F5CD19', showTick: true },
+                        { color: '#EA4228' }
+                      ]
+                    }}
+                    pointer={{
+                      color: '#3c93ff',
+                      length: 0.80,
+                      width: 14,
+                      elastic: true,
+                      animationDuration: 1000
+                    }}
+                    labels={{
+                      tickLabels: {
+                        defaultTickValueConfig: {
+                          style: { fontSize: 18 }
+                        }
                       }
-                    }
-                  }}
-                />
-                <Typography level="h5" color="danger">Pogingen: {lives}</Typography>
+                    }}
+                  />
+                  <Typography level="h5" color="danger">Pogingen: {lives}</Typography>
 
-              </Stack >
-            </Stack>
-          )}
-        </>
-      ) : gameWon ? ( // If game is won show win screen
-        <>
-          <WinScreen onRetry={retry} />
-        </>
-      ) : ( // If game is lost show game over screen
-        <GameOverScreen onRetry={retry} />
-      )
+                </Stack >
+              </Stack>
+            )}
+            {currentLevel === 3 && (
+              <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
+                position: 'absolute',
+                m: 1,
+                bottom: '32px',
+                left: '0',
+                zIndex: 10000,
+              }}>
+                <Button onClick={() => level04Ref.current.play()}>Duw boot</Button>
+              </Stack>
+            )}
+          </>
+        ) : gameWon ? ( // If game is won show win screen
+          <>
+            <WinScreen onRetry={retry} currentLevel={currentLevel} />
+          </>
+        ) : ( // If game is lost show game over screen
+          <GameOverScreen onRetry={retry} currentLevel={currentLevel} />
+        )
       }
 
       <div className="ignore-select"
@@ -355,6 +462,9 @@ function App() {
             {currentLevel === 2 && (
               <Level03 lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
             )}
+            {currentLevel === 3 && (
+              <Level04 ref={level04Ref} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
+            )}
 
             {/* </Debug> */}
           </Physics>
@@ -373,7 +483,7 @@ function App() {
   )
 }
 
-function GameOverScreen({ onRetry }) {
+function GameOverScreen({ onRetry, currentLevel }) {
   return (
     <Stack spacing={2}
       sx={{
@@ -391,13 +501,21 @@ function GameOverScreen({ onRetry }) {
         userSelect: 'none'
       }}
     >
-      <Typography level="h2" color="danger">Game Over</Typography>
-      <Button onClick={onRetry} variant="solid" color="danger">Opnieuw proberen</Button>
+      <Card color="neutral" sx={{
+        backgroundColor: 'rgba(22, 22, 22, 1)',
+        p: 2,
+        textAlign: 'center',
+        color: "gray"
+      }}>
+        <Typography level="h2" color="danger">Game Over</Typography>
+        <Typography level="body-md">{gameMessages.messages[currentLevel].lose}</Typography>
+        <Typography level="body-md">{gameMessages.messages[currentLevel].instruction}</Typography>
+      </Card>
     </Stack>
   )
 }
 
-function WinScreen({ onRetry }) {
+function WinScreen({ onRetry, currentLevel }) {
   return (
     <Stack spacing={2}
       sx={{
@@ -417,8 +535,16 @@ function WinScreen({ onRetry }) {
     >
       <ConfettiExplosion particleCount={200} duration={4000} />
 
-      <Typography level="h2" color="success">Level completed!</Typography>
-      <Button onClick={onRetry} variant="solid" size="lg" color="success">Openiuw proberen</Button>
+      <Card color="neutral" sx={{
+        backgroundColor: 'rgba(22, 22, 22, 1)',
+        p: 2,
+        textAlign: 'center',
+        color: "gray"
+      }}>
+        <Typography level="h2" color="success">Level behaald!</Typography>
+        <Typography level="body-md">{gameMessages.messages[currentLevel].win}</Typography>
+        <Typography level="body-md">{gameMessages.messages[currentLevel].instruction}</Typography>
+      </Card>
     </Stack>
   );
 }
