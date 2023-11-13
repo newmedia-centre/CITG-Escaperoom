@@ -4,7 +4,7 @@ Command: npx gltfjsx@6.2.3 Level04.glb --transform --simplify
 */
 
 import React, { forwardRef, useRef, useEffect, useState } from 'react'
-import { useGLTF, useAnimations, Box } from '@react-three/drei'
+import { useGLTF, useAnimations, Box, Text, Text3D } from '@react-three/drei'
 
 export const Level04Model = forwardRef((props, ref) => {
   const group = useRef()
@@ -230,6 +230,18 @@ export const Level04Model = forwardRef((props, ref) => {
         </group>
         <mesh name="Walls" geometry={nodes.Walls.geometry} material={materials.Gray} scale={[4, 15, 4]} />
         <mesh name="MaterialSelector" geometry={nodes.MaterialSelector.geometry} material={materials['Balsa wood']} position={[2.244, 19.3, -0.751]}>
+
+          <group position={[0.2, 2.9, 4.75]} rotation={[0, Math.PI, 0]}>
+            <Text anchorX="left" color="black" fontSize={0.6} position={[0, 0, 0]}>Wrijvingscoëfficiënts</Text>
+            <Text anchorX="left" color="black" fontSize={0.4} position={[0, -0.8, 0]}>Beton:         0.1933186217</Text>
+            <Text anchorX="left" color="black" fontSize={0.4} position={[0, -1.3, 0]}>Hout:           0.2143286547</Text>
+            <Text anchorX="left" color="black" fontSize={0.4} position={[0, -1.8, 0]}>Zand:           0.3153386877</Text>
+            <Text anchorX="left" color="black" fontSize={0.4} position={[0, -2.3, 0]}>Ijs:                0.4123188197</Text>
+          </group>
+
+          <Text3D rotation={[0, Math.PI / 2, 0]} position={[-2.5, 2, 0.5]} height={0.02} size={0.3} font="/Roboto_Regular.json"><meshStandardMaterial color="black" />Groep: 200kg</Text3D>
+          <Text3D rotation={[0, Math.PI / 2, 0]} position={[-2.5, 1.4, 1.5]} height={0.02} size={0.2} font="/Roboto_Regular.json"><meshStandardMaterial color="black" />Boot: 5kg</Text3D>
+          <Text3D rotation={[0, Math.PI / 2, 0]} position={[-2.5, 1, 1.9]} height={0.02} size={0.2} font="/Roboto_Regular.json"><meshStandardMaterial color="black" />Duw acc: 2</Text3D>
           <Box ref={materialsRef} args={[3, 3, 3]} position={[-1, 1.5, 0]} visible={false} />
         </mesh>
         <mesh name="Ch31_Body" geometry={nodes.Ch31_Body.geometry} material={materials.Ch31_body} position={[-0.155, 73.27, -3.121]} scale={0.01} />
@@ -277,7 +289,8 @@ export const Level04Model = forwardRef((props, ref) => {
           onClick={(obj) => {
             obj.stopPropagation()
             setSelectedObject(obj.eventObject)
-          }} />
+          }}>
+        </mesh>
         <mesh name="Sand" geometry={nodes.SelectableSand.geometry} material={materials['Sand.001']} position={[2.272, 20.016, -1.257]} scale={[1, 1, 0.95]}
           onClick={(obj) => {
             obj.stopPropagation()

@@ -7,7 +7,7 @@ import {
   PerformanceMonitor,
   CameraControls,
   ContactShadows,
-  Text3D,
+
 } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { Vector3 } from "three"
@@ -113,7 +113,7 @@ export const Level04 = forwardRef((props, ref) => {
   useControls({
     // Switch camera list
     camera: {
-      value: "boat",
+      value: "materials",
       options: ["default", "materials", "boat"],
       onChange: (value) => {
         changeCamera(value)
@@ -144,6 +144,17 @@ export const Level04 = forwardRef((props, ref) => {
           setGameOver={setGameOver}
         />
       </Center>
+
+      {/* 
+      Acceleratie: 2
+      Mgroep: 200
+      Mboot: 5
+      Low 1: 0.2133186217
+      Correct: 0.2143286547
+      High 2: 0.3153386877
+      High 1: 0.4123188197
+      
+      */}
 
       <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
         <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />
