@@ -7,7 +7,7 @@ import {
   PerformanceMonitor,
   CameraControls,
   ContactShadows,
-  Text3D,
+
 } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { Vector3 } from "three"
@@ -18,14 +18,14 @@ import { useSpring, animated, easings } from '@react-spring/three'
 import JSONPretty from 'react-json-pretty'
 
 export const Level04 = forwardRef((props, ref) => {
-  const { lives, setLives, setGameWon, gameWon, gameOver, setGameOver, setResetGame, resetGame } = props
+  const { lives, setLives, setGameWon, setGameOver, setResetGame, resetGame } = props
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [camControlsEnabled, setCamControls] = useState(true)
   const [selectedObject, setSelectedObject] = useState([])
+  const [animation, setAnimation] = useState()
   const { camera } = useThree()
 
   const cameraControlsRef = useRef()
-  const levelRef = useRef()
   const boatRef = useRef()
   const materialsRef = useRef()
 
@@ -43,10 +43,12 @@ export const Level04 = forwardRef((props, ref) => {
     switch (scene) {
       case "default":
         setCamControls(true)
+        setCameraFollowing({})
         cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, true)
         break;
       case "materials":
         setCamControls(true)
+        setCameraFollowing({})
         // Fit the camera to the materials
 
         cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, false)
@@ -60,32 +62,47 @@ export const Level04 = forwardRef((props, ref) => {
         break;
       case "boat":
         setCamControls(true)
-        cameraControlsRef.current?.setLookAt(.2, 3, 0, 0, .1, 0, false)
-        cameraControlsRef.current?.fitToBox(boatRef.current, false, {
-          cover: true,
-        })
-        setTimeout(() => {
-          setCamControls(false)
-        }, 20)
+        cameraControlsRef.current?.setLookAt(20, 10, 0, 0, 1, 0, true)
+        // cameraControlsRef.current?.fitToBox(boatRef.current, true, {
+        //   cover: true,
+        // })
+        setCameraFollowing(boatRef)
+
         break;
     }
   }
 
   const followModelPosition = () => {
     if (Object.keys(cameraFollowing) != 0 && cameraControlsRef.current) {
-      var pos = cameraFollowing.current.children[0].getWorldPosition(new Vector3())
-      var offset = cameraFollowing.current.children[0].position
-      cameraControlsRef.current.moveTo(pos.x, pos.y, offset.z, pos.x, pos.y, offset.z, true)
+      var target = cameraFollowing.current.getWorldPosition(new Vector3())
+      // Move the camera with the model target position
+      cameraControlsRef.current.moveTo(target.x, target.y, target.z, true)
+      cameraControlsRef.current.setTarget(target.x, target.y, target.z, true)
     }
   }
 
   useImperativeHandle(ref, () => ({
     resetLevel: () => resetLevel(),
     changeCamera: (scene) => changeCamera(scene),
-    setCameraFollowing: (object) => setCameraFollowing(object),
     play: () => {
-      // changeCamera("boat")
-      playAnimations()
+      if (selectedObject.length != 0) {
+        switch (selectedObject?.name) {
+          case "Wood":
+            setAnimation("Correct")
+            break;
+          case "Ice":
+            setAnimation("TooFar")
+            break;
+          case "Sand":
+            setAnimation("TooFar")
+            break;
+          case "Concrete":
+            setAnimation("TooNear")
+            break;
+        }
+
+        changeCamera("boat")
+      }
     }
   }))
 
@@ -97,7 +114,7 @@ export const Level04 = forwardRef((props, ref) => {
     // Switch camera list
     camera: {
       value: "materials",
-      options: ["default", "materials", "boot"],
+      options: ["default", "materials", "boat"],
       onChange: (value) => {
         changeCamera(value)
       },
@@ -119,9 +136,25 @@ export const Level04 = forwardRef((props, ref) => {
     <>
       <Center left>
         <Level04Model ref={{ materialsRef, boatRef }}
+          animation={animation}
+          setAnimation={setAnimation}
           setSelectedObject={setSelectedObject}
+          selectedObject={selectedObject}
+          setGameWon={setGameWon}
+          setGameOver={setGameOver}
         />
       </Center>
+
+      {/* 
+      Acceleratie: 2
+      Mgroep: 200
+      Mboot: 5
+      Low 1: 0.2133186217
+      Correct: 0.2143286547
+      High 2: 0.3153386877
+      High 1: 0.4123188197
+      
+      */}
 
       <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
         <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />
