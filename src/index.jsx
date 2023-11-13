@@ -8,7 +8,7 @@ import Level02 from "./Level02"
 import Level03 from "./Level03"
 import Level04 from "./Level04"
 import { Suspense, useRef, useState, useEffect, useMemo } from "react";
-import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Input, Card, Sheet, List, ListItem, Divider } from "@mui/joy";
+import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Input, Card, List, ListItem, Divider, Textarea } from "@mui/joy";
 import { QuestionMark, Close } from "@mui/icons-material";
 import { Stack } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
@@ -631,7 +631,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
         Press unlock to unlock a hint.
       </Typography>
 
-    return <Typography level="title-md">
+    return <Typography sx={{ whiteSpace: 'pre-line' }} level="title-md">
       {hints[currentLevel][currentHintIndex]}
     </Typography>
   }, [currentLevel, currentHintIndex])
