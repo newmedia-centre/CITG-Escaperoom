@@ -240,6 +240,7 @@ export const Level04Model = forwardRef((props, ref) => {
         <mesh name="Ch31_Shoes" geometry={nodes.Ch31_Shoes.geometry} material={materials.Ch31_body} position={[-0.149, 71.262, -3.147]} scale={0.01} />
         <mesh name="Ch31_Sweater" geometry={nodes.Ch31_Sweater.geometry} material={materials.Ch31_body} position={[-0.147, 72.5, -3.114]} scale={0.01} />
         <mesh name="RescueBoot" geometry={nodes.RescueBoot.geometry} material={materials.M_Boot} position={[0, 19.502, -2.748]} rotation={[0.003, 0, 0]}>
+          <Box ref={boatRef} args={[5, 5, 5]} position={[0, 1.5, 0]} visible={false} />
           <group name="Pushing" position={[0, -0.037, 3.952]} rotation={[1.568, 0, Math.PI]} scale={0.01}>
             <primitive object={nodes.mixamorig9Hips_1} />
             <skinnedMesh name="Ch31_Body001" geometry={nodes.Ch31_Body001.geometry} material={materials.Ch31_body} skeleton={nodes.Ch31_Body001.skeleton} />
