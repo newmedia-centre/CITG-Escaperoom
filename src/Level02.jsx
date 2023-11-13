@@ -24,9 +24,9 @@ export const Level02 = forwardRef((props, ref) => {
   const cameraControlsRef = useRef()
   const laserRef = useRef()
   const solutionRef = useRef()
-  const [weightRing, setWeightRing] = useState(1)
-  const [weightSphere, setWeightSphere] = useState(1)
-  const [weightCylinder, setWeightCylinder] = useState(1)
+  const [weightRing, setWeightRing] = useState(0)
+  const [weightSphere, setWeightSphere] = useState(0)
+  const [weightCylinder, setWeightCylinder] = useState(0)
   const { camera } = useThree()
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [weightHit, setWeightHit] = useState(false)
@@ -254,7 +254,7 @@ export const Level02 = forwardRef((props, ref) => {
             progress={progress.progress}
             setSelectedObject={setSelectedObject}
             selectedSolution={selectedSolution}
-            weights={{ weightSphere, weightRing, weightCylinder }}
+            weightsIndex={{ weightSphere, weightRing, weightCylinder }}
           />
         </animated.group>
 
