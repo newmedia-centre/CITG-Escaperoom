@@ -18,7 +18,7 @@ import { useSpring, animated, easings } from '@react-spring/three'
 import JSONPretty from 'react-json-pretty'
 
 export const Level04 = forwardRef((props, ref) => {
-  const { lives, setLives, setGameWon, gameWon, gameOver, setGameOver, setResetGame, resetGame } = props
+  const { lives, setLives, setGameWon, setGameOver, setResetGame, resetGame } = props
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [camControlsEnabled, setCamControls] = useState(true)
   const [selectedObject, setSelectedObject] = useState([])
@@ -130,8 +130,14 @@ export const Level04 = forwardRef((props, ref) => {
   return (
     <>
       <Center left>
-        <Level04Model ref={{ materialsRef, boatRef }} animation={animation} setAnimation={setAnimation}
-          setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
+        <Level04Model ref={{ materialsRef, boatRef }}
+          animation={animation}
+          setAnimation={setAnimation}
+          setSelectedObject={setSelectedObject}
+          selectedObject={selectedObject}
+          setGameWon={setGameWon}
+          setGameOver={setGameOver}
+        />
       </Center>
 
       <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>

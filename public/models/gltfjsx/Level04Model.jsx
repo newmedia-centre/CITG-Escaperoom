@@ -13,10 +13,15 @@ export const Level04Model = forwardRef((props, ref) => {
   const sandFloorRef = useRef()
   const concreteFloorRef = useRef()
   const { materialsRef, boatRef } = ref
-  const { animation, setAnimation, selectedObject, setSelectedObject } = props
+  const {
+    animation, setAnimation,
+    selectedObject, setSelectedObject,
+    setGameOver,
+    setGameWon,
+  } = props
 
   const { nodes, materials, animations } = useGLTF('models/gltfjsx/Level04-transformed.glb')
-  const { actions } = useAnimations(animations, group)
+  const { actions, mixer } = useAnimations(animations, group)
 
 
   useEffect(() => {
@@ -43,13 +48,39 @@ export const Level04Model = forwardRef((props, ref) => {
 
   useEffect(() => {
     if (animation) {
-      console.log(actions)
-      // actions['PushTarget']?.reset().play()
       actions['Pushing']?.reset().play()
       actions[animation]?.reset().play()
       setAnimation()
     }
   }, [animation])
+
+  // Set gameover or win when animation is finished
+  useEffect(() => {
+    const fn = (e) => {
+      if (e.action !== actions['Pushing']) {
+        if (e.action._clip.name === "TooNear" || e.action._clip.name === "TooFar") {
+          setGameOver(true)
+        }
+        else if (e.action._clip.name === "Correct") {
+          setGameWon(true)
+        }
+      }
+    }
+
+    mixer.addEventListener('finished', fn)
+    return () => mixer.removeEventListener('finished', fn)
+  }, [mixer])
+
+
+  useEffect(() => {
+    if (selectedObject) {
+      // Stop & reset all animations
+      actions['TooNear']?.stop().reset()
+      actions['Correct']?.stop().reset()
+      actions['TooFar']?.stop().reset()
+      actions['Pushing']?.stop().reset()
+    }
+  }, [selectedObject])
 
   useEffect(() => {
     if (actions) {
@@ -58,6 +89,10 @@ export const Level04Model = forwardRef((props, ref) => {
       actions['Correct']?.setLoop(2200)
       actions['TooFar']?.setLoop(2200)
       actions['Pushing']?.setLoop(2200)
+      actions['TooNear'].clampWhenFinished = 1
+      actions['Correct'].clampWhenFinished = 1
+      actions['TooFar'].clampWhenFinished = 1
+      actions['Pushing'].clampWhenFinished = 1
     }
   }, [actions])
 

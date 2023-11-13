@@ -508,8 +508,8 @@ function GameOverScreen({ onRetry, currentLevel }) {
         color: "gray"
       }}>
         <Typography level="h2" color="danger">Game Over</Typography>
-        <Typography level="body-md">{gameMessages.messages[currentLevel].lose}</Typography>
-        <Typography level="body-md">{gameMessages.messages[currentLevel].instruction}</Typography>
+        <Typography level="body-md">{gameMessages.messages[currentLevel]?.lose}</Typography>
+        <Typography level="body-md">{gameMessages.messages[currentLevel]?.instruction}</Typography>
       </Card>
     </Stack>
   )
@@ -542,8 +542,8 @@ function WinScreen({ onRetry, currentLevel }) {
         color: "gray"
       }}>
         <Typography level="h2" color="success">Level behaald!</Typography>
-        <Typography level="body-md">{gameMessages.messages[currentLevel].win}</Typography>
-        <Typography level="body-md">{gameMessages.messages[currentLevel].instruction}</Typography>
+        <Typography level="body-md">{gameMessages.messages[currentLevel]?.win}</Typography>
+        <Typography level="body-md">{gameMessages.messages[currentLevel]?.instruction}</Typography>
       </Card>
     </Stack>
   );
