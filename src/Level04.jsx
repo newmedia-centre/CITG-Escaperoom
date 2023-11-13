@@ -22,10 +22,10 @@ export const Level04 = forwardRef((props, ref) => {
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [camControlsEnabled, setCamControls] = useState(true)
   const [selectedObject, setSelectedObject] = useState([])
+  const [animation, setAnimation] = useState()
   const { camera } = useThree()
 
   const cameraControlsRef = useRef()
-  const levelRef = useRef()
   const boatRef = useRef()
   const materialsRef = useRef()
 
@@ -84,8 +84,20 @@ export const Level04 = forwardRef((props, ref) => {
     changeCamera: (scene) => changeCamera(scene),
     setCameraFollowing: (object) => setCameraFollowing(object),
     play: () => {
-      // changeCamera("boat")
-      playAnimations()
+      switch (selectedObject?.name) {
+        case "Wood":
+          setAnimation("Correct")
+          break;
+        case "Ice":
+          setAnimation("TooFar")
+          break;
+        case "Sand":
+          setAnimation("TooFar")
+          break;
+        case "Concrete":
+          setAnimation("TooNear")
+          break;
+      }
     }
   }))
 
@@ -118,9 +130,8 @@ export const Level04 = forwardRef((props, ref) => {
   return (
     <>
       <Center left>
-        <Level04Model ref={{ materialsRef, boatRef }}
-          setSelectedObject={setSelectedObject}
-        />
+        <Level04Model ref={{ materialsRef, boatRef }} animation={animation} setAnimation={setAnimation}
+          setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
       </Center>
 
       <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
