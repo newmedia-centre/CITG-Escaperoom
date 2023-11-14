@@ -18,16 +18,15 @@ export const auth = async () => {
 }
 
 export const read = async (user, token) => {
-    const response = await fetch(import.meta.env.VITE_DB_SITE + '/project/citg-er/data', {
+    const response = await fetch(import.meta.env.VITE_DB_SITE + '/project/citg-er/data?' + new URLSearchParams({
+        filter: JSON.stringify({
+            id: user
+        }),
+    }), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
-        },
-        query: {
-            filter: JSON.stringify({
-                id: user
-            }),
         }
     })
 

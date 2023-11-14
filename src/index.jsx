@@ -103,6 +103,11 @@ function App() {
 
   // Get player state from database
   useEffect(() => {
+    if (!playerID) {
+      setPlayerState(null)
+      return
+    }
+
     const get = async () => {
       const token = await DatabaseClient.auth().catch(() => setPlayerState(null))
       const state = await DatabaseClient.read(playerID, token).catch(() => setPlayerState(null))
