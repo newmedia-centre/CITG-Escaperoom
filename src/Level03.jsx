@@ -148,10 +148,10 @@ export const Level03 = forwardRef((props, ref) => {
         <Level03Model ref={{ tableRef }}
           setSelectedObject={setSelectedObject}
         />
-        <Center rotation={[0, Math.PI / 2, 0]} position={[0.7, 0.91, 0]} >
+        <Center rotation={[0, Math.PI / 2, 0]} position={[0.7, 0.91, 0.27]} >
           <Text3D font="/Roboto_Regular.json" size={0.1} rotation={[-Math.PI / 3, 0, 0]} height={0.02} textAlign="center">
             <meshStandardMaterial color="#356e73" />
-            Instantanious Center
+            Ogenblikkelijk Rotatiecentrum
           </Text3D>
 
         </Center>
