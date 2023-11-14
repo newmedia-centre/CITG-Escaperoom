@@ -4,7 +4,13 @@ export default {
 		'Kijk goed naar de waterdiepte in het lab. Wat is dan het hoogteverschil tussen het kanon en het doel?',
 		'Als je de formules voor de kinematica van een puntmassa toepast in x- en y-richting, krijg je twee formules met twee onbekenden.',
 		'De versnelling in x-richting is 0, in de y-richting heb je gravitatieversnelling.',
-		'Los de volgende vergelijkingen op met als onbekenden t en θ: \nIn x-richting: s_x=v_0*cos(θ)*t \nIn y-richting: s_y=v_0*sin⁡(θ)*t-1/2*g*t^2'
+		`Los de volgende vergelijkingen op met als onbekenden t en θ: 
+
+			In x-richting: 
+			s_x=v_0*cos(θ)*t
+			 
+			In y-richting: 
+			s_y=v_0*sin⁡(θ)*t-1/2*g*t^2`
 	],
 	1: [
 		'Als je een object uit de kast pakt, dan gaat het blok bewegen. Wat heeft die beweging te maken met de meter ernaast?',
@@ -15,8 +21,7 @@ export default {
 			I_a ∶=m*r^2
 			T*r = (m*r^2  + I_a)*α_a;
 			-g*m_blok+ 2*T = m_blok*a_blok;
-			a_a= r*α_a;
-`
+			a_a= r*α_a;`
 	],
 	2: [
 		'Check de getallen op de puzzelstukken en op de tafel. Het nummer op de puzzelstukken is een verwijzing naar de plaatsing op het bord.',
@@ -30,9 +35,9 @@ export default {
 		'Maak een vrijlichaamsdiagram om te bekijken welke krachten er op de boot werken.',
 		'De kracht waarmee je kunt duwen is afhankelijk van jullie massa en de wrijving die jullie hebben met de ondergrond',
 		`Los de volgende vergelijkingen op met als onbekende μ:
-			*** F_duw=μ*m*g
-			*** F_wr=μ*m_b*g
-			*** F_duw-F_wr=(m+m_b )*a
+			F_duw=μ*m*g
+			F_wr=μ*m_b*g
+			F_duw-F_wr=(m+m_b )*a
 		`,
 		'...',
 	]
