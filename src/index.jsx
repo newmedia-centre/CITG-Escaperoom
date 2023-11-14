@@ -608,8 +608,7 @@ function Loader() {
 function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup }) {
 
   const [currentHintIndex, setCurrentHintIndex] = useState(0)
-  const unlockedHints = 5
-  // const unlockedHints = playerState[`Level${currentLevel + 1}`].hints || 0
+  const unlockedHints = playerState[`Level${currentLevel + 1}`]?.hints || 0
 
   const previous = () => {
     setCurrentHintIndex(prev => prev === 0 ? unlockedHints : prev - 1)
@@ -622,7 +621,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
   const unlock = () => {
     if (unlockedHints !== 5) {
       setPlayerState(prev => {
-        const level = { ...playerState[`Level${currentLevel + 1}`], hints: unlockedHints + 1 }
+        const level = { ...prev[`Level${currentLevel + 1}`], hints: unlockedHints + 1 }
         return {
           ...prev, [`Level${currentLevel + 1}`]: level
         }
