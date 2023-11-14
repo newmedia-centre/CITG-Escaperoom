@@ -9,6 +9,7 @@ import {
   Grid,
   Sphere,
   ContactShadows,
+  Box,
 } from "@react-three/drei";
 import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
@@ -29,6 +30,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   const meshRef = useRef()
   const cameraControlsRef = useRef()
   const oceanRef = useRef()
+  const platformRef = useRef()
   const [cannonBallRef, cannonBallApi] = useSphere(() => ({
     args: [0.8],
     mass: 1,
@@ -54,15 +56,15 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     switch (scene) {
       case "cannon":
         setCameraFocus(scene)
-        cameraControlsRef.current?.setLookAt(2, 7, 33.8, -2, 5, 33.8, true)
+        cameraControlsRef.current?.setLookAt(2, 7, 10.8, -2, 5, 10.8, true)
         break;
       case "blueprint":
         setCameraFocus(scene)
-        cameraControlsRef.current?.setLookAt(6, 9, 34, 7, 9, 34, true)
+        cameraControlsRef.current?.setLookAt(6, 9, 11.0, 7, 9, 11.0, true)
         break;
       default:
         setCameraFocus('default')
-        cameraControlsRef.current?.setLookAt(-2, 7, 39, -2, 6, 33, true)
+        cameraControlsRef.current?.setLookAt(-2.3, 7, 18, -2.3, 6, 10, true)
     }
   }
 
@@ -187,6 +189,10 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
           <WaterLevel position={[2, 0, 1.56]} />
           <WindowBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
           <PilarBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
+          <Box name={"default"} ref={platformRef} args={[40.5, 0.1, 100.5]} position={[0, 3.4, 2]} visible={false} onPointerDown={(obj) => {
+            obj.stopPropagation()
+            setSelectedObject(obj.eventObject)
+          }} />
           {/* <CannonBallHint /> */}
 
           {/* Cannonball display */}
