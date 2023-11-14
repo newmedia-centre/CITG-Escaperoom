@@ -36,7 +36,6 @@ export const Level03 = forwardRef((props, ref) => {
   const tableRef = useRef()
   const puzzleSlotViewRef = useRef()
 
-
   const resetLevel = () => {
   }
 
@@ -49,37 +48,30 @@ export const Level03 = forwardRef((props, ref) => {
 
   const changeCamera = (scene) => {
     switch (scene) {
-      case "table":
-        if (puzzleInPlace == 4) return
-
-        cameraControlsRef.current?.setLookAt(.2, 3, 0, 0, .1, 0, false)
-        cameraControlsRef.current?.fitToBox(tableRef.current, false, {
-          cover: true,
-          paddingLeft: 1,
-          paddingRight: 1,
-          paddingBottom: 1,
-          paddingTop: 1,
-        })
-        setTimeout(() => {
-          setCamControls(false)
-        }, 20) // Wait for camera to move in place
-        break;
-      case "ground":
-        if (puzzleInPlace !== 4) {
-          setCamControls(true)
-          cameraControlsRef.current?.setLookAt(2, 2, 0, .2, 1, 0, false)
-        }
-        break;
-      case "puzzleslot":
-        setCamControls(true)
+      case "puzzleslots":
         cameraControlsRef.current?.setLookAt(.2, 3, 0, 0, .1, 0, false)
         cameraControlsRef.current?.fitToBox(puzzleSlotViewRef.current, false, {
           cover: true,
         })
         setTimeout(() => {
           setCamControls(false)
-        }, 20)
+        }, 20) // Wait for camera to move in place
         break;
+
+      case "ground":
+        if (puzzleInPlace !== 4) {
+          setCamControls(true)
+          cameraControlsRef.current?.setLookAt(2, 2, 0, .2, 1, 0, false)
+        }
+        break;
+      case "puzzletable":
+        cameraControlsRef.current?.setLookAt(.2, 3, 0, 0, .1, 0, false)
+        cameraControlsRef.current?.fitToBox(tableRef.current, false, {
+          cover: true,
+        })
+        setTimeout(() => {
+          setCamControls(false)
+        }, 20) // Wait for camera to move in place
     }
   }
 
@@ -110,7 +102,7 @@ export const Level03 = forwardRef((props, ref) => {
 
   useEffect(() => {
     if (puzzleInPlace == 4) {
-      changeCamera("puzzleslot")
+      changeCamera("puzzleslots")
     }
   }, [puzzleInPlace])
 
@@ -124,7 +116,7 @@ export const Level03 = forwardRef((props, ref) => {
     // Switch camera list
     camera: {
       value: "default",
-      options: ["default", "table", "puzzleslot"],
+      options: ["default", "puzzletable", "puzzleslots"],
       onChange: (value) => {
         changeCamera(value)
       },
@@ -158,8 +150,8 @@ export const Level03 = forwardRef((props, ref) => {
           </Text3D>
 
         </Center>
-
-        <Box ref={puzzleSlotViewRef} args={[1.5, .1, 1.5]} position={[0.2, 0.8, 0.5]} visible={false} />
+        <Box ref={puzzleSlotViewRef} args={[2, 2, 2]} position={[0, 0, 0.5]} visible={false} />
+        <Box ref={tableRef} args={[3.5, 3.5, 3.5]} position={[0, 0, 0]} visible={false} />
 
         <Physics iterations={6}>
           <group name="Pieces" position={[0.193, 0.871, -0.505]}>

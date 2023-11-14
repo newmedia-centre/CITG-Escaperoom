@@ -68,7 +68,8 @@ function PuzzlePiece({ ...props }) {
                     color: 'white',
                 })
 
-                setPuzzleInPlace()
+                setPuzzleInPlace(true)
+                console.log("puzzleId:", puzzleId, "collided with:", hit?.body?.name, "currentIndex:", currentIndex, "to index:", hit?.body?.userData?.index)
             }
         }, [hit])
 
@@ -123,6 +124,7 @@ function PuzzlePiece({ ...props }) {
             setDragging(false)
         },
         onClick: ({ event }) => {
+            event.stopPropagation()
 
             if (solved) return
 
@@ -136,7 +138,7 @@ function PuzzlePiece({ ...props }) {
             }
 
             // If the piece is not interactable, the user can input the solution
-            if (!interactable) {
+            if (!interactable && !isDragging) {
                 // Set the position of input ref to the event position
                 inputRef.current?.position.set(event.uv.x - 0.5, 0, -event.uv.y + 0.5)
                 inputRef.current.visible = true

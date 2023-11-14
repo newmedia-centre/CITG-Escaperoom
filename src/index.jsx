@@ -165,7 +165,9 @@ function App() {
     // If player has won set won to true
     if (gameWon && !playerState?.Won && !playerState?.Lost) {
       setGameWon(true)
-      return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true } }
+      setPlayerState(prev => ({
+        ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true }
+      }))
     }
   }, [gameWon, currentLevel])
 
