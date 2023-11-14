@@ -7,7 +7,7 @@ import { useRaycastAll } from '@react-three/cannon'
 
 function PuzzlePiece({ ...props }) {
     const yPos = props.position[1]
-    const { puzzleId, position, svg, setPuzzleInPlace, setPuzzleSolved, solutionCoords, showPuzzle } = props
+    const { puzzleId, position, svg, setPuzzleInPlace, setPuzzleSolved, solutionCoords, showPuzzle, takeLive } = props
     const { size, viewport } = useThree()
     const gridTexture = useTexture("grid-pattern.png")
     const index = Math.floor(Math.random() * 4)
@@ -26,7 +26,7 @@ function PuzzlePiece({ ...props }) {
     const [currentIndex, setCurrentIndex] = useState(index); // State for index
     const [interactable, setInteractable] = useState(true); // State for index
     const [hint, setHint] = useState(5) // State for hints
-    const [solved, setSolved] = useState(false) // State for puzzle solved internally
+    const [solutionEntered, setSolutionEntered] = useState(false) // State for puzzle solution entered internally
 
     const [spring, set] = useSpring(() => ({
         scale: scale,
@@ -88,7 +88,7 @@ function PuzzlePiece({ ...props }) {
         onDrag: ({ event, dragging, movement: [x, y] }) => {
             event.stopPropagation()
 
-            if (!interactable || solved) return
+            if (!interactable || solutionEntered) return
 
             if (dragging) {
                 if (x > 0.5 || y > 0.5) {
@@ -104,7 +104,7 @@ function PuzzlePiece({ ...props }) {
         onHover: ({ event, hovering }) => {
             event.stopPropagation()
 
-            if (!interactable || solved) return
+            if (!interactable || solutionEntered) return
 
             set({
                 color: hovering ? 'white' : 'gray',
@@ -114,7 +114,7 @@ function PuzzlePiece({ ...props }) {
         onPointerUp: ({ event }) => {
             event.stopPropagation()
 
-            if (!interactable || solved) return
+            if (!interactable || solutionEntered) return
 
             set({
                 position: originalPosition,
@@ -126,7 +126,7 @@ function PuzzlePiece({ ...props }) {
         onClick: ({ event }) => {
             event.stopPropagation()
 
-            if (solved) return
+            if (solutionEntered) return
 
             if (!isDragging && interactable) {
                 // Increase the currentIndex by 1 when clicked
@@ -138,7 +138,7 @@ function PuzzlePiece({ ...props }) {
             }
 
             // If the piece is not interactable, the user can input the solution
-            if (!interactable && !isDragging) {
+            if (!interactable) {
                 // Set the position of input ref to the event position
                 inputRef.current?.position.set(event.uv.x - 0.5, 0, -event.uv.y + 0.5)
                 inputRef.current.visible = true
@@ -146,16 +146,24 @@ function PuzzlePiece({ ...props }) {
                 // Calculate the distance between the solution and the input
                 var distance = inputRef.current?.position.distanceTo(solutionRef.current?.position)
 
+
                 // If the distance is less than 0.08, the puzzle is solved
                 if (distance < 0.08) {
                     setPuzzleSolved()
-                    setSolved(true)
+                    setSolutionEntered(true)
                     materialRef.current?.color.set("green")
-                    solutionRef.current.parent.visible = true
+
+                    // Use this to display the solution
+                    // solutionRef.current.parent.visible = true
                 }
                 else {
                     // TODO: Take away a life
-                    // takeLive()
+                    takeLive()
+                    setSolutionEntered(true)
+                    materialRef.current?.color.set("red")
+
+                    // Use this to display the solution
+                    // solutionRef.current.parent.visible = true
                 }
             }
         }
