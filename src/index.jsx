@@ -61,7 +61,6 @@ function App() {
 
     // store player in localStorage and state
     localStorage.setItem('player', playerIDInput)
-    setPlayerID(playerIDInput)
 
     // check to see if player exists
     const token = await DatabaseClient.auth().catch(e => console.error(e))
@@ -71,6 +70,8 @@ function App() {
     if (!existing) {
       await DatabaseClient.add(playerIDInput, { StartTime: Date.now() }, token)
     }
+
+    setPlayerID(playerIDInput)
   }
 
   // Fire cannon
