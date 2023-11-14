@@ -29,7 +29,7 @@ export const Level03 = forwardRef((props, ref) => {
   const [selectedObject, setSelectedObject] = useState([])
   const [puzzleInPlace, setPuzzleInPlace] = useState(0)
   const [puzzleSolved, setPuzzleSolved] = useState(0)
-  const [showPuzzle, setShowPuzzle] = useState(false)
+  const [showPuzzle, setShowPuzzle] = useState(true)
   const { camera } = useThree()
 
   const cameraControlsRef = useRef()
