@@ -24,11 +24,11 @@ export const read = async (user, token) => {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
         },
-        query: JSON.stringify({
-            filter: {
+        query: {
+            filter: JSON.stringify({
                 id: user
-            }
-        }),
+            }),
+        }
     })
 
     // return the data
