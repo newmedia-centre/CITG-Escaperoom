@@ -31,7 +31,7 @@ export const read = async (user, token) => {
     })
 
     // return the data
-    const data = response.json()
+    const data = await response.json()
     return data[0]
 }
 
