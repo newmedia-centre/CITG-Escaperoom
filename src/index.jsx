@@ -64,8 +64,8 @@ function App() {
     setPlayerID(playerIDInput)
 
     // check to see if player exists
-    const token = await DatabaseClient.auth()
-    const existing = await DatabaseClient.read(playerIDInput, token)
+    const token = await DatabaseClient.auth().catch(e => console.error(e))
+    const existing = await DatabaseClient.read(playerIDInput, token).catch(e => console.error(e))
 
     // create player if it doesnt exist
     if (!existing) {
