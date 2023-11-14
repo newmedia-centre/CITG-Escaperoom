@@ -104,7 +104,7 @@ function App() {
   // Get player state from database
   useEffect(() => {
     if (!playerID) {
-      setPlayerState(state === undefined ? null : state)
+      setPlayerState(null)
     }
 
     const get = async () => {
