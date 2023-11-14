@@ -105,6 +105,7 @@ function App() {
   useEffect(() => {
     if (!playerID) {
       setPlayerState(null)
+      return
     }
 
     const get = async () => {
