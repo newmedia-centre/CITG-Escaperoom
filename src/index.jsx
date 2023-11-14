@@ -203,7 +203,7 @@ function App() {
   return (
     <>
       {/* If player name is not found register new Player */}
-      {playerState !== null && (
+      {playerState === null && (
         <>
           <Stack
             spacing={2}
