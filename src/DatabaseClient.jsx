@@ -7,8 +7,8 @@ export const auth = async () => {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            username: import.meta.env.DB_USERNAME,
-            password: import.meta.env.DB_PASSWORD,
+            username: import.meta.env.VITE_DB_USERNAME,
+            password: import.meta.env.VITE_DB_PASSWORD,
         }),
     })
 

@@ -61,8 +61,7 @@ export const WeightRack = forwardRef((props, ref) => {
         if (object.userData.display < 2) {
             // Set the weight to the min or max if it goes out of bounds
             if (weight < 2) {
-                setWeight(1)
-                return
+                setWeight(0)
             }
             else {
                 setWeight(weight - 1)
@@ -85,9 +84,9 @@ export const WeightRack = forwardRef((props, ref) => {
     }
 
     return <group position={position}>
-        <Text fontSize={0.2} rotation={[0, Math.PI / 2, 0]} position={[0, .26, offsetZ * 2]}>{weight}kg</Text>
-        <Text fontSize={0.1} rotation={[0, Math.PI / 2, 0]} position={[0, .26, offsetZ]}>{weight - 1}</Text>
-        <Text fontSize={0.1} rotation={[0, Math.PI / 2, 0]} position={[0, .26, offsetZ * 3]}>{weight + 1}</Text>
+        <Text fontSize={0.2} rotation={[0, Math.PI / 2, 0]} position={[0, .26, offsetZ * 2]}>{weights[weight] - 1}kg</Text>
+        <Text fontSize={0.1} rotation={[0, Math.PI / 2, 0]} position={[0, .26, offsetZ]}>{weights[weight] - 2}</Text>
+        <Text fontSize={0.1} rotation={[0, Math.PI / 2, 0]} position={[0, .26, offsetZ * 3]}>{weights[weight]}</Text>
         {objectRack.map((object, index) => (
             <>
                 <animated.group key={index} position={objectAnim.positionOffset}>

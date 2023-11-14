@@ -4,12 +4,13 @@ Command: npx gltfjsx@6.2.3 Cylinder.glb --transform --simplify
 */
 
 import React, { useRef } from 'react'
-import { useGLTF } from '@react-three/drei'
+import { useGLTF, Box } from '@react-three/drei'
 
 export default function Cylinder(props) {
   const { nodes, materials } = useGLTF('models/gltfjsx/Cylinder-transformed.glb')
   return (
     <group {...props} dispose={null}>
+      <Box args={[0.3, 0.3, 0.3]} position={[0, 0.1, 0]} visible={false} />
       <mesh geometry={nodes.Cylinder_1.geometry} material={materials.Felt} />
       <mesh geometry={nodes.Cylinder_2.geometry} material={materials.Cork} />
     </group>

@@ -10,7 +10,11 @@ export const WindowBlueprint = forwardRef((props, ref) => {
   const { setSelectedObject, selectedObject } = props
   const { nodes, materials } = useGLTF('models/gltfjsx/WindowBlueprint-transformed.glb')
   return (
-    <group name='blueprint' {...props} dispose={null} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
+    <group name='blueprint' {...props} dispose={null} onPointerDown={(obj) => {
+      obj.stopPropagation()
+      setSelectedObject(obj.eventObject)
+    }
+    }>
       <mesh geometry={nodes.WindowBlueprint.geometry} material={materials.WindowBlueprint} position={[13, 7, 5.038]} scale={1} />
     </group>
   )

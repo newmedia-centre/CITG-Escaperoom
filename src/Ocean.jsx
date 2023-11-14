@@ -4,6 +4,7 @@ import { useMemo, forwardRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 
 const Ocean = forwardRef((props, ref) => {
+    const moveWater = false
     const uniforms = useMemo(
         () => ({
             time: { value: 0.0 },
@@ -47,8 +48,12 @@ const Ocean = forwardRef((props, ref) => {
 
     // Update the 'time' uniform in the material
     useFrame(({ clock }) => {
-        if (ref.current && ref.current.material.uniforms.time) {
-            ref.current.material.uniforms.time.value = clock.elapsedTime
+
+        if (moveWater) {
+            if (ref.current && ref.current.material.uniforms.time) {
+                ref.current.material.uniforms.time.value = clock.elapsedTime
+            }
+
         }
     })
 

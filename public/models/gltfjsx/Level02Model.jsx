@@ -5,7 +5,7 @@ Command: npx gltfjsx@6.2.3 Level02.glb --transform
 
 import React, { forwardRef, useRef, useState, createRef, useEffect } from 'react'
 import { useFrame } from "@react-three/fiber"
-import { useGLTF, Text3D, Text } from '@react-three/drei'
+import { useGLTF, Text3D, Text, Box } from '@react-three/drei'
 import * as THREE from 'three'
 import { MathUtils } from 'three'
 import Ring from './Ring'
@@ -14,7 +14,9 @@ import Sphere from './Sphere'
 
 export const Level02Model = forwardRef((props, ref) => {
   const { weightRef, laserRef, cabinetRef, solutionRef } = ref
-  var { progress, setSelectedObject, weights, selectedSolution } = props
+  var { progress, setSelectedObject, weightsIndex, selectedSolution } = props
+
+  const weights = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
   const rope001Ref = useRef()
   const rope002Ref = useRef()
@@ -120,10 +122,9 @@ export const Level02Model = forwardRef((props, ref) => {
       <group name='weight' ref={weightRef} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
         <mesh name='weight' geometry={nodes.Pulley004.geometry} material={materials.BlackMetal} position={[0, 0.355, -2.467]} />
         <mesh geometry={nodes.PulleyWeight.geometry} material={materials.Alluminium} position={[0, 0.355, -2.467]} rotation={[0, 0, -Math.PI / 2]} scale={[0.01, 0.032, 0.01]} />
-        <mesh geometry={nodes.Weight.geometry} material={materials.AlluminiumDark} position={[0, 0.178, -2.467]} scale={[0.069, 0.089, 0.069]} />
-        {/* TODO: CLEAR BOX MATERIAL */}
-        {/* <Box position={[0, 0.178, -2.467]} scale={[1, 3, 1]} >
-        </Box> */}
+        <mesh geometry={nodes.Weight.geometry} material={materials.AlluminiumDark} position={[0, 0.178, -2.467]} scale={[0.069, 0.089, 0.069]}>
+          <Box args={[2, 50, 10]} visible={false} />
+        </mesh>
       </group>
 
       <mesh ref={rope004Ref} geometry={nodes.Rope004.geometry} material={materials.Rope} position={[0, 0.356, -2.518]} />
@@ -138,16 +139,16 @@ export const Level02Model = forwardRef((props, ref) => {
       <group name="solution" position={[0, 0, -0.2]} scale={2} ref={solutionRef} rotation={[0, Math.PI / 2, Math.PI]} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
         <group name="ring" visible={false}>
           <Ring />
-          <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights.weightRing}kg</Text3D>
+          <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights[weightsIndex.weightRing] - 1}kg</Text3D>
         </group>
         <group name="cylinder" visible={false}>
           <Cylinder />
-          <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights.weightCylinder}kg</Text3D>
+          <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights[weightsIndex.weightCylinder] - 1}kg</Text3D>
         </group>
         <group name="sphere" visible={false}>
           <Sphere />
           <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json">
-            <meshStandardMaterial color="white" />{weights.weightSphere}kg</Text3D>
+            <meshStandardMaterial color="white" />{weights[weightsIndex.weightSphere] - 1}kg</Text3D>
         </group>
       </group>
       <group position={[0, -4, -2.077]} rotation={[-Math.PI, 0, -Math.PI]}>
@@ -165,7 +166,7 @@ export const Level02Model = forwardRef((props, ref) => {
         <mesh geometry={nodes.CabinetDoor001.geometry} material={materials.AlluminiumDark} position={[-2.307, 0, 0.526]} rotation={[-Math.PI, Math.PI / 6, -Math.PI]} >
 
           <group position={[0, 1.5, 0.05]} rotation={[0, -Math.PI / 2, 0]} scale={[0.05, 0.05, 0.05]}>
-            <Text text={"Radius objecten: 0.2m \nAcceleratie: 2 \nHoekversnelling: 10"} color="white" anchorX="left" anchorY="middle">
+            <Text text={"Radius objecten: 0.2m \nAcceleratie: 2m²/s \nHoekversnelling: 10m²/s"} color="white" anchorX="left" anchorY="middle">
             </Text>
           </group>
 
