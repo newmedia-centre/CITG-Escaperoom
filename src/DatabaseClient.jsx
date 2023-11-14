@@ -33,7 +33,7 @@ export const read = async (user, token) => {
 
     // return the data
     const data = response.json()
-    return data
+    return data[0]
 }
 
 export const add = async (user, data, token) => { // user = unique id, data = serializable object, token = bearer token from auth()
