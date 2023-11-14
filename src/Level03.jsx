@@ -10,6 +10,7 @@ import {
   Box,
   Svg,
   Text3D,
+  Text,
 } from "@react-three/drei"
 import { Physics, useBox } from "@react-three/cannon"
 import { useFrame, useThree } from "@react-three/fiber"
@@ -28,6 +29,7 @@ export const Level03 = forwardRef((props, ref) => {
   const [selectedObject, setSelectedObject] = useState([])
   const [puzzleInPlace, setPuzzleInPlace] = useState(0)
   const [puzzleSolved, setPuzzleSolved] = useState(0)
+  const [showPuzzle, setShowPuzzle] = useState(false)
   const { camera } = useThree()
 
   const cameraControlsRef = useRef()
@@ -161,14 +163,14 @@ export const Level03 = forwardRef((props, ref) => {
 
         <Physics iterations={6}>
           <group name="Pieces" position={[0.193, 0.871, -0.505]}>
-            <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} svg="/svg/puzzle01/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.5, 0, -0.18]} />
-            <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} svg="/svg/puzzle02/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.40, 0, 0.365]} />
-            <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} svg="/svg/puzzle03/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.34, 0, -0.1]} />
-            <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} svg="/svg/puzzle04/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[0.17, 0, -0.18]} />
-            <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} svg="/svg/puzzle01/" />
-            <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} svg="/svg/puzzle02/" />
-            <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} svg="/svg/puzzle03/" />
-            <PuzzleSlot puzzleId={3} position={[0.221, 0.013, 0.783]} svg="/svg/puzzle04/" />
+            <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} svg="/svg/puzzle01/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.5, 0, -0.18]} showPuzzle={showPuzzle} />
+            <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} svg="/svg/puzzle02/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.40, 0, 0.365]} showPuzzle={showPuzzle} />
+            <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} svg="/svg/puzzle03/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.34, 0, -0.1]} showPuzzle={showPuzzle} />
+            <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} svg="/svg/puzzle04/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[0.17, 0, -0.18]} showPuzzle={showPuzzle} />
+            <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} svg="/svg/puzzle01/" showPuzzle={showPuzzle} />
+            <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} svg="/svg/puzzle02/" showPuzzle={showPuzzle} />
+            <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} svg="/svg/puzzle03/" showPuzzle={showPuzzle} />
+            <PuzzleSlot puzzleId={3} position={[0.221, 0.013, 0.783]} svg="/svg/puzzle04/" showPuzzle={showPuzzle} />
           </group>
 
         </Physics>
@@ -213,13 +215,14 @@ function Env() {
   )
 }
 
-function PuzzleSlot({ position, puzzleId, svg }) {
+function PuzzleSlot({ position, puzzleId, svg, showPuzzle }) {
   const size = [0.35, 0.2, 0.35]
   const index = 0
 
   const [hint, setHint] = useState(0)
 
   const svgHint = useRef()
+  const svgPuzzle = useRef()
 
   const [physicsRef, api] = useBox(() => ({
     args: size,
@@ -240,6 +243,7 @@ function PuzzleSlot({ position, puzzleId, svg }) {
       <Box args={size} position={position} ref={physicsRef} name={puzzleId} userData={{ index }}>
         <meshBasicMaterial visible={false} />
         <Svg
+          visible={showPuzzle}
           name='puzzle'
           scale={0.00074}
           src={svg + "Puzzle.svg"}
@@ -255,6 +259,9 @@ function PuzzleSlot({ position, puzzleId, svg }) {
           position={[-size[0] / 2, 0, size[2] / 2]}
           rotation={[-Math.PI / 2, 0, Math.PI / 2]}
         />
+        <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.3} position={[0, 0.03, 0.02]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
+          {puzzleId}
+        </Text>
       </Box>
 
     </>

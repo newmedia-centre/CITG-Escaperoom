@@ -1,15 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useThree } from "@react-three/fiber"
-import { Svg, Point, Points, PointMaterial, useTexture } from '@react-three/drei'
+import { Svg, Point, Points, PointMaterial, useTexture, Text } from '@react-three/drei'
 import { useGesture } from '@use-gesture/react'
 import { useSpring, a } from '@react-spring/three'
 import { useRaycastAll } from '@react-three/cannon'
 
 function PuzzlePiece({ ...props }) {
     const yPos = props.position[1]
-    const { puzzleId, position, svg, setPuzzleInPlace, setPuzzleSolved, solutionCoords } = props
+    const { puzzleId, position, svg, setPuzzleInPlace, setPuzzleSolved, solutionCoords, showPuzzle } = props
     const { size, viewport } = useThree()
-    const texture = useTexture("grid-pattern.png")
+    const gridTexture = useTexture("grid-pattern.png")
     const index = Math.floor(Math.random() * 4)
 
     const aspect = size.width / viewport.width
@@ -27,7 +27,6 @@ function PuzzlePiece({ ...props }) {
     const [interactable, setInteractable] = useState(true); // State for index
     const [hint, setHint] = useState(5) // State for hints
     const [solved, setSolved] = useState(false) // State for puzzle solved internally
-    const [showTexture, setShowTexture] = useState(false) // State for showing the grid texture
 
     const [spring, set] = useSpring(() => ({
         scale: scale,
@@ -164,6 +163,7 @@ function PuzzlePiece({ ...props }) {
         <>
             <a.group position={spring.position} rotation={spring.rotation}>
                 <Svg
+                    visible={showPuzzle}
                     name='puzzle'
                     scale={0.00074}
                     src={svg + "Puzzle.svg"}
@@ -179,6 +179,9 @@ function PuzzlePiece({ ...props }) {
                     position={[-scale[0] / 2, .0289, scale[2] / 2]}
                     rotation={[-Math.PI / 2, 0, Math.PI / 2]}
                 />
+                <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.3} position={[0, 0.03, 0.02]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
+                    {puzzleId}
+                </Text>
             </a.group>
             <a.group {...spring}>
 
@@ -194,7 +197,7 @@ function PuzzlePiece({ ...props }) {
             </a.group>
             <a.mesh {...spring} {...bind()} castShadow>
                 <boxBufferGeometry />
-                <a.meshStandardMaterial color={spring.color} map={texture} />
+                <a.meshStandardMaterial color={spring.color} map={showPuzzle ? gridTexture : ""} />
             </a.mesh >
             <Raycast puzzleId={puzzleId} index={index} position={spring.position.get()} />
         </>
