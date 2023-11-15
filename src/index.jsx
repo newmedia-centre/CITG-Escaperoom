@@ -175,7 +175,8 @@ function App() {
       setPlayerState(prev => ({
         ...prev,
         Won: true,
-        EndTime: Date.now()
+        EndTime: Date.now(),
+        Points: (playerState?.Level1?.Points || 1000) + (playerState?.Level2?.Points || 1000) + (playerState?.Level3?.Points || 1000) + (playerState?.Level4?.Points || 1000)
       }))
       return
     }
