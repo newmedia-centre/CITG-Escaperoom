@@ -125,11 +125,11 @@ function App() {
       const state = await DatabaseClient.read(playerID, token).catch(() => setPlayerState(null))
       setPlayerState(state === undefined ? null : state)
 
-      if (state[`Level${currentLevel + 1}`]?.Won) {
+      if (state && state[`Level${currentLevel + 1}`]?.Won) {
         setGameWon(true)
       }
 
-      if (state[`Level${currentLevel + 1}`]?.Lost) {
+      if (state && state[`Level${currentLevel + 1}`]?.Lost) {
         setGameOver(true)
       }
 
@@ -150,7 +150,7 @@ function App() {
     setPlayerState(prev => {
       if (!prev[`Level${currentLevel + 1}`]) {
         return {
-          ...prev, [`Level${currentLevel + 1}`]: { StartTime: Date.now(), lives: 3, hints: 0 }
+          ...prev, [`Level${currentLevel + 1}`]: { StartTime: Date.now(), lives: 3, usedHints: 0 }
         }
       }
 
@@ -165,8 +165,8 @@ function App() {
     if (gameWon && !playerState?.Won && !playerState?.Lost) {
       setPlayerState(prev => {
         const hintPenalty = (() => {
-          if (!prev[`Level${currentLevel + 1}`].hints) return 0
-          return prev[`Level${currentLevel + 1}`].hints * 10
+          if (!prev[`Level${currentLevel + 1}`].usedHints) return 0
+          return prev[`Level${currentLevel + 1}`].usedHints * 10
         })()
         const livePenalty = (() => {
           if (!prev[`Level${currentLevel + 1}`].lives) return 0
@@ -179,17 +179,19 @@ function App() {
 
   // handle all games won or lost or finished
   useEffect(() => {
-    if (playerState?.Level1?.Won && playerState?.Level2?.Won && playerState?.Level3.Won && playerState?.Level4.Won) {
+    if (playerState?.Won || playerState?.Lost || playerState?.Finished) return
+
+    if (playerState?.Level1?.Won && playerState?.Level2?.Won && playerState?.Level3?.Won && playerState?.Level4?.Won) {
       setPlayerState(prev => ({
         ...prev,
         Won: true,
         EndTime: Date.now(),
-        Penalty: (playerState?.Level1?.Penalty || 1000) + (playerState?.Level2?.Penalty || 1000) + (playerState?.Level3?.Penalty || 1000) + (playerState?.Level4?.Penalty || 1000)
+        Penalty: (playerState?.Level1?.Penalty ?? 1000) + (playerState?.Level2?.Penalty ?? 1000) + (playerState?.Level3?.Penalty ?? 1000) + (playerState?.Level4?.Penalty ?? 1000)
       }))
       return
     }
 
-    if (playerState?.Level1?.Lost && playerState?.Level2?.Lost && playerState?.Level3.Lost && playerState?.Level4.Lost) {
+    if (playerState?.Level1?.Lost && playerState?.Level2?.Lost && playerState?.Level3?.Lost && playerState?.Level4?.Lost) {
       setPlayerState(prev => ({
         ...prev,
         Lost: true,
@@ -248,6 +250,10 @@ function App() {
   if (playerState === undefined) {
     return (<div style={{ padding: '16px' }}>Loading...</div>)
   }
+
+  if (playerState?.Won) return (
+    <FinishedWinScreen onRetry={retry} currentLevel={currentLevel} penalty={playerState.Penalty} />
+  )
 
   return (
     <>
@@ -593,6 +599,38 @@ function WinScreen({ onRetry, currentLevel }) {
         <Typography level="h2" color="success">Level behaald!</Typography>
         <Typography level="body-md">{gameMessages.messages[currentLevel]?.win}</Typography>
         <Typography level="body-md">{gameMessages.messages[currentLevel]?.instruction}</Typography>
+      </Card>
+    </Stack>
+  );
+}
+
+function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
+  return (
+    <Stack spacing={2}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        bgcolor: 'rgba(0, 0, 0, 0.7)',
+        zIndex: 10000,
+        userSelect: 'none',
+      }}
+    >
+      <ConfettiExplosion particleCount={200} duration={4000} />
+
+      <Card color="neutral" sx={{
+        backgroundColor: 'rgba(22, 22, 22, 1)',
+        p: 2,
+        textAlign: 'center',
+        color: "gray"
+      }}>
+        <Typography level="h2" color="success">Je bent klaar! Je hebt de game afgerond met een score van {penalty} strafpunten!</Typography>
       </Card>
     </Stack>
   );
