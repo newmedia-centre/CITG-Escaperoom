@@ -55,23 +55,6 @@ function App() {
     }
   }, [window.location.search])
 
-  // Manage lives
-  /*
-  const lives = useMemo(() => {
-    if (!playerState) return 3
-    if (!playerState[`Level${currentLevel + 1}`]) return 3
-    return playerState[`Level${currentLevel + 1}`].lives ?? 3
-  }, [playerState, currentLevel])
-
-  const setLives = (lives) => {
-    if (lives === 0) {
-      setGameOver(true)
-      setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives, lost: true } }))
-      return
-    }
-    setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives } }))
-  }
-  */
   useEffect(() => {
     if (lives === 3) return
 
@@ -172,12 +155,45 @@ function App() {
 
     // If player has won set won to true
     if (gameWon && !playerState?.Won && !playerState?.Lost) {
-      setGameWon(true)
       setPlayerState(prev => ({
         ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true }
       }))
     }
   }, [gameWon, currentLevel])
+
+  // handle all games won or lost or finished
+  useEffect(() => {
+    if (playerState?.Level1?.Won && playerState?.Level2?.Won && playerState?.Level3.Won && playerState?.Level4.Won) {
+      setPlayerState(prev => ({
+        ...prev,
+        Won: true,
+        EndTime: Date.now()
+      }))
+      return
+    }
+
+    if (playerState?.Level1?.Lost && playerState?.Level2?.Lost && playerState?.Level3.Lost && playerState?.Level4.Lost) {
+      setPlayerState(prev => ({
+        ...prev,
+        Lost: true,
+        EndTime: Date.now()
+      }))
+      return
+    }
+
+    if (
+      (playerState?.Level1?.Lost || playerState?.Level1?.Won) &&
+      (playerState?.Level2?.Lost || playerState?.Level2?.Won) &&
+      (playerState?.Level3?.Lost || playerState?.Level3?.Won) &&
+      (playerState?.Level4?.Lost || playerState?.Level4?.Won)) {
+      setPlayerState(prev => ({
+        ...prev,
+        Finished: true,
+        EndTime: Date.now()
+      }))
+      return
+    }
+  }, [playerState])
 
   // Game over when time runs out
   useEffect(() => {
