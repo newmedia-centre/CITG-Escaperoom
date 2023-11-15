@@ -122,9 +122,6 @@ function App() {
   useEffect(() => {
     if (!playerState) return
 
-    // Only set StartTime if it is not already set
-    if (playerState[`Level${currentLevel + 1}`]?.StartTime) return
-
     setPlayerState(prev => {
       if (!prev[`Level${currentLevel + 1}`]) {
         return {
@@ -134,7 +131,7 @@ function App() {
 
       return prev
     })
-  }, [currentLevel])
+  }, [currentLevel, playerState])
 
   // Set lives to player state
   useEffect(() => {
