@@ -125,6 +125,14 @@ function App() {
       const state = await DatabaseClient.read(playerID, token).catch(() => setPlayerState(null))
       setPlayerState(state === undefined ? null : state)
 
+      if (state[`Level${currentLevel + 1}`]?.Won) {
+        setGameWon(true)
+      }
+
+      if (state[`Level${currentLevel + 1}`]?.Lost) {
+        setGameOver(true)
+      }
+
       setLives(() => {
         if (!state) return 3
         if (!state[`Level${currentLevel + 1}`]) return 3
@@ -142,7 +150,7 @@ function App() {
     setPlayerState(prev => {
       if (!prev[`Level${currentLevel + 1}`]) {
         return {
-          ...prev, [`Level${currentLevel + 1}`]: { StartTime: Date.now() }
+          ...prev, [`Level${currentLevel + 1}`]: { StartTime: Date.now(), lives: 3, hints: 0 }
         }
       }
 
@@ -155,9 +163,17 @@ function App() {
 
     // If player has won set won to true
     if (gameWon && !playerState?.Won && !playerState?.Lost) {
-      setPlayerState(prev => ({
-        ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true }
-      }))
+      setPlayerState(prev => {
+        const hintPenalty = (() => {
+          if (!prev[`Level${currentLevel + 1}`].hints) return 0
+          return prev[`Level${currentLevel + 1}`].hints * 10
+        })()
+        const livePenalty = (() => {
+          if (!prev[`Level${currentLevel + 1}`].lives) return 0
+          return (3 - prev[`Level${currentLevel + 1}`].lives) * 20
+        })()
+        return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true, Penalty: hintPenalty + livePenalty } }
+      })
     }
   }, [gameWon, currentLevel])
 
@@ -167,7 +183,8 @@ function App() {
       setPlayerState(prev => ({
         ...prev,
         Won: true,
-        EndTime: Date.now()
+        EndTime: Date.now(),
+        Penalty: (playerState?.Level1?.Penalty || 1000) + (playerState?.Level2?.Penalty || 1000) + (playerState?.Level3?.Penalty || 1000) + (playerState?.Level4?.Penalty || 1000)
       }))
       return
     }
