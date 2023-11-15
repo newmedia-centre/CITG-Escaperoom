@@ -142,7 +142,7 @@ function App() {
     setPlayerState(prev => {
       if (!prev[`Level${currentLevel + 1}`]) {
         return {
-          ...prev, [`Level${currentLevel + 1}`]: { StartTime: Date.now() }
+          ...prev, [`Level${currentLevel + 1}`]: { StartTime: Date.now(), lives: 3, hints: 0 }
         }
       }
 
