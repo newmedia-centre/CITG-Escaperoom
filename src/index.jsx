@@ -623,7 +623,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
   const unlock = () => {
     if (unlockedHints !== 5) {
       setPlayerState(prev => {
-        const level = { ...prev[`Level${currentLevel + 1}`], hints: unlockedHints + 1 }
+        const level = { ...prev[`Level${currentLevel + 1}`], hints: (prev[`Level${currentLevel + 1}`]?.hints || 0) + 1 }
         return {
           ...prev, [`Level${currentLevel + 1}`]: level
         }
@@ -641,9 +641,8 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
     return <Typography sx={{ whiteSpace: 'pre-line' }} level="title-md">
       {hints[currentLevel][currentHintIndex]}
     </Typography>
-  }, [currentLevel, currentHintIndex])
+  }, [currentLevel, currentHintIndex, unlockedHints])
 
-  const { progress } = useProgress()
   return (
     <Card variant="outlined" sx={
       // Move to middle of screen
