@@ -29,7 +29,7 @@ export const Level03 = forwardRef((props, ref) => {
   const [selectedObject, setSelectedObject] = useState([])
   const [puzzleInPlace, setPuzzleInPlace] = useState(0)
   const [puzzleSolved, setPuzzleSolved] = useState(0)
-  const [showPuzzle, setShowPuzzle] = useState(true)
+  const [showPuzzle, setShowPuzzle] = useState(false)
   const { camera } = useThree()
 
   const cameraControlsRef = useRef()
@@ -107,6 +107,8 @@ export const Level03 = forwardRef((props, ref) => {
 
   useEffect(() => {
     if (puzzleInPlace == 4) {
+      // Show puzzle with grid
+      setShowPuzzle(true)
       changeCamera("puzzleslots")
     }
   }, [puzzleInPlace])
@@ -164,10 +166,10 @@ export const Level03 = forwardRef((props, ref) => {
             <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} svg="/svg/puzzle02/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.40, 0, 0.365]} showPuzzle={showPuzzle} takeLive={takeLive} />
             <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} svg="/svg/puzzle03/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.34, 0, -0.1]} showPuzzle={showPuzzle} takeLive={takeLive} />
             <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} svg="/svg/puzzle04/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[0.17, 0, -0.18]} showPuzzle={showPuzzle} takeLive={takeLive} />
-            <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} svg="/svg/puzzle01/" showPuzzle={showPuzzle} />
-            <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} svg="/svg/puzzle02/" showPuzzle={showPuzzle} />
-            <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} svg="/svg/puzzle03/" showPuzzle={showPuzzle} />
-            <PuzzleSlot puzzleId={3} position={[0.221, 0.013, 0.783]} svg="/svg/puzzle04/" showPuzzle={showPuzzle} />
+            <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} svg="/svg/puzzle01/" />
+            <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} svg="/svg/puzzle02/" />
+            <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} svg="/svg/puzzle03/" />
+            <PuzzleSlot puzzleId={3} position={[0.221, 0.013, 0.783]} svg="/svg/puzzle04/" />
           </group>
 
         </Physics>
@@ -256,7 +258,7 @@ function PuzzleSlot({ position, puzzleId, svg, showPuzzle }) {
           position={[-size[0] / 2, 0, size[2] / 2]}
           rotation={[-Math.PI / 2, 0, Math.PI / 2]}
         />
-        <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.3} position={[0, 0.03, 0.02]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
+        <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.05} position={[0.16, 0.03, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
           {puzzleId}
         </Text>
       </Box>
