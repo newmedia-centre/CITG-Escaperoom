@@ -125,6 +125,14 @@ function App() {
       const state = await DatabaseClient.read(playerID, token).catch(() => setPlayerState(null))
       setPlayerState(state === undefined ? null : state)
 
+      if (state[`Level${currentLevel + 1}`]?.Won) {
+        setGameWon(true)
+      }
+
+      if (state[`Level${currentLevel + 1}`]?.Lost) {
+        setGameOver(true)
+      }
+
       setLives(() => {
         if (!state) return 3
         if (!state[`Level${currentLevel + 1}`]) return 3
