@@ -156,15 +156,15 @@ function App() {
     // If player has won set won to true
     if (gameWon && !playerState?.Won && !playerState?.Lost) {
       setPlayerState(prev => {
-        const hintPoints = (() => {
+        const hintPenalty = (() => {
           if (!prev[`Level${currentLevel + 1}`].hints) return 0
           return prev[`Level${currentLevel + 1}`].hints * 10
         })()
-        const livePoints = (() => {
+        const livePenalty = (() => {
           if (!prev[`Level${currentLevel + 1}`].lives) return 0
           return (3 - prev[`Level${currentLevel + 1}`].lives) * 20
         })()
-        return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true, Points: hintPoints + livePoints } }
+        return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true, Penalty: hintPenalty + livePenalty } }
       })
     }
   }, [gameWon, currentLevel])
@@ -176,7 +176,7 @@ function App() {
         ...prev,
         Won: true,
         EndTime: Date.now(),
-        Points: (playerState?.Level1?.Points || 1000) + (playerState?.Level2?.Points || 1000) + (playerState?.Level3?.Points || 1000) + (playerState?.Level4?.Points || 1000)
+        Penalty: (playerState?.Level1?.Penalty || 1000) + (playerState?.Level2?.Penalty || 1000) + (playerState?.Level3?.Penalty || 1000) + (playerState?.Level4?.Penalty || 1000)
       }))
       return
     }
