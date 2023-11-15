@@ -69,7 +69,7 @@ function PuzzlePiece({ ...props }) {
                 })
 
                 setPuzzleInPlace(true)
-                console.log("puzzleId:", puzzleId, "collided with:", hit?.body?.name, "currentIndex:", currentIndex, "to index:", hit?.body?.userData?.index)
+                // console.log("puzzleId:", puzzleId, "collided with:", hit?.body?.name, "currentIndex:", currentIndex, "to index:", hit?.body?.userData?.index)
             }
         }, [hit])
 
@@ -189,7 +189,7 @@ function PuzzlePiece({ ...props }) {
                     position={[-scale[0] / 2, .0289, scale[2] / 2]}
                     rotation={[-Math.PI / 2, 0, Math.PI / 2]}
                 />
-                <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.3} position={[0, 0.03, 0.02]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
+                <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.05} position={[0.16, 0.03, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
                     {puzzleId}
                 </Text>
             </a.group>

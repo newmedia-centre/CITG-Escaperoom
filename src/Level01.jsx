@@ -38,7 +38,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   }))
   const [targetRef] = useBox(() => ({
     args: [1.9, 0.3, 1.9],
-    position: [-2, 1.8, 12.7],
+    position: [-2, 2.4, -10.7],
     type: "Kinematic",
     onCollide: (e) => handleCollision(e, "target")
   }))
@@ -90,10 +90,8 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   }
 
   function CannonBall({ position }) {
-    const [ref] = useSphere(() => ({ position }))
-
     return (
-      <Sphere ref={ref} castShadow receiveShadow args={[0.4, 64, 64]}>
+      <Sphere position={position} castShadow receiveShadow args={[0.4, 64, 64]}>
         <meshStandardMaterial color="gray" metalness={0.9} roughness={0.4} />
       </Sphere>
     )
