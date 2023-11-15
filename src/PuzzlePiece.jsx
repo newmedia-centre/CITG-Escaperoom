@@ -26,6 +26,7 @@ function PuzzlePiece({ ...props }) {
     const [currentIndex, setCurrentIndex] = useState(index); // State for index
     const [interactable, setInteractable] = useState(true); // State for index
     const [hint, setHint] = useState(5) // State for hintssolution entered internally
+    const [solutionEnteredInt, setSolutionEnteredInt] = useState(false)
 
     const [spring, set] = useSpring(() => ({
         scale: scale,
@@ -87,7 +88,7 @@ function PuzzlePiece({ ...props }) {
         onDrag: ({ event, dragging, movement: [x, y] }) => {
             event.stopPropagation()
 
-            if (!interactable || solutionEntered) return
+            if (!interactable || solutionEnteredInt) return
 
             if (dragging) {
                 if (x > 0.5 || y > 0.5) {
@@ -103,7 +104,7 @@ function PuzzlePiece({ ...props }) {
         onHover: ({ event, hovering }) => {
             event.stopPropagation()
 
-            if (!interactable || solutionEntered) return
+            if (!interactable || solutionEnteredInt) return
 
             set({
                 color: hovering ? 'white' : 'gray',
@@ -113,7 +114,7 @@ function PuzzlePiece({ ...props }) {
         onPointerUp: ({ event }) => {
             event.stopPropagation()
 
-            if (!interactable || solutionEntered) return
+            if (!interactable || solutionEnteredInt) return
 
             set({
                 position: originalPosition,
@@ -125,7 +126,7 @@ function PuzzlePiece({ ...props }) {
         onClick: ({ event }) => {
             event.stopPropagation()
 
-            if (solutionEntered) return
+            if (solutionEnteredInt) return
 
             if (!isDragging && interactable) {
                 // Increase the currentIndex by 1 when clicked
@@ -150,15 +151,16 @@ function PuzzlePiece({ ...props }) {
                 if (distance < 0.08) {
                     setPuzzleSolved()
                     setSolutionEntered()
+                    setSolutionEnteredInt(true)
                     materialRef.current?.color.set("green")
 
                     // Use this to display the solution
                     // solutionRef.current.parent.visible = true
                 }
                 else {
-                    // TODO: Take away a life
-                    takeLive()
+                    // takeLive()
                     setSolutionEntered()
+                    setSolutionEnteredInt(true)
                     materialRef.current?.color.set("red")
 
                     // Use this to display the solution

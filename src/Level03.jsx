@@ -38,6 +38,7 @@ export const Level03 = forwardRef((props, ref) => {
   const puzzleSlotViewRef = useRef()
 
   const resetLevel = () => {
+    // TODO: Resetlevel
   }
 
   const takeLive = () => {
@@ -117,6 +118,10 @@ export const Level03 = forwardRef((props, ref) => {
   useEffect(() => {
     if (puzzleSolved == 4 && solutionEntered == 4) {
       setGameWon(true)
+    }
+
+    if (puzzleSolved != 4 && solutionEntered == 4) {
+      takeLive()
     }
   }, [puzzleSolved, solutionEntered])
 
