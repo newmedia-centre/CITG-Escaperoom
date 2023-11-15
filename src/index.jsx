@@ -55,6 +55,34 @@ function App() {
     }
   }, [window.location.search])
 
+  // Manage lives
+  /*
+  const lives = useMemo(() => {
+    if (!playerState) return 3
+    if (!playerState[`Level${currentLevel + 1}`]) return 3
+    return playerState[`Level${currentLevel + 1}`].lives ?? 3
+  }, [playerState, currentLevel])
+
+  const setLives = (lives) => {
+    if (lives === 0) {
+      setGameOver(true)
+      setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives, lost: true } }))
+      return
+    }
+    setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives } }))
+  }
+  */
+  useEffect(() => {
+    if (lives === 3) return
+
+    if (lives === 0) {
+      setGameOver(true)
+      setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives, lost: true } }))
+      return
+    }
+    setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives } }))
+  }, [lives, currentLevel])
+
   // Adds player to database and starts the game
   const registerPlayer = async () => {
     if (!playerIDInput) return
@@ -113,6 +141,12 @@ function App() {
       const token = await DatabaseClient.auth().catch(() => setPlayerState(null))
       const state = await DatabaseClient.read(playerID, token).catch(() => setPlayerState(null))
       setPlayerState(state === undefined ? null : state)
+
+      setLives(() => {
+        if (!state) return 3
+        if (!state[`Level${currentLevel + 1}`]) return 3
+        return state[`Level${currentLevel + 1}`].lives ?? 3
+      })
     }
 
     get()
@@ -132,29 +166,6 @@ function App() {
       return prev
     })
   }, [currentLevel, playerState])
-
-  // Set lives to player state
-  useEffect(() => {
-    if (!playerState) return
-
-    setPlayerState(prev => {
-      // TODO: check if this is correct
-      if (!prev?.Lost && !prev?.Won) {
-        const levelState = { ...prev[`Level${currentLevel + 1}`], lives: lives }
-        return {
-          ...prev, [`Level${currentLevel + 1}`]: levelState
-        }
-      }
-
-      // If player has no lives left in current level set lost in currentlevel to true
-      if (prev[`Level${currentLevel + 1}`].lives === 1 && !prev.Won && !prev.Lost) {
-        setGameOver(true)
-        return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Lost: true } }
-      }
-
-      return prev
-    })
-  }, [lives, currentLevel])
 
   useEffect(() => {
     if (!playerState) return
