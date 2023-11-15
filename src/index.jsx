@@ -155,9 +155,17 @@ function App() {
 
     // If player has won set won to true
     if (gameWon && !playerState?.Won && !playerState?.Lost) {
-      setPlayerState(prev => ({
-        ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true }
-      }))
+      setPlayerState(prev => {
+        const hintPoints = (() => {
+          if (!prev[`Level${currentLevel + 1}`].hints) return 0
+          return prev[`Level${currentLevel + 1}`].hints * 10
+        })()
+        const livePoints = (() => {
+          if (!prev[`Level${currentLevel + 1}`].lives) return 0
+          return (3 - prev[`Level${currentLevel + 1}`].lives) * 20
+        })()
+        return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true, Points: hintPoints + livePoints } }
+      })
     }
   }, [gameWon, currentLevel])
 
