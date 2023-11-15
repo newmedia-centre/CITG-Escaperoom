@@ -623,7 +623,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
   const unlock = () => {
     if (unlockedHints !== 5) {
       setPlayerState(prev => {
-        const level = { ...prev[`Level${currentLevel + 1}`], hints: (prev[`Level${currentLevel + 1}`]?.usedHints || 0) + 1 }
+        const level = { ...prev[`Level${currentLevel + 1}`], usedHints: (prev[`Level${currentLevel + 1}`]?.usedHints || 0) + 1 }
         return {
           ...prev, [`Level${currentLevel + 1}`]: level
         }
