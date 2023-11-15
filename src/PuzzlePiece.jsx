@@ -7,7 +7,7 @@ import { useRaycastAll } from '@react-three/cannon'
 
 function PuzzlePiece({ ...props }) {
     const yPos = props.position[1]
-    const { puzzleId, position, svg, setPuzzleInPlace, setPuzzleSolved, solutionCoords, showPuzzle, takeLive } = props
+    const { puzzleId, position, svg, setPuzzleInPlace, setPuzzleSolved, solutionCoords, showPuzzle, takeLive, setSolutionEntered } = props
     const { size, viewport } = useThree()
     const gridTexture = useTexture("grid-pattern.png")
     const index = Math.floor(Math.random() * 4)
@@ -25,8 +25,7 @@ function PuzzlePiece({ ...props }) {
     const [isDragging, setDragging] = useState(false); // Add state to track dragging
     const [currentIndex, setCurrentIndex] = useState(index); // State for index
     const [interactable, setInteractable] = useState(true); // State for index
-    const [hint, setHint] = useState(5) // State for hints
-    const [solutionEntered, setSolutionEntered] = useState(false) // State for puzzle solution entered internally
+    const [hint, setHint] = useState(5) // State for hintssolution entered internally
 
     const [spring, set] = useSpring(() => ({
         scale: scale,
@@ -150,7 +149,7 @@ function PuzzlePiece({ ...props }) {
                 // If the distance is less than 0.08, the puzzle is solved
                 if (distance < 0.08) {
                     setPuzzleSolved()
-                    setSolutionEntered(true)
+                    setSolutionEntered()
                     materialRef.current?.color.set("green")
 
                     // Use this to display the solution
@@ -159,7 +158,7 @@ function PuzzlePiece({ ...props }) {
                 else {
                     // TODO: Take away a life
                     takeLive()
-                    setSolutionEntered(true)
+                    setSolutionEntered()
                     materialRef.current?.color.set("red")
 
                     // Use this to display the solution
