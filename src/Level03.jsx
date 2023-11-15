@@ -29,6 +29,7 @@ export const Level03 = forwardRef((props, ref) => {
   const [selectedObject, setSelectedObject] = useState([])
   const [puzzleInPlace, setPuzzleInPlace] = useState(0)
   const [puzzleSolved, setPuzzleSolved] = useState(0)
+  const [solutionEntered, setSolutionEntered] = useState(0)
   const [showPuzzle, setShowPuzzle] = useState(false)
   const { camera } = useThree()
 
@@ -114,10 +115,10 @@ export const Level03 = forwardRef((props, ref) => {
   }, [puzzleInPlace])
 
   useEffect(() => {
-    if (puzzleSolved == 4 && puzzleInPlace == 4) {
+    if (puzzleSolved == 4 && solutionEntered == 4) {
       setGameWon(true)
     }
-  }, [puzzleSolved])
+  }, [puzzleSolved, solutionEntered])
 
   useControls({
     // Switch camera list
@@ -160,19 +161,28 @@ export const Level03 = forwardRef((props, ref) => {
         <Box ref={puzzleSlotViewRef} args={[2, 2, 2]} position={[0, 0, 0.5]} visible={false} />
         <Box ref={tableRef} args={[3.5, 3.5, 3.5]} position={[0, 0, 0]} visible={false} />
 
-        <Physics iterations={6}>
-          <group name="Pieces" position={[0.193, 0.871, -0.505]}>
-            <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} svg="/svg/puzzle01/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.5, 0, -0.18]} showPuzzle={showPuzzle} takeLive={takeLive} />
-            <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} svg="/svg/puzzle02/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.40, 0, 0.365]} showPuzzle={showPuzzle} takeLive={takeLive} />
-            <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} svg="/svg/puzzle03/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[-0.34, 0, -0.1]} showPuzzle={showPuzzle} takeLive={takeLive} />
-            <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} svg="/svg/puzzle04/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)} setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)} solutionCoords={[0.17, 0, -0.18]} showPuzzle={showPuzzle} takeLive={takeLive} />
-            <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} svg="/svg/puzzle01/" />
-            <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} svg="/svg/puzzle02/" />
-            <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} svg="/svg/puzzle03/" />
-            <PuzzleSlot puzzleId={3} position={[0.221, 0.013, 0.783]} svg="/svg/puzzle04/" />
-          </group>
+        <group name="Pieces" position={[0.193, 0.871, -0.505]}>
+          <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} svg="/svg/puzzle01/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)}
+            setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.5, 0, -0.18]} showPuzzle={showPuzzle} takeLive={takeLive} />
+          <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} svg="/svg/puzzle02/"
+            setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)}
+            setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.40, 0, 0.365]} showPuzzle={showPuzzle} takeLive={takeLive} />
+          <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} svg="/svg/puzzle03/"
+            setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)}
+            setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.34, 0, -0.1]} showPuzzle={showPuzzle} takeLive={takeLive} />
+          <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} svg="/svg/puzzle04/"
+            setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)}
+            setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.17, 0, -0.18]} showPuzzle={showPuzzle} takeLive={takeLive} />
+          <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} svg="/svg/puzzle01/" />
+          <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} svg="/svg/puzzle02/" />
+          <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} svg="/svg/puzzle03/" />
+          <PuzzleSlot puzzleId={3} position={[0.221, 0.013, 0.783]} svg="/svg/puzzle04/" />
+        </group>
 
-        </Physics>
 
         <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
           <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />
