@@ -147,7 +147,7 @@ function App() {
       }
 
       // If player has no lives left in current level set lost in currentlevel to true
-      if (prev[`Level${currentLevel + 1}`].lives === 0 && !prev.Won && !prev.Lost) {
+      if (prev[`Level${currentLevel + 1}`].lives === 1 && !prev.Won && !prev.Lost) {
         setGameOver(true)
         return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Lost: true } }
       }
