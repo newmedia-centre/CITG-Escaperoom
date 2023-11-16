@@ -8,9 +8,10 @@ import {
   CameraControls,
   ContactShadows,
   Box,
-  Svg,
+  useVideoTexture,
   Text3D,
   Text,
+  Plane,
 } from "@react-three/drei"
 import { Physics, useBox } from "@react-three/cannon"
 import { useFrame, useThree } from "@react-three/fiber"
@@ -27,10 +28,11 @@ export const Level03 = forwardRef((props, ref) => {
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [camControlsEnabled, setCamControls] = useState(true)
   const [selectedObject, setSelectedObject] = useState([])
-  const [puzzleInPlace, setPuzzleInPlace] = useState(0)
+  const [puzzles, setPuzzle] = useState({ puzzleInPlace: 0, puzzleId: -1 })
   const [puzzleSolved, setPuzzleSolved] = useState(0)
   const [solutionEntered, setSolutionEntered] = useState(0)
   const [showPuzzle, setShowPuzzle] = useState(false)
+  const [showVector, setShowVector] = useState(1)
   const { camera } = useThree()
 
   const cameraControlsRef = useRef()
@@ -62,13 +64,13 @@ export const Level03 = forwardRef((props, ref) => {
         break;
 
       case "ground":
-        if (puzzleInPlace !== 4) {
+        if (puzzles?.puzzleInPlace !== 4) {
           setCamControls(true)
           cameraControlsRef.current?.setLookAt(2, 2, 0, .2, 1, 0, false)
         }
         break;
       case "puzzletable":
-        if (puzzleInPlace !== 4) {
+        if (puzzles?.puzzleInPlace !== 4) {
           setCamControls(true)
           cameraControlsRef.current?.setLookAt(.2, 3, 0, 0, .1, 0, false)
           cameraControlsRef.current?.fitToBox(tableRef.current, false, {
@@ -108,12 +110,28 @@ export const Level03 = forwardRef((props, ref) => {
   }, [selectedObject])
 
   useEffect(() => {
-    if (puzzleInPlace == 4) {
-      // Show puzzle with grid
+    if (!puzzles) return
+
+    if (puzzles.puzzleInPlace == 4) {
       setShowPuzzle(true)
-      changeCamera("puzzleslots")
     }
-  }, [puzzleInPlace])
+
+    switch (puzzles.puzzleId) {
+      case 0:
+        changeCamera("puzzletable")
+        // Make only the first puzzle piece visible/interactable
+        break;
+      case 1:
+        changeCamera("puzzletable")
+        break;
+      case 2:
+        changeCamera("puzzletable")
+        break;
+      case 3:
+        changeCamera("puzzletable")
+        break;
+    }
+  }, [puzzles])
 
   useEffect(() => {
     if (puzzleSolved == 4 && solutionEntered == 4) {
@@ -124,17 +142,6 @@ export const Level03 = forwardRef((props, ref) => {
       takeLive()
     }
   }, [puzzleSolved, solutionEntered])
-
-  useControls({
-    // Switch camera list
-    camera: {
-      value: "default",
-      options: ["default", "puzzletable", "puzzleslots"],
-      onChange: (value) => {
-        changeCamera(value)
-      },
-    },
-  })
 
   useFrame(({ clock }) => {
     // Updates the camera position to follow the model
@@ -156,7 +163,7 @@ export const Level03 = forwardRef((props, ref) => {
         <Level03Model ref={{ tableRef }}
           setSelectedObject={setSelectedObject}
         />
-        <Center rotation={[0, Math.PI / 2, 0]} position={[0.7, 0.91, 0.27]} >
+        <Center rotation={[0, Math.PI / 2, 0]} position={[0.7, 0.91, 0]} >
           <Text3D font="/Roboto_Regular.json" size={0.1} rotation={[-Math.PI / 3, 0, 0]} height={0.02} textAlign="center">
             <meshStandardMaterial color="#356e73" />
             Ogenblikkelijk Rotatiecentrum
@@ -167,25 +174,42 @@ export const Level03 = forwardRef((props, ref) => {
         <Box ref={tableRef} args={[3.5, 3.5, 3.5]} position={[0, 0, 0]} visible={false} />
 
         <group name="Pieces" position={[0.193, 0.871, -0.505]}>
-          <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} svg="/svg/puzzle01/" setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)}
+          <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} video="videos/Puzzle_0.mp4"
+            setPuzzle={() => setPuzzle({
+              puzzleInPlace: puzzles.puzzleInPlace + 1,
+              puzzleId: 0
+            })}
+            puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.5, 0, -0.18]} showPuzzle={showPuzzle} takeLive={takeLive} />
-          <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} svg="/svg/puzzle02/"
-            setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)}
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.5, 0, -0.18]} showPuzzle={showPuzzle} showVector={showVector} takeLive={takeLive} />
+          <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} video="videos/Puzzle_0.mp4"
+            setPuzzle={() => setPuzzle({
+              puzzleInPlace: puzzles.puzzleInPlace + 1,
+              puzzleId: 1
+            })}
+            puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.40, 0, 0.365]} showPuzzle={showPuzzle} takeLive={takeLive} />
-          <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} svg="/svg/puzzle03/"
-            setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)}
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.40, 0, 0.365]} showPuzzle={showPuzzle} showVector={showVector} takeLive={takeLive} />
+          <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} video="videos/Puzzle_0.mp4"
+            setPuzzle={() => setPuzzle({
+              puzzleInPlace: puzzles.puzzleInPlace + 1,
+              puzzleId: 2
+            })}
+            puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.34, 0, -0.1]} showPuzzle={showPuzzle} takeLive={takeLive} />
-          <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} svg="/svg/puzzle04/"
-            setPuzzleInPlace={() => setPuzzleInPlace(puzzleInPlace + 1)}
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.34, 0, -0.1]} showPuzzle={showPuzzle} showVector={showVector} takeLive={takeLive} />
+          <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} video="videos/Puzzle_0.mp4"
+            setPuzzle={() => setPuzzle({
+              puzzleInPlace: puzzles.puzzleInPlace + 1,
+              puzzleId: 3
+            })}
+            puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.17, 0, -0.18]} showPuzzle={showPuzzle} takeLive={takeLive} />
-          <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} svg="/svg/puzzle01/" />
-          <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} svg="/svg/puzzle02/" />
-          <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} svg="/svg/puzzle03/" />
-          <PuzzleSlot puzzleId={3} position={[0.221, 0.013, 0.783]} svg="/svg/puzzle04/" />
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.17, 0, -0.18]} showPuzzle={showPuzzle} showVector={showVector} takeLive={takeLive} />
+          <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} video="videos/Puzzle_0.mp4" />
+          <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} video="videos/Puzzle_0.mp4" />
+          <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} video="videos/Puzzle_0.mp4" />
+          <PuzzleSlot puzzleId={3} position={[0.221, 0.013, 0.783]} video="videos/Puzzle_0.mp4" />
         </group>
 
 
@@ -229,9 +253,12 @@ function Env() {
   )
 }
 
-function PuzzleSlot({ position, puzzleId, svg, showPuzzle }) {
-  const size = [0.35, 0.2, 0.35]
+function PuzzleSlot({ position, puzzleId, video, showPuzzle }) {
+  const size3D = [0.35, 0.2, 0.35]
+  const size2D = [0.35, 0.35]
   const index = 0
+
+  var puzzleTexture = useVideoTexture(video)
 
   const [hint, setHint] = useState(0)
 
@@ -239,7 +266,7 @@ function PuzzleSlot({ position, puzzleId, svg, showPuzzle }) {
   const svgPuzzle = useRef()
 
   const [physicsRef, api] = useBox(() => ({
-    args: size,
+    args: size3D,
     position: position,
     type: 'Static',
   }))
@@ -254,28 +281,14 @@ function PuzzleSlot({ position, puzzleId, svg, showPuzzle }) {
 
   return (
     <>
-      <Box args={size} position={position} ref={physicsRef} name={puzzleId} userData={{ index }}>
+      <Box args={size3D} position={position} ref={physicsRef} name={puzzleId} userData={{ index }}>
         <meshBasicMaterial visible={false} />
-        <Svg
-          visible={showPuzzle}
-          name='puzzle'
-          scale={0.00074}
-          src={svg + "Puzzle.svg"}
-          position={[-size[0] / 2, 0, size[2] / 2]}
-          rotation={[-Math.PI / 2, 0, Math.PI / 2]}
-        />
-        <Svg
-          ref={svgHint}
-          visible={false}
-          name='hint'
-          scale={0.00074}
-          src={svg + "Hint.svg"}
-          position={[-size[0] / 2, 0, size[2] / 2]}
-          rotation={[-Math.PI / 2, 0, Math.PI / 2]}
-        />
-        <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.05} position={[0.16, 0.03, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
+        <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.05} position={[0.16, 0.01, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
           {puzzleId}
         </Text>
+        <Plane args={size2D} rotation={[-Math.PI / 2, 0, 0]}>
+          <meshStandardMaterial map={puzzleTexture} />
+        </Plane>
       </Box>
 
     </>

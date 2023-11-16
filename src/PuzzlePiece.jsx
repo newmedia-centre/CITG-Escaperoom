@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useThree } from "@react-three/fiber"
-import { Svg, Point, Points, PointMaterial, useTexture, Text } from '@react-three/drei'
+import { Svg, Point, Points, PointMaterial, useTexture, Text, useVideoTexture } from '@react-three/drei'
 import { useGesture } from '@use-gesture/react'
 import { useSpring, a } from '@react-spring/three'
 import { useRaycastAll } from '@react-three/cannon'
 
 function PuzzlePiece({ ...props }) {
     const yPos = props.position[1]
-    const { puzzleId, position, svg, setPuzzleInPlace, setPuzzleSolved, solutionCoords, showPuzzle, takeLive, setSolutionEntered } = props
+    const { puzzleId, position, video, setPuzzle, puzzle, setPuzzleSolved, solutionCoords, showPuzzle, showVector, takeLive, setSolutionEntered } = props
     const { size, viewport } = useThree()
     const gridTexture = useTexture("grid-pattern.png")
+    const puzzleTexture = useVideoTexture(video)
+    const vectorTexture = useVideoTexture(video)
     const index = Math.floor(Math.random() * 4)
 
     const aspect = size.width / viewport.width
@@ -68,7 +70,7 @@ function PuzzlePiece({ ...props }) {
                     color: 'white',
                 })
 
-                setPuzzleInPlace(true)
+                setPuzzle()
                 // console.log("puzzleId:", puzzleId, "collided with:", hit?.body?.name, "currentIndex:", currentIndex, "to index:", hit?.body?.userData?.index)
             }
         }, [hit])
@@ -173,23 +175,6 @@ function PuzzlePiece({ ...props }) {
     return (
         <>
             <a.group position={spring.position} rotation={spring.rotation}>
-                <Svg
-                    visible={showPuzzle}
-                    name='puzzle'
-                    scale={0.00074}
-                    src={svg + "Puzzle.svg"}
-                    position={[-scale[0] / 2, .0289, scale[2] / 2]}
-                    rotation={[-Math.PI / 2, 0, Math.PI / 2]}
-                />
-                <Svg
-                    ref={svgHint}
-                    visible={false}
-                    name='hint'
-                    scale={0.00074}
-                    src={svg + "Hint.svg"}
-                    position={[-scale[0] / 2, .0289, scale[2] / 2]}
-                    rotation={[-Math.PI / 2, 0, Math.PI / 2]}
-                />
                 <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.05} position={[0.16, 0.03, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
                     {puzzleId}
                 </Text>
@@ -206,9 +191,14 @@ function PuzzlePiece({ ...props }) {
                     <Point name='input' position={[0, 0, 0]} ref={materialRef} color={"yellow"} />
                 </Points>
             </a.group>
-            <a.mesh {...spring} {...bind()} castShadow>
+            <a.mesh {...spring} {...bind()}>
                 <boxBufferGeometry />
-                <a.meshStandardMaterial color={spring.color} map={showPuzzle ? gridTexture : ""} />
+                <a.meshStandardMaterial color={spring.color} map={showPuzzle ? puzzleTexture : ""} />
+            </a.mesh >
+            <a.mesh {...spring}>
+                <boxBufferGeometry />
+                {/* Only render when showVector matches puzzleId */}
+                {/* <meshBasicMaterial transparent={true} map={showVector === puzzleId ? vectorTexture : ""} /> */}
             </a.mesh >
             <Raycast puzzleId={puzzleId} index={index} position={spring.position.get()} />
         </>
