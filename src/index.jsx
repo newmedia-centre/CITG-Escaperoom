@@ -350,6 +350,15 @@ function App() {
               right: '0',
               zIndex: 20000,
             }}>
+              <Card sx={{
+                padding: '8px',
+                position: 'absolute',
+                bottom: '38px',
+                left: '20px',
+                pr: 1.4,
+              }}>
+                <Typography>Pogingen: {lives}</Typography>
+              </Card>
               <IconButton variant="solid" color="warning" aria-label="Open in new tab" onClick={() => setShowHintPopup(!showHintPopup)}
                 sx={{
                   position: 'absolute',
@@ -375,7 +384,6 @@ function App() {
                 }}
                 zIndex={10000}>
                 <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
-                <Typography level="h6" color="neutral" variant="soft">Pogingen:{lives}</Typography>
               </Stack >
             )}
             {currentLevel === 1 && (
@@ -449,8 +457,6 @@ function App() {
                       }
                     }}
                   />
-                  <Typography level="h5" color="danger">Pogingen: {lives}</Typography>
-
                 </Stack >
               </Stack>
             )}
