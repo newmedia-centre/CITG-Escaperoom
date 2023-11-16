@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useThree } from "@react-three/fiber"
-import { Svg, Point, Points, PointMaterial, useTexture } from '@react-three/drei'
+import { Point, Points, PointMaterial, useTexture, Text, useVideoTexture } from '@react-three/drei'
 import { useGesture } from '@use-gesture/react'
 import { useSpring, a } from '@react-spring/three'
 import { useRaycastAll } from '@react-three/cannon'
 
 function PuzzlePiece({ ...props }) {
     const yPos = props.position[1]
-    const { puzzleId, position, svg, setPuzzleInPlace, setPuzzleSolved, solutionCoords } = props
+    const { puzzleId, position, video, setPuzzle, puzzle, setPuzzleSolved, solutionCoords, showPuzzle, takeLive, setSolutionEntered } = props
     const { size, viewport } = useThree()
-    const texture = useTexture("grid-pattern.png")
+    const gridTexture = useTexture("grid-pattern.png")
+    const puzzleTexture = useVideoTexture(video + ".mp4")
+    const vectorTexture = useVideoTexture(video + "_Arrow.mp4")
     const index = Math.floor(Math.random() * 4)
 
     const aspect = size.width / viewport.width
@@ -25,9 +27,8 @@ function PuzzlePiece({ ...props }) {
     const [isDragging, setDragging] = useState(false); // Add state to track dragging
     const [currentIndex, setCurrentIndex] = useState(index); // State for index
     const [interactable, setInteractable] = useState(true); // State for index
-    const [hint, setHint] = useState(5) // State for hints
-    const [solved, setSolved] = useState(false) // State for puzzle solved internally
-    const [showTexture, setShowTexture] = useState(false) // State for showing the grid texture
+    const [hint, setHint] = useState(5) // State for hintssolution entered internally
+    const [solutionEnteredInt, setSolutionEnteredInt] = useState(false)
 
     const [spring, set] = useSpring(() => ({
         scale: scale,
@@ -69,7 +70,8 @@ function PuzzlePiece({ ...props }) {
                     color: 'white',
                 })
 
-                setPuzzleInPlace()
+                setPuzzle()
+                // console.log("puzzleId:", puzzleId, "collided with:", hit?.body?.name, "currentIndex:", currentIndex, "to index:", hit?.body?.userData?.index)
             }
         }, [hit])
 
@@ -88,7 +90,7 @@ function PuzzlePiece({ ...props }) {
         onDrag: ({ event, dragging, movement: [x, y] }) => {
             event.stopPropagation()
 
-            if (!interactable || solved) return
+            if (!interactable || solutionEnteredInt) return
 
             if (dragging) {
                 if (x > 0.5 || y > 0.5) {
@@ -104,7 +106,7 @@ function PuzzlePiece({ ...props }) {
         onHover: ({ event, hovering }) => {
             event.stopPropagation()
 
-            if (!interactable || solved) return
+            if (!interactable || solutionEnteredInt) return
 
             set({
                 color: hovering ? 'white' : 'gray',
@@ -114,7 +116,7 @@ function PuzzlePiece({ ...props }) {
         onPointerUp: ({ event }) => {
             event.stopPropagation()
 
-            if (!interactable || solved) return
+            if (!interactable || solutionEnteredInt) return
 
             set({
                 position: originalPosition,
@@ -124,8 +126,9 @@ function PuzzlePiece({ ...props }) {
             setDragging(false)
         },
         onClick: ({ event }) => {
+            event.stopPropagation()
 
-            if (solved) return
+            if (solutionEnteredInt) return
 
             if (!isDragging && interactable) {
                 // Increase the currentIndex by 1 when clicked
@@ -145,17 +148,22 @@ function PuzzlePiece({ ...props }) {
                 // Calculate the distance between the solution and the input
                 var distance = inputRef.current?.position.distanceTo(solutionRef.current?.position)
 
+
                 // If the distance is less than 0.08, the puzzle is solved
                 if (distance < 0.08) {
                     setPuzzleSolved()
-                    setSolved(true)
+                    setSolutionEntered()
+                    setSolutionEnteredInt(true)
                     materialRef.current?.color.set("green")
-                    solutionRef.current.parent.visible = true
                 }
                 else {
-                    // TODO: Take away a life
                     // takeLive()
+                    setSolutionEntered()
+                    setSolutionEnteredInt(true)
+                    materialRef.current?.color.set("red")
                 }
+                // Use this to display the solution
+                // solutionRef.current.parent.visible = true
             }
         }
     })
@@ -163,40 +171,41 @@ function PuzzlePiece({ ...props }) {
     return (
         <>
             <a.group position={spring.position} rotation={spring.rotation}>
-                <Svg
-                    name='puzzle'
-                    scale={0.00074}
-                    src={svg + "Puzzle.svg"}
-                    position={[-scale[0] / 2, .0289, scale[2] / 2]}
-                    rotation={[-Math.PI / 2, 0, Math.PI / 2]}
-                />
-                <Svg
-                    ref={svgHint}
-                    visible={false}
-                    name='hint'
-                    scale={0.00074}
-                    src={svg + "Hint.svg"}
-                    position={[-scale[0] / 2, .0289, scale[2] / 2]}
-                    rotation={[-Math.PI / 2, 0, Math.PI / 2]}
-                />
+                <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.05} position={[0.16, 0.03, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
+                    {puzzleId}
+                </Text>
             </a.group>
+
+            <a.mesh {...spring} {...bind()}>
+                <boxBufferGeometry />
+                <a.meshBasicMaterial visible={puzzle?.showPuzzle[puzzleId] ? puzzle.showPuzzle[puzzleId] : false} transparent={true} map={puzzleTexture} />
+            </a.mesh >
+            <a.mesh {...spring}>
+                <boxBufferGeometry />
+                <a.meshBasicMaterial visible={puzzle?.showVector[puzzleId] ? puzzle.showVector[puzzleId] : false} transparent={true} map={vectorTexture} />
+            </a.mesh >
+
+            <a.mesh {...spring} >
+                <boxBufferGeometry />
+                <a.meshStandardMaterial color={spring.color} />
+            </a.mesh >
+            <Raycast puzzleId={puzzleId} index={index} position={spring.position.get()} />
             <a.group {...spring}>
 
-                <Points visible={false}>
+                <Points visible={false} positions={[0, 0, 0]}>
                     <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthTest={false} depthWrite={false} toneMapped={false} />
                     <Point name='solution' ref={solutionRef} position={solutionCoords} color={"red"} />
                 </Points>
 
                 <Points ref={inputRef} position={[0, 0, 0]} visible={false}>
                     <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthTest={false} depthWrite={false} toneMapped={false} />
-                    <Point name='input' position={[0, 0, 0]} ref={materialRef} color={"yellow"} />
+                    <Point name='input' position={[0, 0.013, 0]} ref={materialRef} color={"yellow"} />
                 </Points>
             </a.group>
-            <a.mesh {...spring} {...bind()} castShadow>
+            <a.mesh {...spring} >
                 <boxBufferGeometry />
-                <a.meshStandardMaterial color={spring.color} map={texture} />
+                <a.meshBasicMaterial visible={puzzle?.showVector[puzzleId] ? puzzle.showVector[puzzleId] : false} transparent={true} map={gridTexture} />
             </a.mesh >
-            <Raycast puzzleId={puzzleId} index={index} position={spring.position.get()} />
         </>
     )
 }

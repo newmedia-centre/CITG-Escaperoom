@@ -8,7 +8,7 @@ import Level02 from "./Level02"
 import Level03 from "./Level03"
 import Level04 from "./Level04"
 import { Suspense, useRef, useState, useEffect, useMemo } from "react";
-import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Input, Card, List, ListItem, Divider, Textarea } from "@mui/joy";
+import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Input, Card, List, ListItem, Divider, Textarea, Table, Container } from "@mui/joy";
 import { QuestionMark, Close } from "@mui/icons-material";
 import { Stack } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
@@ -55,22 +55,34 @@ function App() {
     }
   }, [window.location.search])
 
+  useEffect(() => {
+    if (lives === 3) return
+
+    if (lives === 0) {
+      setGameOver(true)
+      setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives, lost: true } }))
+      return
+    }
+    setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives } }))
+  }, [lives, currentLevel])
+
   // Adds player to database and starts the game
   const registerPlayer = async () => {
     if (!playerIDInput) return
 
     // store player in localStorage and state
     localStorage.setItem('player', playerIDInput)
-    setPlayerID(playerIDInput)
 
     // check to see if player exists
-    const token = await DatabaseClient.auth()
-    const existing = await DatabaseClient.read(playerIDInput, token)
+    const token = await DatabaseClient.auth().catch(e => console.error(e))
+    const existing = await DatabaseClient.read(playerIDInput, token).catch(e => console.error(e))
 
     // create player if it doesnt exist
     if (!existing) {
       await DatabaseClient.add(playerIDInput, { StartTime: Date.now() }, token)
     }
+
+    setPlayerID(playerIDInput)
   }
 
   // Fire cannon
@@ -103,10 +115,29 @@ function App() {
 
   // Get player state from database
   useEffect(() => {
+    if (!playerID) {
+      setPlayerState(null)
+      return
+    }
+
     const get = async () => {
       const token = await DatabaseClient.auth().catch(() => setPlayerState(null))
       const state = await DatabaseClient.read(playerID, token).catch(() => setPlayerState(null))
-      setPlayerState(state ?? null)
+      setPlayerState(state === undefined ? null : state)
+
+      if (state && state[`Level${currentLevel + 1}`]?.Won) {
+        setGameWon(true)
+      }
+
+      if (state && state[`Level${currentLevel + 1}`]?.Lost) {
+        setGameOver(true)
+      }
+
+      setLives(() => {
+        if (!state) return 3
+        if (!state[`Level${currentLevel + 1}`]) return 3
+        return state[`Level${currentLevel + 1}`].lives ?? 3
+      })
     }
 
     get()
@@ -116,52 +147,72 @@ function App() {
   useEffect(() => {
     if (!playerState) return
 
-    // Only set StartTime if it is not already set
-    if (playerState[`Level${currentLevel + 1}`]?.StartTime) return
-
     setPlayerState(prev => {
       if (!prev[`Level${currentLevel + 1}`]) {
         return {
-          ...prev, [`Level${currentLevel + 1}`]: { StartTime: Date.now() }
+          ...prev, [`Level${currentLevel + 1}`]: { StartTime: Date.now(), lives: 3, usedHints: 0 }
         }
       }
 
       return prev
     })
-  }, [currentLevel])
-
-  // Set lives to player state
-  useEffect(() => {
-    if (!playerState) return
-
-    setPlayerState(prev => {
-      // TODO: check if this is correct
-      if (!prev?.Lost && !prev?.Won) {
-        const levelState = { ...prev[`Level${currentLevel + 1}`], lives: lives }
-        return {
-          ...prev, [`Level${currentLevel + 1}`]: levelState
-        }
-      }
-
-      // If player has no lives left in current level set lost in currentlevel to true
-      if (prev[`Level${currentLevel + 1}`].lives === 0 && !prev.Won && !prev.Lost) {
-        setGameOver(true)
-        return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Lost: true } }
-      }
-
-      return prev
-    })
-  }, [lives, currentLevel])
+  }, [currentLevel, playerState])
 
   useEffect(() => {
     if (!playerState) return
 
     // If player has won set won to true
     if (gameWon && !playerState?.Won && !playerState?.Lost) {
-      setGameWon(true)
-      return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true } }
+      setPlayerState(prev => {
+        const hintPenalty = (() => {
+          if (!prev[`Level${currentLevel + 1}`].usedHints) return 0
+          return prev[`Level${currentLevel + 1}`].usedHints * 10
+        })()
+        const livePenalty = (() => {
+          if (!prev[`Level${currentLevel + 1}`].lives) return 0
+          return (3 - prev[`Level${currentLevel + 1}`].lives) * 20
+        })()
+        return { ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], EndTime: Date.now(), Won: true, Penalty: hintPenalty + livePenalty } }
+      })
     }
   }, [gameWon, currentLevel])
+
+  // handle all games won or lost or finished
+  useEffect(() => {
+    if (playerState?.Won || playerState?.Lost || playerState?.Finished) return
+
+    if (playerState?.Level1?.Won && playerState?.Level2?.Won && playerState?.Level3?.Won && playerState?.Level4?.Won) {
+      setPlayerState(prev => ({
+        ...prev,
+        Won: true,
+        EndTime: Date.now(),
+        Penalty: (playerState?.Level1?.Penalty ?? 1000) + (playerState?.Level2?.Penalty ?? 1000) + (playerState?.Level3?.Penalty ?? 1000) + (playerState?.Level4?.Penalty ?? 1000)
+      }))
+      return
+    }
+
+    if (playerState?.Level1?.Lost && playerState?.Level2?.Lost && playerState?.Level3?.Lost && playerState?.Level4?.Lost) {
+      setPlayerState(prev => ({
+        ...prev,
+        Lost: true,
+        EndTime: Date.now()
+      }))
+      return
+    }
+
+    if (
+      (playerState?.Level1?.Lost || playerState?.Level1?.Won) &&
+      (playerState?.Level2?.Lost || playerState?.Level2?.Won) &&
+      (playerState?.Level3?.Lost || playerState?.Level3?.Won) &&
+      (playerState?.Level4?.Lost || playerState?.Level4?.Won)) {
+      setPlayerState(prev => ({
+        ...prev,
+        Finished: true,
+        EndTime: Date.now()
+      }))
+      return
+    }
+  }, [playerState])
 
   // Game over when time runs out
   useEffect(() => {
@@ -199,6 +250,10 @@ function App() {
   if (playerState === undefined) {
     return (<div style={{ padding: '16px' }}>Loading...</div>)
   }
+
+  if (playerState?.Won) return (
+    <FinishedWinScreen onRetry={retry} currentLevel={currentLevel} penalty={playerState.Penalty} />
+  )
 
   return (
     <>
@@ -295,6 +350,16 @@ function App() {
               right: '0',
               zIndex: 20000,
             }}>
+              <Card sx={{
+                padding: '8px',
+                position: 'absolute',
+                bottom: '38px',
+                right: '102px',
+                pr: 1.4,
+              }}>
+                <Typography>Pogingen: {lives}</Typography>
+                <Typography>Penalty: {(3 - lives) * 20 + (playerState && playerState[`Level${currentLevel + 1}`]?.usedHints || 0) * 10}</Typography>
+              </Card>
               <IconButton variant="solid" color="warning" aria-label="Open in new tab" onClick={() => setShowHintPopup(!showHintPopup)}
                 sx={{
                   position: 'absolute',
@@ -314,19 +379,18 @@ function App() {
                 sx={{
                   position: 'absolute',
                   bottom: '32px',
-                  left: '50%',
+                  left: '50px',
                   transform: 'translate(-50%, -20%)',
                   userSelect: 'none',
                 }}
                 zIndex={10000}>
                 <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
-                <Typography level="h6" color="neutral" variant="soft">Pogingen:{lives}</Typography>
               </Stack >
             )}
             {currentLevel === 1 && (
               <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
                 position: 'absolute',
-                bottom: '32px',
+                bottom: '94px',
                 left: '12px',
                 userSelect: 'none',
                 userEvents: 'none',
@@ -394,8 +458,6 @@ function App() {
                       }
                     }}
                   />
-                  <Typography level="h5" color="danger">Pogingen: {lives}</Typography>
-
                 </Stack >
               </Stack>
             )}
@@ -549,6 +611,80 @@ function WinScreen({ onRetry, currentLevel }) {
   );
 }
 
+function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
+
+  const [leaderboard, setLeaderboard] = useState([])
+
+  useEffect(() => {
+    const get = async () => {
+      // get the leaderboard
+      const token = await DatabaseClient.auth().catch(e => console.error(e))
+      const data = await DatabaseClient.leaderboard(token)
+
+      data.sort((a, b) => b.Penalty - a.Penalty).splice(10)
+
+      setLeaderboard(data)
+    }
+
+    get()
+  }, [])
+
+  return (
+    <Stack spacing={2}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        bgcolor: 'rgba(0, 0, 0, 0.7)',
+        zIndex: 10000,
+        userSelect: 'none',
+      }}
+    >
+      <ConfettiExplosion particleCount={200} duration={4000} />
+
+      <Card color="neutral" sx={{
+        backgroundColor: 'rgba(22, 22, 22, 1)',
+        p: 2,
+        textAlign: 'center',
+        color: "gray"
+      }}>
+        <Typography level="h2" color="success">Je bent klaar! Je hebt de game afgerond met een score van {penalty} strafpunten!</Typography>
+      </Card>
+      <Card color="neutral" sx={{
+        backgroundColor: 'rgba(22, 22, 22, 1)',
+        p: 2,
+        textAlign: 'center',
+        color: "gray"
+      }}>
+        <table width={500}>
+          <thead style={{ color: '#fff' }}>
+            <tr>
+              <th align="left">Team</th>
+              <th align="right">Penalty</th>
+              <th align="right">Tijd</th>
+            </tr>
+          </thead>
+          <tbody>
+            {leaderboard.map((row, index) => (
+              <tr key={index}>
+                <td align="left">{row.id}</td>
+                <td align="right">{row.Penalty}</td>
+                <td align="right">{`${String(Math.floor(((row.EndTime - row.StartTime) / 1000) / 60)).padStart(2, "0")}:${String(Math.floor(((row.EndTime - row.StartTime) / 1000) % 60)).padStart(2, "0")}`}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
+    </Stack>
+  );
+}
+
 function TimeRemaining({ timeRemaining, totalTimeInMilliseconds }) {
   let percentageLeft = timeRemaining / totalTimeInMilliseconds * 100
 
@@ -602,21 +738,20 @@ function Loader() {
 function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup }) {
 
   const [currentHintIndex, setCurrentHintIndex] = useState(0)
-  const unlockedHints = 5
-  // const unlockedHints = playerState[`Level${currentLevel + 1}`].hints || 0
+  const unlockedHints = playerState[`Level${currentLevel + 1}`]?.usedHints || 0
 
   const previous = () => {
     setCurrentHintIndex(prev => prev === 0 ? unlockedHints : prev - 1)
   }
 
   const next = () => {
-    setCurrentHintIndex(prev => prev === (unlockedHints - 1) ? 0 : prev + 1)
+    setCurrentHintIndex(prev => prev === (unlockedHints - 1) ? prev : prev + 1)
   }
 
   const unlock = () => {
     if (unlockedHints !== 5) {
       setPlayerState(prev => {
-        const level = { ...playerState[`Level${currentLevel + 1}`], hints: unlockedHints + 1 }
+        const level = { ...prev[`Level${currentLevel + 1}`], usedHints: (prev[`Level${currentLevel + 1}`]?.usedHints || 0) + 1 }
         return {
           ...prev, [`Level${currentLevel + 1}`]: level
         }
@@ -634,9 +769,8 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
     return <Typography sx={{ whiteSpace: 'pre-line' }} level="title-md">
       {hints[currentLevel][currentHintIndex]}
     </Typography>
-  }, [currentLevel, currentHintIndex])
+  }, [currentLevel, currentHintIndex, unlockedHints])
 
-  const { progress } = useProgress()
   return (
     <Card variant="outlined" sx={
       // Move to middle of screen
@@ -657,7 +791,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
         variant="soft">
         <Button onClick={previous} disabled={currentHintIndex === 0}>Previous</Button>
         <Button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Next</Button>
-        <Button onClick={unlock} disabled={unlockedHints >= 5}>Unlock Hint</Button>
+        <Button onClick={unlock} disabled={unlockedHints > 4}>Unlock Hint</Button>
       </ButtonGroup>
       <IconButton color="danger" onClick={() => setShowHintPopup(false)} size="sm" sx={{
         position: 'absolute',

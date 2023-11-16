@@ -18,22 +18,21 @@ export const auth = async () => {
 }
 
 export const read = async (user, token) => {
-    const response = await fetch(import.meta.env.VITE_DB_SITE + '/project/citg-er/data', {
+    const response = await fetch(import.meta.env.VITE_DB_SITE + '/project/citg-er/data?' + new URLSearchParams({
+        filter: JSON.stringify({
+            id: user
+        }),
+    }), {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + token
-        },
-        query: JSON.stringify({
-            filter: {
-                id: user
-            }
-        }),
+        }
     })
 
     // return the data
-    const data = response.json()
-    return data
+    const data = await response.json()
+    return data[0]
 }
 
 export const add = async (user, data, token) => { // user = unique id, data = serializable object, token = bearer token from auth()
@@ -92,10 +91,29 @@ export const remove = async (user, token) => { // user = unique id, data = seria
     return response.status === 200
 } // returns bool
 
+export const leaderboard = async (token) => {
+    const response = await fetch(import.meta.env.VITE_DB_SITE + '/project/citg-er/data?' + new URLSearchParams({
+        filter: JSON.stringify({
+            Won: true
+        }),
+    }), {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
+    })
+
+    // return the data
+    const data = await response.json()
+    return data
+}
+
 export default {
     auth,
     read,
     add,
     update,
-    remove
+    remove,
+    leaderboard
 }

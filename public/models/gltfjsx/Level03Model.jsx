@@ -15,7 +15,7 @@ export const Level03Model = forwardRef((props, ref) => {
     <group {...props} dispose={null}>
       <group name="Scene">
         <group name="Puzzle" position={[0.193, 0.244, 0]}>
-          <group ref={tableRef} name="table" position={[0, 0, 0.5]} scale={[1.317, 0.859, 1.317]} onClick={(obj) => {
+          <group ref={tableRef} name="puzzletable" position={[0, 0, 0.5]} scale={[1.317, 0.859, 1.317]} onClick={(obj) => {
             obj.stopPropagation()
             setSelectedObject(obj.eventObject)
           }}>
