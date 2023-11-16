@@ -8,7 +8,7 @@ import Level02 from "./Level02"
 import Level03 from "./Level03"
 import Level04 from "./Level04"
 import { Suspense, useRef, useState, useEffect, useMemo } from "react";
-import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Input, Card, List, ListItem, Divider, Textarea } from "@mui/joy";
+import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Input, Card, List, ListItem, Divider, Textarea, Table, Container } from "@mui/joy";
 import { QuestionMark, Close } from "@mui/icons-material";
 import { Stack } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
@@ -605,6 +605,23 @@ function WinScreen({ onRetry, currentLevel }) {
 }
 
 function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
+
+  const [leaderboard, setLeaderboard] = useState([])
+
+  useEffect(() => {
+    const get = async () => {
+      // get the leaderboard
+      const token = await DatabaseClient.auth().catch(e => console.error(e))
+      const data = await DatabaseClient.leaderboard(token)
+
+      data.sort((a, b) => b.Penalty - a.Penalty)
+
+      setLeaderboard(data)
+    }
+
+    get()
+  }, [])
+
   return (
     <Stack spacing={2}
       sx={{
@@ -631,6 +648,31 @@ function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
         color: "gray"
       }}>
         <Typography level="h2" color="success">Je bent klaar! Je hebt de game afgerond met een score van {penalty} strafpunten!</Typography>
+      </Card>
+      <Card color="neutral" sx={{
+        backgroundColor: 'rgba(22, 22, 22, 1)',
+        p: 2,
+        textAlign: 'center',
+        color: "gray"
+      }}>
+        <table width={500}>
+          <thead style={{ color: '#fff' }}>
+            <tr>
+              <th>Team</th>
+              <th>Penalty</th>
+              <th>Tijd</th>
+            </tr>
+          </thead>
+          <tbody>
+            {leaderboard.map((row, index) => (
+              <tr key={index}>
+                <td>{row.id}</td>
+                <td>{row.Penalty}</td>
+                <td>{`${String(Math.floor(((row.EndTime - row.StartTime) / 1000) / 60)).padStart(2, "0")}:${String(Math.floor(((row.EndTime - row.StartTime) / 1000) % 60)).padStart(2, "0")}`}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </Card>
     </Stack>
   );
