@@ -91,10 +91,29 @@ export const remove = async (user, token) => { // user = unique id, data = seria
     return response.status === 200
 } // returns bool
 
+export const leaderboard = async (token) => {
+    const response = await fetch(import.meta.env.VITE_DB_SITE + '/project/citg-er/data?' + new URLSearchParams({
+        filter: JSON.stringify({
+            Won: true
+        }),
+    }), {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
+    })
+
+    // return the data
+    const data = await response.json()
+    return data
+}
+
 export default {
     auth,
     read,
     add,
     update,
-    remove
+    remove,
+    leaderboard
 }
