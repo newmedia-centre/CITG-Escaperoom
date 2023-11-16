@@ -16,7 +16,7 @@ import { useThree } from "@react-three/fiber";
 import { useControls } from "leva";
 import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing";
 import React, { useEffect, useRef, useState } from "react";
-import { Model as CannonLevel } from "../public/models/gltfjsx/CannonLevel";
+import { Level01Model } from "../public/models/gltfjsx/Level01Model";
 import { Cannon } from "../public/models/gltfjsx/Cannon";
 import { Target } from "../public/models/gltfjsx/Target";
 import { CannonBallHint } from "../public/models/gltfjsx/CannonBallHint"
@@ -38,7 +38,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   }))
   const [targetRef] = useBox(() => ({
     args: [1.9, 0.3, 1.9],
-    position: [-2, 2.4, -10.7],
+    position: [-2, 2, -10.7],
     type: "Kinematic",
     onCollide: (e) => handleCollision(e, "target")
   }))
@@ -71,7 +71,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   let hitHandled = false
   const [elapsed, setElapsed] = useState(0) // time elapsed
 
-  const waterLevel = 1.4
+  const waterLevel = 1.6
   if (oceanRef.current) {
     oceanRef.current.position.y = waterLevel
   }
@@ -181,8 +181,8 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     <>
       <group position={[0, 0, 0]}>
         <Center top>
-          <CannonLevel ref={meshRef} />
-          <Cannon position={[-2, 0, 0]} ref={cannonRef} setSelectedObject={setSelectedObject} />
+          <Level01Model ref={meshRef} />
+          <Cannon position={[-2, 0.1, 0]} ref={cannonRef} setSelectedObject={setSelectedObject} />
 
           <WaterLevel position={[2, 0, 1.56]} />
           <WindowBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
@@ -196,7 +196,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
           {/* Cannonball display */}
           {
             Array(lives).fill().map((_, index) => (
-              <CannonBall key={index} position={[-0.7 + index * 1, 3.8, 5]} />
+              <CannonBall key={index} position={[-0.7 + index * 1, 3.9, 5]} />
             ))
           }
           <Target ref={targetRef} />

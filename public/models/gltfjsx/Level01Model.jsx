@@ -4,9 +4,9 @@ Command: npx gltfjsx@6.2.3 CannonLevel.glb --simplify
 */
 
 import React, { forwardRef, useLayoutEffect } from 'react'
-import { useGLTF } from '@react-three/drei'
+import { useGLTF, } from '@react-three/drei'
 
-export const Model = forwardRef((props, ref) => {
+export const Level01Model = forwardRef((props, ref) => {
   const { scene, nodes, materials } = useGLTF('models/gltfjsx/CannonLevel.glb')
   useLayoutEffect(() => {
     scene.traverse((obj) => obj.isMesh && (obj.receiveShadow = obj.castShadow = true))
@@ -18,7 +18,7 @@ export const Model = forwardRef((props, ref) => {
         <mesh receiveShadow geometry={nodes.Plane014.geometry} material={materials['ConcreteFloor.001']} />
         <mesh receiveShadow geometry={nodes.Plane014_1.geometry} material={materials['PaintedMetal.001']} />
       </group>
-      <mesh receiveShadow geometry={nodes.Platform005.geometry} material={materials['ConcreteFloor.001']} position={[-9.194, 3.4, 5.02]} />
+      <mesh receiveShadow geometry={nodes.Platform005.geometry} material={materials['ConcreteFloor.001']} position={[-9.194, 3.5, 5.02]} />
       <mesh receiveShadow geometry={nodes.Frame027.geometry} material={materials['RedMetal.001']} position={[2.973, -0.01, -16.559]} scale={[1, 0.362, 1]} />
       <mesh receiveShadow geometry={nodes.Frame033.geometry} material={materials['BlueMetal.001']} position={[4.328, -0.01, -11.871]} rotation={[0, -1.571, 0]} scale={[1, 1.554, 1]} />
       <mesh receiveShadow geometry={nodes.Frame039.geometry} material={materials['RedMetal.001']} position={[7.915, 3.649, -11.485]} rotation={[-Math.PI / 2, Math.PI / 2, 0]} scale={[1, 0.444, 1]} />
@@ -28,7 +28,7 @@ export const Model = forwardRef((props, ref) => {
         <mesh receiveShadow geometry={nodes.Cube014.geometry} material={materials['Concrete.001']} />
         <mesh receiveShadow geometry={nodes.Cube014_1.geometry} material={materials['RedMetal.001']} />
       </group>
-      <mesh receiveShadow geometry={nodes.ConcreteRect001.geometry} material={materials['Concrete.001']} position={[-0.303, 1.432, -16.464]} />
+      <mesh receiveShadow geometry={nodes.ConcreteRect001.geometry} material={materials['Concrete.001']} position={[-0.303, 0.4, -16.464]} />
       <mesh receiveShadow geometry={nodes.BigFrame001.geometry} material={materials['BlueMetal.001']} position={[-7.311, -0.5, -40.518]} />
       <group position={[-15.078, 18.914, -55.053]} rotation={[Math.PI / 2, 0, 0]}>
         <mesh receiveShadow geometry={nodes.Plane025.geometry} material={materials['DarkGrayMetal.001']} />

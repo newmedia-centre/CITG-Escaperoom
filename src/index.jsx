@@ -495,33 +495,33 @@ function App() {
       >
         <Suspense fallback={<Loader />}>
           <Physics >
-            <Debug>
-              {currentLevel === 0 && (
-                <Level01 cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
-              )}
-              {currentLevel === 1 && (
-                <Level02
-                  ref={level02Ref}
-                  speed={speed}
-                  setSpeed={setSpeed}
-                  lives={lives}
-                  setLives={setLives}
-                  setGameWon={setGameWon}
-                  gameWon={gameWon}
-                  gameOver={gameOver}
-                  setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame}
-                  animationProgress={animationProgress}
-                  setAnimationProgress={setAnimationProgress}
-                />
-              )}
-              {currentLevel === 2 && (
-                <Level03 lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
-              )}
-              {currentLevel === 3 && (
-                <Level04 ref={level04Ref} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
-              )}
+            {/* <Debug> */}
+            {currentLevel === 0 && (
+              <Level01 cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
+            )}
+            {currentLevel === 1 && (
+              <Level02
+                ref={level02Ref}
+                speed={speed}
+                setSpeed={setSpeed}
+                lives={lives}
+                setLives={setLives}
+                setGameWon={setGameWon}
+                gameWon={gameWon}
+                gameOver={gameOver}
+                setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame}
+                animationProgress={animationProgress}
+                setAnimationProgress={setAnimationProgress}
+              />
+            )}
+            {currentLevel === 2 && (
+              <Level03 lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
+            )}
+            {currentLevel === 3 && (
+              <Level04 ref={level04Ref} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
+            )}
 
-            </Debug>
+            {/* </Debug> */}
           </Physics>
         </Suspense>
       </Canvas>
