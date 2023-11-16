@@ -155,19 +155,15 @@ function PuzzlePiece({ ...props }) {
                     setSolutionEntered()
                     setSolutionEnteredInt(true)
                     materialRef.current?.color.set("green")
-
-                    // Use this to display the solution
-                    // solutionRef.current.parent.visible = true
                 }
                 else {
                     // takeLive()
                     setSolutionEntered()
                     setSolutionEnteredInt(true)
                     materialRef.current?.color.set("red")
-
-                    // Use this to display the solution
-                    // solutionRef.current.parent.visible = true
                 }
+                // Use this to display the solution
+                // solutionRef.current.parent.visible = true
             }
         }
     })
@@ -196,14 +192,14 @@ function PuzzlePiece({ ...props }) {
             <Raycast puzzleId={puzzleId} index={index} position={spring.position.get()} />
             <a.group {...spring}>
 
-                <Points visible={true} positions={[0, 0, 0]}>
+                <Points visible={false} positions={[0, 0, 0]}>
                     <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthTest={false} depthWrite={false} toneMapped={false} />
                     <Point name='solution' ref={solutionRef} position={solutionCoords} color={"red"} />
                 </Points>
 
                 <Points ref={inputRef} position={[0, 0, 0]} visible={false}>
                     <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthTest={false} depthWrite={false} toneMapped={false} />
-                    <Point name='input' position={[0, 0.01, 0]} ref={materialRef} color={"yellow"} />
+                    <Point name='input' position={[0, 0.013, 0]} ref={materialRef} color={"yellow"} />
                 </Points>
             </a.group>
             <a.mesh {...spring} >
