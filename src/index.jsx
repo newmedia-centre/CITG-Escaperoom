@@ -354,7 +354,7 @@ function App() {
                 padding: '8px',
                 position: 'absolute',
                 bottom: '38px',
-                left: '20px',
+                right: '102px',
                 pr: 1.4,
               }}>
                 <Typography>Pogingen: {lives}</Typography>
@@ -378,7 +378,7 @@ function App() {
                 sx={{
                   position: 'absolute',
                   bottom: '32px',
-                  left: '50%',
+                  left: '50px',
                   transform: 'translate(-50%, -20%)',
                   userSelect: 'none',
                 }}
@@ -389,7 +389,7 @@ function App() {
             {currentLevel === 1 && (
               <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
                 position: 'absolute',
-                bottom: '32px',
+                bottom: '94px',
                 left: '12px',
                 userSelect: 'none',
                 userEvents: 'none',
