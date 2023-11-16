@@ -614,7 +614,7 @@ function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
       const token = await DatabaseClient.auth().catch(e => console.error(e))
       const data = await DatabaseClient.leaderboard(token)
 
-      data.sort((a, b) => b.Penalty - a.Penalty)
+      data.sort((a, b) => b.Penalty - a.Penalty).splice(10)
 
       setLeaderboard(data)
     }
