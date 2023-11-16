@@ -358,6 +358,7 @@ function App() {
                 pr: 1.4,
               }}>
                 <Typography>Pogingen: {lives}</Typography>
+                <Typography>Penalty: {(3 - lives) * 20 + (playerState && playerState[`Level${currentLevel + 1}`]?.usedHints || 0) * 10}</Typography>
               </Card>
               <IconButton variant="solid" color="warning" aria-label="Open in new tab" onClick={() => setShowHintPopup(!showHintPopup)}
                 sx={{
@@ -755,7 +756,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
           ...prev, [`Level${currentLevel + 1}`]: level
         }
       })
-      setCurrentHintIndex(prev => prev === (unlockedHints - 1) ? prev : prev + 1)
+      setCurrentHintIndex(prev => prev === (unlockedHints - 1) ? 5 : prev + 1)
     }
   }
 
