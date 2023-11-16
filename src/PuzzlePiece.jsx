@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useThree } from "@react-three/fiber"
-import { Svg, Point, Points, PointMaterial, useTexture, Text, useVideoTexture } from '@react-three/drei'
+import { Point, Points, PointMaterial, useTexture, Text, useVideoTexture } from '@react-three/drei'
 import { useGesture } from '@use-gesture/react'
 import { useSpring, a } from '@react-spring/three'
 import { useRaycastAll } from '@react-three/cannon'
@@ -193,12 +193,15 @@ function PuzzlePiece({ ...props }) {
             </a.group>
             <a.mesh {...spring} {...bind()}>
                 <boxBufferGeometry />
-                <a.meshStandardMaterial color={spring.color} map={showPuzzle ? puzzleTexture : ""} />
+                <a.meshBasicMaterial visible={puzzle.showPuzzle[puzzleId]} color={spring.color} transparent={true} map={puzzleTexture} />
             </a.mesh >
+            {/* <a.mesh {...spring} >
+                <boxBufferGeometry />
+                <a.meshBasicMaterial color={spring.color} transparent={false} map={showPuzzle ? gridTexture : ""} />
+            </a.mesh > */}
             <a.mesh {...spring}>
                 <boxBufferGeometry />
-                {/* Only render when showVector matches puzzleId */}
-                {/* <meshBasicMaterial transparent={true} map={showVector === puzzleId ? vectorTexture : ""} /> */}
+                {/* <meshBasicMaterial color={spring.color} transparent={true} map={showVector ? vectorTexture : ""} /> */}
             </a.mesh >
             <Raycast puzzleId={puzzleId} index={index} position={spring.position.get()} />
         </>

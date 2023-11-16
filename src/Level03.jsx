@@ -28,11 +28,10 @@ export const Level03 = forwardRef((props, ref) => {
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [camControlsEnabled, setCamControls] = useState(true)
   const [selectedObject, setSelectedObject] = useState([])
-  const [puzzles, setPuzzle] = useState({ puzzleInPlace: 0, puzzleId: -1 })
+  const [puzzles, setPuzzle] = useState({ puzzleInPlace: 0, puzzleId: -1, showPuzzle: -1 })
   const [puzzleSolved, setPuzzleSolved] = useState(0)
   const [solutionEntered, setSolutionEntered] = useState(0)
-  const [showPuzzle, setShowPuzzle] = useState(false)
-  const [showVector, setShowVector] = useState(1)
+  const [showVector, setShowVector] = useState(false)
   const { camera } = useThree()
 
   const cameraControlsRef = useRef()
@@ -110,28 +109,16 @@ export const Level03 = forwardRef((props, ref) => {
   }, [selectedObject])
 
   useEffect(() => {
-    if (!puzzles) return
+    if (puzzles.puzzleId === -1) return
+    setPuzzle(prev => ({
+      ...prev,
+      showPuzzle: { ...prev.showPuzzle, [prev.puzzleId]: true }
+    }))
 
-    if (puzzles.puzzleInPlace == 4) {
-      setShowPuzzle(true)
-    }
+    console.log(puzzles)
+    changeCamera("puzzletable")
 
-    switch (puzzles.puzzleId) {
-      case 0:
-        changeCamera("puzzletable")
-        // Make only the first puzzle piece visible/interactable
-        break;
-      case 1:
-        changeCamera("puzzletable")
-        break;
-      case 2:
-        changeCamera("puzzletable")
-        break;
-      case 3:
-        changeCamera("puzzletable")
-        break;
-    }
-  }, [puzzles])
+  }, [puzzles.puzzleId])
 
   useEffect(() => {
     if (puzzleSolved == 4 && solutionEntered == 4) {
@@ -175,37 +162,41 @@ export const Level03 = forwardRef((props, ref) => {
 
         <group name="Pieces" position={[0.193, 0.871, -0.505]}>
           <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} video="videos/Puzzle_0.mp4"
-            setPuzzle={() => setPuzzle({
+            setPuzzle={() => setPuzzle(prev => ({
+              ...prev,
               puzzleInPlace: puzzles.puzzleInPlace + 1,
               puzzleId: 0
-            })}
+            }))}
             puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.5, 0, -0.18]} showPuzzle={showPuzzle} showVector={showVector} takeLive={takeLive} />
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.5, 0, -0.18]} showVector={showVector} takeLive={takeLive} />
           <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} video="videos/Puzzle_0.mp4"
-            setPuzzle={() => setPuzzle({
+            setPuzzle={() => setPuzzle(prev => ({
+              ...prev,
               puzzleInPlace: puzzles.puzzleInPlace + 1,
               puzzleId: 1
-            })}
+            }))}
             puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.40, 0, 0.365]} showPuzzle={showPuzzle} showVector={showVector} takeLive={takeLive} />
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.40, 0, 0.365]} showVector={showVector} takeLive={takeLive} />
           <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} video="videos/Puzzle_0.mp4"
-            setPuzzle={() => setPuzzle({
+            setPuzzle={() => setPuzzle(prev => ({
+              ...prev,
               puzzleInPlace: puzzles.puzzleInPlace + 1,
               puzzleId: 2
-            })}
+            }))}
             puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.34, 0, -0.1]} showPuzzle={showPuzzle} showVector={showVector} takeLive={takeLive} />
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.34, 0, -0.1]} showVector={showVector} takeLive={takeLive} />
           <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} video="videos/Puzzle_0.mp4"
-            setPuzzle={() => setPuzzle({
+            setPuzzle={() => setPuzzle(prev => ({
+              ...prev,
               puzzleInPlace: puzzles.puzzleInPlace + 1,
               puzzleId: 3
-            })}
+            }))}
             puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.17, 0, -0.18]} showPuzzle={showPuzzle} showVector={showVector} takeLive={takeLive} />
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.17, 0, -0.18]} showVector={showVector} takeLive={takeLive} />
           <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} video="videos/Puzzle_0.mp4" />
           <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} video="videos/Puzzle_0.mp4" />
           <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} video="videos/Puzzle_0.mp4" />
