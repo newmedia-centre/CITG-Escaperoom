@@ -39,6 +39,11 @@ export const Level02 = forwardRef((props, ref) => {
       duration: 8500,
       easing: easings.easeOutQuart,
     },
+    onRest: () => {
+      if (progress.progress.get() === 1) {
+        resetLevel()
+      }
+    }
   }))
   const [cameraPosition, setCameraPosition] = useSpring(() => ({
     lerp: 0,
