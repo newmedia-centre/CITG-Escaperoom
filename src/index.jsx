@@ -658,17 +658,17 @@ function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
         <table width={500}>
           <thead style={{ color: '#fff' }}>
             <tr>
-              <th>Team</th>
-              <th>Penalty</th>
-              <th>Tijd</th>
+              <th align="left">Team</th>
+              <th align="right">Penalty</th>
+              <th align="right">Tijd</th>
             </tr>
           </thead>
           <tbody>
             {leaderboard.map((row, index) => (
               <tr key={index}>
-                <td>{row.id}</td>
-                <td>{row.Penalty}</td>
-                <td>{`${String(Math.floor(((row.EndTime - row.StartTime) / 1000) / 60)).padStart(2, "0")}:${String(Math.floor(((row.EndTime - row.StartTime) / 1000) % 60)).padStart(2, "0")}`}</td>
+                <td align="left">{row.id}</td>
+                <td align="right">{row.Penalty}</td>
+                <td align="right">{`${String(Math.floor(((row.EndTime - row.StartTime) / 1000) / 60)).padStart(2, "0")}:${String(Math.floor(((row.EndTime - row.StartTime) / 1000) % 60)).padStart(2, "0")}`}</td>
               </tr>
             ))}
           </tbody>
