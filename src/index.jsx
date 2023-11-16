@@ -744,7 +744,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
   }
 
   const next = () => {
-    setCurrentHintIndex(prev => prev === (unlockedHints - 1) ? 0 : prev + 1)
+    setCurrentHintIndex(prev => prev === (unlockedHints - 1) ? prev : prev + 1)
   }
 
   const unlock = () => {
@@ -755,6 +755,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
           ...prev, [`Level${currentLevel + 1}`]: level
         }
       })
+      setCurrentHintIndex(prev => prev === (unlockedHints - 1) ? prev : prev + 1)
     }
   }
 
