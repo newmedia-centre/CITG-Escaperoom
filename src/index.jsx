@@ -756,7 +756,6 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
           ...prev, [`Level${currentLevel + 1}`]: level
         }
       })
-      setCurrentHintIndex(prev => prev === (unlockedHints - 1) ? 5 : prev + 1)
     }
   }
 
@@ -792,7 +791,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
         variant="soft">
         <Button onClick={previous} disabled={currentHintIndex === 0}>Previous</Button>
         <Button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Next</Button>
-        <Button onClick={unlock} disabled={unlockedHints >= 5}>Unlock Hint</Button>
+        <Button onClick={unlock} disabled={unlockedHints > 4}>Unlock Hint</Button>
       </ButtonGroup>
       <IconButton color="danger" onClick={() => setShowHintPopup(false)} size="sm" sx={{
         position: 'absolute',
