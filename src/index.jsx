@@ -123,7 +123,7 @@ function App() {
     const get = async () => {
       const token = await DatabaseClient.auth().catch(() => setPlayerState(null))
       const state = await DatabaseClient.read(playerID, token).catch(() => setPlayerState(null))
-      setPlayerState(state === undefined ? null : state)
+      setPlayerState(state === undefined ? null : (state[`Level${currentLevel + 1}`] ? state : { ...state, [`Level${currentLevel + 1}`]: { StartTime: Date.now(), lives: 3, usedHints: 0 } }))
 
       if (state && state[`Level${currentLevel + 1}`]?.Won) {
         setGameWon(true)
@@ -141,22 +141,7 @@ function App() {
     }
 
     get()
-  }, [playerID])
-
-  // Set StartTime to player state inside the current level object
-  useEffect(() => {
-    if (!playerState) return
-
-    setPlayerState(prev => {
-      if (!prev[`Level${currentLevel + 1}`]) {
-        return {
-          ...prev, [`Level${currentLevel + 1}`]: { StartTime: Date.now(), lives: 3, usedHints: 0 }
-        }
-      }
-
-      return prev
-    })
-  }, [currentLevel, playerState])
+  }, [playerID, currentLevel])
 
   useEffect(() => {
     if (!playerState) return
@@ -217,8 +202,9 @@ function App() {
   // Game over when time runs out
   useEffect(() => {
     if (!playerState) return
+    if (playerState.Won || playerState.Lost || playerState.Finished) return
 
-    if (playerState.StartTime + totalTimeInMilliseconds < Date.now() && !playerState.Won) {
+    if (playerState.StartTime + totalTimeInMilliseconds < Date.now()) {
       setGameOver(true)
       setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Lost: true }))
     }
@@ -227,7 +213,7 @@ function App() {
   // Update database on state change
   useEffect(() => {
     const update = async () => {
-      const token = await DatabaseClient.auth().catch(() => setPlayerState(null))
+      const token = await DatabaseClient.auth()
       await DatabaseClient.update(playerID, playerState, token)
     }
 
@@ -251,8 +237,8 @@ function App() {
     return (<div style={{ padding: '16px' }}>Loading...</div>)
   }
 
-  if (playerState?.Won) return (
-    <FinishedWinScreen onRetry={retry} currentLevel={currentLevel} penalty={playerState.Penalty} />
+  if (playerState?.Won || playerState?.Lost) return (
+    <FinishedWinScreen penalty={playerState.Penalty} won={!!playerState?.Won} />
   )
 
   return (
@@ -611,7 +597,7 @@ function WinScreen({ onRetry, currentLevel }) {
   );
 }
 
-function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
+function FinishedWinScreen({ penalty, won }) {
 
   const [leaderboard, setLeaderboard] = useState([])
 
@@ -646,7 +632,9 @@ function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
         userSelect: 'none',
       }}
     >
-      <ConfettiExplosion particleCount={200} duration={4000} />
+      {won && (
+        <ConfettiExplosion particleCount={200} duration={4000} />
+      )}
 
       <Card color="neutral" sx={{
         backgroundColor: 'rgba(22, 22, 22, 1)',
@@ -654,7 +642,11 @@ function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
         textAlign: 'center',
         color: "gray"
       }}>
-        <Typography level="h2" color="success">Je bent klaar! Je hebt de game afgerond met een score van {penalty} strafpunten!</Typography>
+        {won ? (
+          <Typography level="h2" color="success">Je bent klaar! Je hebt de game afgerond met een score van {penalty} strafpunten!</Typography>
+        ) : (
+          <Typography level="h2" color="danger">Game Over</Typography>
+        )}
       </Card>
       <Card color="neutral" sx={{
         backgroundColor: 'rgba(22, 22, 22, 1)',
