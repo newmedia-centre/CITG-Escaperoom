@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react'
 import { useThree } from "@react-three/fiber"
 import { Point, Points, PointMaterial, useTexture, Text, useVideoTexture } from '@react-three/drei'
 import { useGesture } from '@use-gesture/react'
 import { useSpring, a } from '@react-spring/three'
 import { useRaycastAll } from '@react-three/cannon'
 
-function PuzzlePiece({ ...props }) {
+export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
     const yPos = props.position[1]
-    const { puzzleId, position, video, setPuzzle, puzzle, setPuzzleSolved, solutionCoords, showPuzzle, takeLive, setSolutionEntered } = props
+    const { puzzleId, position, video, setPuzzle, puzzle, setPuzzleSolved, solutionCoords, showPuzzle, setSolutionEntered } = props
     const { size, viewport } = useThree()
     const gridTexture = useTexture("grid-pattern.png")
     const puzzleTexture = useVideoTexture(video + ".mp4")
@@ -25,11 +25,10 @@ function PuzzlePiece({ ...props }) {
 
     const [isDragging, setIsDragging] = useState(false); // Add state to track dragging
     const [currentIndex, setCurrentIndex] = useState(index); // State for index
-    const [interactable, setInteractable] = useState(true); // State for index
     const [allowUserInput, setAllowUserInput] = useState(false)
     const [pieceSet, setPieceSet] = useState(false)
-    const [hint, setHint] = useState(5) // State for hintssolution entered internally
     const [solutionEnteredInt, setSolutionEnteredInt] = useState(false)
+    const [hit, setHit] = useState({})
 
     const [spring, set] = useSpring(() => ({
         scale: scale,
@@ -40,8 +39,26 @@ function PuzzlePiece({ ...props }) {
         color: "gray"
     }))
 
+    useImperativeHandle(ref, () => ({
+        resetLevel: () => resetLevel(),
+    }))
+
+    const resetLevel = () => {
+        set({
+            position: originalPosition,
+            color: 'gray',
+        })
+
+        setTimeout(() => {
+            setSolutionEnteredInt(false)
+            setPieceSet(false)
+            setAllowUserInput(false)
+            setHit({})
+        }, 500) // Delay the set function call by 1000 milliseconds (1 second)
+    }
+
     function Raycast({ puzzleId, index, position }) {
-        const [hit, setHit] = useState({})
+
         const pos = position
         var dir = [pos[0], pos[1] + 0.5, pos[2]]
 
@@ -188,7 +205,7 @@ function PuzzlePiece({ ...props }) {
                     <Point name='solution' ref={solutionRef} position={solutionCoords} color={"red"} />
                 </Points>
 
-                <Points renderOrder={20} ref={inputRef} visible={false}>
+                <Points renderOrder={20} ref={inputRef} visible={solutionEnteredInt}>
                     <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthTest={false} depthWrite={false} toneMapped={false} />
                     <Point name='input' position={[0, 0.013, 0]} ref={materialRef} color={"red"} />
                 </Points>
@@ -199,6 +216,6 @@ function PuzzlePiece({ ...props }) {
             </a.mesh >
         </>
     )
-}
+})
 
 export default PuzzlePiece
