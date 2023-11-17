@@ -49,8 +49,9 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
             color: 'gray',
         })
 
+        setSolutionEnteredInt(false)
+
         setTimeout(() => {
-            setSolutionEnteredInt(false)
             setPieceSet(false)
             setAllowUserInput(false)
             setHit({})

@@ -42,6 +42,8 @@ export const Level03 = forwardRef((props, ref) => {
   const puzzle03Ref = useRef()
 
   const resetLevel = () => {
+    setSolutionEntered(0)
+    setPuzzleSolved(0)
     Object.keys(puzzles.showPuzzle).forEach(key => {
       puzzles.showPuzzle[key] = false
       puzzles.showVector[key] = false
@@ -113,14 +115,22 @@ export const Level03 = forwardRef((props, ref) => {
   }, [])
 
   useEffect(() => {
+    if (selectedObject?.name) {
+      changeCamera(selectedObject.name)
+    }
+  }, [selectedObject])
+
+  useEffect(() => {
+    changeCamera("puzzletable")
+
     if (solutionEntered === 4 && puzzleSolved === 4) {
       setGameWon(true)
     }
-    else if (solutionEntered === 1) {
+    else if (solutionEntered === 4) {
       // takeLive()
       resetLevel()
     }
-  }, [solutionEntered])
+  }, [solutionEntered, puzzleSolved])
 
   useEffect(() => {
     setPuzzle(prev => {
@@ -170,7 +180,7 @@ export const Level03 = forwardRef((props, ref) => {
           </Text3D>
 
         </Center>
-        <Box ref={puzzleSlotViewRef} args={[2, 2, 2]} position={[0, 0, 0.5]} visible={false} onClick={() => changeCamera("puzzletable")} />
+        <Box ref={puzzleSlotViewRef} args={[2, 2, 2]} position={[0, 0, 0.5]} visible={false} />
         <Box ref={tableRef} args={[3.5, 3.5, 3.5]} position={[0, 0, 0]} visible={false} />
 
         <group name="Pieces" position={[0.193, 0.871, -0.505]}>
