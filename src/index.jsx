@@ -218,10 +218,15 @@ function App() {
   useEffect(() => {
     if (!playerState) return
 
-    if (playerState.StartTime + totalTimeInMilliseconds < Date.now() && !playerState.Won) {
-      setGameOver(true)
-      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Lost: true }))
+    const checkGameOver = () => {
+      if (playerState.StartTime + totalTimeInMilliseconds < Date.now() && !playerState.Won) {
+        setGameOver(true)
+        setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Lost: true }))
+      }
     }
+
+    const interval = setInterval(checkGameOver, 1000);
+    return () => clearInterval(interval);
   }, [playerState])
 
   // Update database on state change
