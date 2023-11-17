@@ -30,6 +30,7 @@ export const Level04 = forwardRef((props, ref) => {
   const materialsRef = useRef()
 
   const resetLevel = () => {
+    changeCamera("materials")
   }
 
   const takeLive = () => {
@@ -142,6 +143,8 @@ export const Level04 = forwardRef((props, ref) => {
           selectedObject={selectedObject}
           setGameWon={setGameWon}
           setGameOver={setGameOver}
+          takeLive={takeLive}
+          resetLevel={resetLevel}
         />
       </Center>
 

@@ -5,6 +5,7 @@ Command: npx gltfjsx@6.2.3 Level04.glb --transform --simplify
 
 import React, { forwardRef, useRef, useEffect, useState } from 'react'
 import { useGLTF, useAnimations, Box, Text, Text3D } from '@react-three/drei'
+import { act } from '@react-three/fiber'
 
 export const Level04Model = forwardRef((props, ref) => {
   const group = useRef()
@@ -16,13 +17,13 @@ export const Level04Model = forwardRef((props, ref) => {
   const {
     animation, setAnimation,
     selectedObject, setSelectedObject,
-    setGameOver,
     setGameWon,
+    takeLive,
+    resetLevel
   } = props
 
   const { nodes, materials, animations } = useGLTF('models/gltfjsx/Level04-transformed.glb')
   const { actions, mixer } = useAnimations(animations, group)
-
 
   useEffect(() => {
     iceFloorRef.current.visible = false
@@ -59,7 +60,12 @@ export const Level04Model = forwardRef((props, ref) => {
     const fn = (e) => {
       if (e.action !== actions['Pushing']) {
         if (e.action._clip.name === "TooNear" || e.action._clip.name === "TooFar") {
-          setGameOver(true)
+          takeLive()
+          resetLevel()
+          actions['Pushing'].play()
+          actions[animation].play()
+          actions['Pushing'].stop()
+          actions[animation].stop()
         }
         else if (e.action._clip.name === "Correct") {
           setGameWon(true)
