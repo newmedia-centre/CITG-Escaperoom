@@ -32,13 +32,13 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   const oceanRef = useRef()
   const platformRef = useRef()
   const [cannonBallRef, cannonBallApi] = useSphere(() => ({
-    args: [0.8],
+    args: [0.2],
     mass: 1,
     onCollide: (e) => handleCollision(e, "cannonBall")
   }))
   const [targetRef] = useBox(() => ({
-    args: [1.9, 0.3, 1.9],
-    position: [-2, 2, -10.7],
+    args: [0.3, 0.3, 0.3],
+    position: [-2, 2, 2.75],
     type: "Kinematic",
     onCollide: (e) => handleCollision(e, "target")
   }))
@@ -56,7 +56,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     switch (scene) {
       case "cannon":
         setCameraFocus(scene)
-        cameraControlsRef.current?.setLookAt(2, 7, 10.8, -2, 5, 10.8, true)
+        cameraControlsRef.current?.setLookAt(2, 9, 10.8, -2, 7, 10.8, true)
         break;
       case "blueprint":
         setCameraFocus(scene)
@@ -64,14 +64,15 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
         break;
       default:
         setCameraFocus('default')
-        cameraControlsRef.current?.setLookAt(-2.3, 7, 18, -2.3, 6, 10, true)
+        cameraControlsRef.current?.setLookAt(-2.3, 9, 18, -2.3, 7, 10, true)
     }
   }
 
   let hitHandled = false
   const [elapsed, setElapsed] = useState(0) // time elapsed
 
-  const waterLevel = 1.6
+  const waterLevel = 2.3
+
   if (oceanRef.current) {
     oceanRef.current.position.y = waterLevel
   }
@@ -79,10 +80,10 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   const handleCollision = (event, name) => {
     if (name === "cannonBall" && !hitHandled && !gameOver && !gameWon) {
       if (event.body.uuid === targetRef.current.uuid) {
-        console.log("The target was hit first!")
+        // console.log("The target was hit first!")
         setGameWon(true)
       } else if (event.body.uuid === groundRef.current.uuid) {
-        console.log("The ground was hit first!")
+        // console.log("The ground was hit first!")
         takeLive()
       }
       hitHandled = true
@@ -91,7 +92,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
   function CannonBall({ position }) {
     return (
-      <Sphere position={position} castShadow receiveShadow args={[0.4, 64, 64]}>
+      <Sphere position={position} castShadow receiveShadow args={[0.2, 64, 64]}>
         <meshStandardMaterial color="gray" metalness={0.9} roughness={0.4} />
       </Sphere>
     )
@@ -107,29 +108,29 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   }
 
   // Cannon speed is 7.5 m/s
-  const fireCannon = (forceMagnitude = 1000) => {
+  const fireCannon = (forceMagnitude = 7.5) => {
     if (cannonRef.current && cannonBallRef.current) {
 
       hitHandled = false
 
-      cannonBallApi.mass.set(1)
+      cannonBallApi.mass.set(0.015)
       const cannonPosition = cannonRef.current.getWorldPosition(new THREE.Vector3())
       const cannonRotation = cannonRef.current.getWorldQuaternion(new THREE.Quaternion())
 
-      // Create a direction vector pointing in the direction of the cannon barrel
-      const direction = new THREE.Vector3(0, 0, -1); // 1 unit along the y-axis
-      direction.applyQuaternion(cannonRotation);
+      // Calculate the direction vector of the cannon barrel
 
-      // Scale the direction by the magnitude of the force to be applied
+      // Create a direction vector pointing in the direction of the cannon barrel
+      const direction = new THREE.Vector3(0, 0, -1) // 1 unit along the z-axis
+
+      // Calculate force vector
       const force = direction.multiplyScalar(forceMagnitude);
 
-      // Reset cannonball values
+
       cannonBallApi.position.set(cannonPosition.x, cannonPosition.y, cannonPosition.z)
       cannonBallApi.rotation.set(cannonRotation.x, cannonRotation.y, cannonRotation.z)
       cannonBallApi.velocity.set(0, 0, 0)
-
-      // Apply the force at the center of the cannonball
-      cannonBallApi.applyForce(force.toArray(), cannonBallRef.current.position.toArray());
+      cannonBallApi.angularVelocity.set(0, 0, 0)
+      cannonBallApi.applyLocalForce(force.toArray(), [0, 0, 0])
     }
   }
 
@@ -182,7 +183,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
       <group position={[0, 0, 0]}>
         <Center top>
           <Level01Model ref={meshRef} />
-          <Cannon position={[-2, 0.1, 0]} ref={cannonRef} setSelectedObject={setSelectedObject} />
+          <Cannon position={[-2, 0.98, 0]} ref={cannonRef} setSelectedObject={setSelectedObject} />
 
           <WaterLevel position={[2, 0, 1.56]} />
           <WindowBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
@@ -196,13 +197,13 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
           {/* Cannonball display */}
           {
             Array(lives).fill().map((_, index) => (
-              <CannonBall key={index} position={[-0.7 + index * 1, 3.9, 5]} />
+              <CannonBall key={index} position={[-0.7 + index * 1, 4.77, 5]} />
             ))
           }
           <Target ref={targetRef} />
         </Center>
 
-        <Sphere castShadow receiveShadow ref={cannonBallRef} args={[0.4, 64, 64]}>
+        <Sphere castShadow receiveShadow ref={cannonBallRef} args={[0.2, 64, 64]}>
           <meshStandardMaterial color="gray" metalness={0.9} roughness={0.4} />
         </Sphere>
 
