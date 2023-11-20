@@ -61,7 +61,7 @@ function App() {
 
     if (lives === 0) {
       setGameOver(true)
-      setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives, lost: true, Penalty: 100 } }))
+      setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives, Lost: true, Penalty: 100, EndTime: Date.now() } }))
       return
     }
     setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives } }))
