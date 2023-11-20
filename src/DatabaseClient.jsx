@@ -120,7 +120,8 @@ export const leaderboard = async (token) => {
                         data: {
                             ...data,
                             EndTime: data.StartTime + totalTimeInMilliseconds,
-                            Finished: true
+                            Finished: true,
+                            Penalty: (data?.Level1?.Penalty ?? 100) + (data?.Level2?.Penalty ?? 100) + (data?.Level3?.Penalty ?? 100) + (data?.Level4?.Penalty ?? 100)
                         }
                     }),
                 })
