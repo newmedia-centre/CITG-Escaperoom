@@ -308,7 +308,8 @@ function App() {
           >
             <Card variant="soft" sx={{
               m: 2,
-              overflowY: 'scroll'
+              overflowY: 'scroll',
+              paddingBottom: '64px'
             }}>
               <Typography level="h1">Welkom!</Typography>
               <Typography level="h3">Team van toegewijde civieltechnici, bij deze Dynamica escape room!</Typography>
