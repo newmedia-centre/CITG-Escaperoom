@@ -631,7 +631,7 @@ function GameOverScreen({ onRetry, currentLevel }) {
         textAlign: 'center',
         color: "gray"
       }}>
-        <Typography level="h2" color="danger">Game Over</Typography>
+        <Typography level="h2" color="danger">Geen pogingen over</Typography>
         <Typography level="body-md">{gameMessages.messages[currentLevel]?.lose}</Typography>
         <Typography level="body-md">{gameMessages.messages[currentLevel]?.instruction}</Typography>
       </Card>
