@@ -239,18 +239,21 @@ function App() {
           <LockedScreen />
         )
       }
+      break;
     case 2:
       if (!playerState?.Level1 || !playerState?.Level2) {
         return (
           <LockedScreen />
         )
       }
+      break;
     case 3:
       if (!playerState?.Level1 || !playerState?.Level2, !playerState?.Level3) {
         return (
           <LockedScreen />
         )
       }
+      break;
   }
 
   return (
