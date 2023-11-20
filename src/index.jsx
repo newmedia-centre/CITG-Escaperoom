@@ -27,6 +27,7 @@ function App() {
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
   const [showHintPopup, setShowHintPopup] = useState(false)
+  const [geoLock, setGeoLock] = useState(false)
   const [speed, setSpeed] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(5400)
   const [playerID, setPlayerID] = useState(localStorage.getItem('player') ?? '')
@@ -140,6 +141,28 @@ function App() {
       })
     }
 
+    // check geolocation
+    const skipGeo = new URLSearchParams(window.location.search).get('skipgeo')
+    if (!skipGeo) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const citgLat = 51.999
+        const citgLon = 4.376
+
+        if ((Math.abs(citgLat - pos.coords.latitude) < 0.002) && (Math.abs(citgLon - pos.coords.longitude) < 0.002)) {
+          setGeoLock(false)
+        } else {
+          setGeoLock(true)
+        }
+
+      }, e => {
+        console.error(e)
+        setGeoLock(true)
+      }, {
+        timeout: 10000,
+        maximumAge: 0
+      })
+    }
+
     get()
   }, [playerID, currentLevel])
 
@@ -236,24 +259,30 @@ function App() {
     case 1:
       if (!playerState?.Level1) {
         return (
-          <LockedScreen />
+          <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
         )
       }
       break;
     case 2:
       if (!playerState?.Level1 || !playerState?.Level2) {
         return (
-          <LockedScreen />
+          <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
         )
       }
       break;
     case 3:
-      if (!playerState?.Level1 || !playerState?.Level2, !playerState?.Level3) {
+      if (!playerState?.Level1 || !playerState?.Level2 || !playerState?.Level3) {
         return (
-          <LockedScreen />
+          <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
         )
       }
       break;
+  }
+
+  if (geoLock) {
+    return (
+      <LockedScreen text='Je moet je op de juiste locatie bevinden om dit level te kunnen spelen' />
+    )
   }
 
   return (
@@ -546,7 +575,7 @@ function App() {
   )
 }
 
-function LockedScreen() {
+function LockedScreen({ text }) {
   return (
     <Stack spacing={2}
       sx={{
@@ -571,7 +600,7 @@ function LockedScreen() {
         color: "gray"
       }}>
         <Typography level="h2" color="danger">Level niet beschikbaar</Typography>
-        <Typography level="body-md">Je moet eerst het vorige level afronden voordat je dit level kunt spelen</Typography>
+        <Typography level="body-md">{text}</Typography>
       </Card>
     </Stack>
   )
