@@ -188,7 +188,7 @@ function App() {
 
     if (playerState.StartTime + totalTimeInMilliseconds < Date.now()) {
       setGameOver(true)
-      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Lost: true }))
+      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Finished: true }))
     }
   }, [playerState])
 
@@ -222,6 +222,36 @@ function App() {
   if (playerState?.Finished) return (
     <FinishedWinScreen penalty={playerState.Penalty} playerID={playerID} />
   )
+
+  // clear playerstate with the clear url
+  const clear = new URLSearchParams(window.location.search).get('clear')
+  if (clear) {
+    console.log('should clear')
+    localStorage.removeItem('player')
+    window.location.href = '/'
+  }
+
+  // show locked screen when levels are loaded in wrong order
+  switch (currentLevel) {
+    case 1:
+      if (!playerState?.Level1) {
+        return (
+          <LockedScreen />
+        )
+      }
+    case 2:
+      if (!playerState?.Level1 || !playerState?.Level2) {
+        return (
+          <LockedScreen />
+        )
+      }
+    case 3:
+      if (!playerState?.Level1 || !playerState?.Level2, !playerState?.Level3) {
+        return (
+          <LockedScreen />
+        )
+      }
+  }
 
   return (
     <>
@@ -513,6 +543,37 @@ function App() {
   )
 }
 
+function LockedScreen() {
+  return (
+    <Stack spacing={2}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        bgcolor: 'rgba(0, 0, 0, 0.7)',
+        zIndex: 10000,
+        userSelect: 'none'
+      }}
+    >
+      <Card color="neutral" sx={{
+        backgroundColor: 'rgba(22, 22, 22, 1)',
+        p: 2,
+        textAlign: 'center',
+        color: "gray"
+      }}>
+        <Typography level="h2" color="danger">Level niet beschikbaar</Typography>
+        <Typography level="body-md">Je moet eerst het vorige level afronden voordat je dit level kunt spelen</Typography>
+      </Card>
+    </Stack>
+  )
+}
+
 function GameOverScreen({ onRetry, currentLevel }) {
   return (
     <Stack spacing={2}
@@ -582,6 +643,7 @@ function WinScreen({ onRetry, currentLevel }) {
 function FinishedWinScreen({ penalty, won, playerID }) {
 
   const [leaderboard, setLeaderboard] = useState([])
+  const [playerIndex, setPlayerIndex] = useState(0)
 
   useEffect(() => {
     const get = async () => {
@@ -589,15 +651,22 @@ function FinishedWinScreen({ penalty, won, playerID }) {
       const token = await DatabaseClient.auth().catch(e => console.error(e))
       const data = await DatabaseClient.leaderboard(token)
 
-      const player = data.find(x => x.id === playerID)
+      // sort data
+      data.sort((a, b) => a.Penalty - b.Penalty || (a.EndTime - a.StartTime) - (b.EndTime - b.StartTime))
 
-      data.sort((a, b) => a.Penalty - b.Penalty || (a.EndTime - a.StartTime) - (b.EndTime - b.StartTime)).splice(10)
+      // get player
+      const playerIndex = data.findIndex(x => x.id === playerID)
+      const player = data[playerIndex]
+
+      // shrink to top 10 only
+      data.splice(10)
 
       if (!data.includes(player)) {
         data.push(player)
       }
 
       setLeaderboard(data)
+      setPlayerIndex(playerIndex)
     }
 
     get()
@@ -638,6 +707,7 @@ function FinishedWinScreen({ penalty, won, playerID }) {
         <table width={500}>
           <thead style={{ color: '#fff' }}>
             <tr>
+              <th align="left">#</th>
               <th align="left">Team</th>
               <th align="right">Score</th>
               <th align="right">Tijd</th>
@@ -646,6 +716,7 @@ function FinishedWinScreen({ penalty, won, playerID }) {
           <tbody>
             {leaderboard.map((row, index) => (
               <tr key={index} style={{ color: row.id === playerID ? 'white' : 'gray' }}>
+                <td align="left">{row.id === playerID ? playerIndex + 1 : index + 1}</td>
                 <td align="left">{row.id}</td>
                 <td align="right">{400 - row.Penalty}</td>
                 <td align="right">{`${String(Math.floor(((row.EndTime - row.StartTime) / 1000) / 60)).padStart(2, "0")}:${String(Math.floor(((row.EndTime - row.StartTime) / 1000) % 60)).padStart(2, "0")}`}</td>
