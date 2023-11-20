@@ -127,7 +127,7 @@ export const Level03 = forwardRef((props, ref) => {
       setGameWon(true)
     }
     else if (solutionEntered === 4) {
-      // takeLive()
+      takeLive()
 
       const fn = (e) => {
         resetLevel()
