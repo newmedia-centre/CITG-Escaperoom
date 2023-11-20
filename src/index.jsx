@@ -164,26 +164,7 @@ function App() {
 
   // handle all games won or lost or finished
   useEffect(() => {
-    if (playerState?.Won || playerState?.Lost || playerState?.Finished) return
-
-    if (playerState?.Level1?.Won && playerState?.Level2?.Won && playerState?.Level3?.Won && playerState?.Level4?.Won) {
-      setPlayerState(prev => ({
-        ...prev,
-        Won: true,
-        EndTime: Date.now(),
-        Penalty: (playerState?.Level1?.Penalty ?? 1000) + (playerState?.Level2?.Penalty ?? 1000) + (playerState?.Level3?.Penalty ?? 1000) + (playerState?.Level4?.Penalty ?? 1000)
-      }))
-      return
-    }
-
-    if (playerState?.Level1?.Lost && playerState?.Level2?.Lost && playerState?.Level3?.Lost && playerState?.Level4?.Lost) {
-      setPlayerState(prev => ({
-        ...prev,
-        Lost: true,
-        EndTime: Date.now()
-      }))
-      return
-    }
+    if (playerState?.Finished) return
 
     if (
       (playerState?.Level1?.Lost || playerState?.Level1?.Won) &&
@@ -193,7 +174,8 @@ function App() {
       setPlayerState(prev => ({
         ...prev,
         Finished: true,
-        EndTime: Date.now()
+        EndTime: Date.now(),
+        Penalty: (playerState?.Level1?.Penalty ?? 100) + (playerState?.Level2?.Penalty ?? 100) + (playerState?.Level3?.Penalty ?? 100) + (playerState?.Level4?.Penalty ?? 100)
       }))
       return
     }
@@ -237,8 +219,8 @@ function App() {
     return (<div style={{ padding: '16px' }}>Loading...</div>)
   }
 
-  if (playerState?.Won || playerState?.Lost) return (
-    <FinishedWinScreen penalty={playerState.Penalty} won={!!playerState?.Won} />
+  if (playerState?.Finished) return (
+    <FinishedWinScreen penalty={playerState.Penalty} playerID={playerID} />
   )
 
   return (
@@ -597,7 +579,7 @@ function WinScreen({ onRetry, currentLevel }) {
   );
 }
 
-function FinishedWinScreen({ penalty, won }) {
+function FinishedWinScreen({ penalty, won, playerID }) {
 
   const [leaderboard, setLeaderboard] = useState([])
 
@@ -607,13 +589,19 @@ function FinishedWinScreen({ penalty, won }) {
       const token = await DatabaseClient.auth().catch(e => console.error(e))
       const data = await DatabaseClient.leaderboard(token)
 
-      data.sort((a, b) => b.Penalty - a.Penalty).splice(10)
+      const player = data.find(x => x.id === playerID)
+
+      data.sort((a, b) => a.Penalty - b.Penalty || (a.EndTime - a.StartTime) - (b.EndTime - b.StartTime)).splice(10)
+
+      if (!data.includes(player)) {
+        data.push(player)
+      }
 
       setLeaderboard(data)
     }
 
     get()
-  }, [])
+  }, [playerID])
 
   return (
     <Stack spacing={2}
@@ -632,21 +620,14 @@ function FinishedWinScreen({ penalty, won }) {
         userSelect: 'none',
       }}
     >
-      {won && (
-        <ConfettiExplosion particleCount={200} duration={4000} />
-      )}
-
+      <ConfettiExplosion particleCount={400 - penalty} duration={4000} />
       <Card color="neutral" sx={{
         backgroundColor: 'rgba(22, 22, 22, 1)',
         p: 2,
         textAlign: 'center',
         color: "gray"
       }}>
-        {won ? (
-          <Typography level="h2" color="success">Je bent klaar! Je hebt de game afgerond met een score van {penalty} strafpunten!</Typography>
-        ) : (
-          <Typography level="h2" color="danger">Game Over</Typography>
-        )}
+        <Typography level="h2" color="success">Je bent klaar! Je hebt de game afgerond met een score van {400 - penalty}</Typography>
       </Card>
       <Card color="neutral" sx={{
         backgroundColor: 'rgba(22, 22, 22, 1)',
@@ -658,15 +639,15 @@ function FinishedWinScreen({ penalty, won }) {
           <thead style={{ color: '#fff' }}>
             <tr>
               <th align="left">Team</th>
-              <th align="right">Penalty</th>
+              <th align="right">Score</th>
               <th align="right">Tijd</th>
             </tr>
           </thead>
           <tbody>
             {leaderboard.map((row, index) => (
-              <tr key={index}>
+              <tr key={index} style={{ color: row.id === playerID ? 'white' : 'gray' }}>
                 <td align="left">{row.id}</td>
-                <td align="right">{row.Penalty}</td>
+                <td align="right">{400 - row.Penalty}</td>
                 <td align="right">{`${String(Math.floor(((row.EndTime - row.StartTime) / 1000) / 60)).padStart(2, "0")}:${String(Math.floor(((row.EndTime - row.StartTime) / 1000) % 60)).padStart(2, "0")}`}</td>
               </tr>
             ))}

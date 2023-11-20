@@ -94,7 +94,7 @@ export const remove = async (user, token) => { // user = unique id, data = seria
 export const leaderboard = async (token) => {
     const response = await fetch(import.meta.env.VITE_DB_SITE + '/project/citg-er/data?' + new URLSearchParams({
         filter: JSON.stringify({
-            Won: true
+            Finished: true
         }),
     }), {
         method: 'GET',
