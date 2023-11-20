@@ -119,7 +119,7 @@ export const Level02Model = forwardRef((props, ref) => {
 
   return (
     <group {...props} dispose={null}>
-      <group name='weight' ref={weightRef} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
+      <group name='weight' ref={weightRef} onClick={(obj) => setSelectedObject(obj.eventObject)}>
         <mesh name='weight' geometry={nodes.Pulley004.geometry} material={materials.BlackMetal} position={[0, 0.355, -2.467]} />
         <mesh geometry={nodes.PulleyWeight.geometry} material={materials.Alluminium} position={[0, 0.355, -2.467]} rotation={[0, 0, -Math.PI / 2]} scale={[0.01, 0.032, 0.01]} />
         <mesh geometry={nodes.Weight.geometry} material={materials.AlluminiumDark} position={[0, 0.178, -2.467]} scale={[0.069, 0.089, 0.069]}>
@@ -129,14 +129,20 @@ export const Level02Model = forwardRef((props, ref) => {
 
       <mesh ref={rope004Ref} geometry={nodes.Rope004.geometry} material={materials.Rope} position={[0, 0.356, -2.518]} />
       <mesh ref={circle003Ref} geometry={nodes.Circle003.geometry} material={materials.Rope} position={[0, 0.355, -2.418]} />
-      <mesh geometry={nodes.Ground.geometry} position={[0, -0.0005, 0]} material={materials.Ground}>
+      <mesh name="ground" geometry={nodes.Ground.geometry} position={[0, -0.0005, 0]} material={materials.Ground} onClick={(obj) => {
+        obj.stopPropagation()
+        setSelectedObject(obj.eventObject)
+      }}>
         <group position={[0, -0.15, -2.09]} rotation={[0, -Math.PI, 0]} scale={[.2, .2, .2]}>
           <Text color="white" anchorX="center" anchorY="middle" scale={[0.4, 0.4, 0.4]} text={"Gewicht: 10kg \n Acceleratie: -1"} />
         </group>
       </mesh >
       <mesh ref={rope003Ref} geometry={nodes.Rope003.geometry} material={materials.Rope} position={[0, 0.548, -2.416]} rotation={[0, 0, -Math.PI]} />
       <mesh ref={rope001Ref} geometry={nodes.Rope001.geometry} material={materials.Rope} position={[0, 0.6, 2.304]} rotation={[Math.PI / 2, 0, 0]} />
-      <group name="solution" position={[0, 0, -0.2]} scale={2} ref={solutionRef} rotation={[0, Math.PI / 2, Math.PI]} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
+      <group name="solution" position={[0, 0, -0.2]} scale={2} ref={solutionRef} rotation={[0, Math.PI / 2, Math.PI]} onClick={(obj) => {
+        obj.stopPropagation()
+        setSelectedObject(obj.eventObject)
+      }}>
         <group name="ring" visible={false}>
           <Ring />
           <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights[weightsIndex.weightRing] - 1}kg</Text3D>
@@ -155,12 +161,12 @@ export const Level02Model = forwardRef((props, ref) => {
         <mesh geometry={nodes.Laser_1.geometry} material={materials.Alluminium} />
         <mesh ref={laserRef} rotation={[0, 0, 0]} geometry={nodes.Laser_2.geometry} material={materials.Laser} />
       </group>
-      <mesh ref={benchRef} name='bench' geometry={nodes.Bench.geometry} material={materials.Wood} position={[0, 0.35, 0.231]} onPointerDown={(obj) => setSelectedObject(obj.eventObject)} />
+      <mesh ref={benchRef} name='bench' geometry={nodes.Bench.geometry} material={materials.Wood} position={[0, 0.35, 0.231]} onClick={(obj) => setSelectedObject(obj.eventObject)} />
       <mesh geometry={nodes.Foots.geometry} material={materials.Wood} position={[0.155, 0.233, -1.95]} />
       <mesh geometry={nodes.Pulley.geometry} material={materials.BlackMetal} position={[0, 0.348, -2.02]} rotation={[Math.PI / 6, 0, 0]} scale={[0.336, 1, 1]} />
       <mesh geometry={nodes.Pulley001.geometry} material={materials.BlackMetal} position={[0, 0.548, -2.366]} rotation={[Math.PI / 6, 0, 0]} scale={[0.158, 1, 1]} />
       <mesh ref={rope002Ref} geometry={nodes.Rope002.geometry} material={materials.Rope} position={[0, 0.6, -2.366]} rotation={[Math.PI / 2, 0, 0]} />
-      <group name='cabinet' ref={cabinetRef} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
+      <group name='cabinet' ref={cabinetRef} onClick={(obj) => setSelectedObject(obj.eventObject)}>
         <mesh geometry={nodes.Cabinet.geometry} material={materials.Alluminium} position={[-2.75, 0, 1.209]} />
         <mesh geometry={nodes.CabinetDoor.geometry} material={materials.AlluminiumDark} position={[-2.307, 0, 1.893]} rotation={[-Math.PI, -0.527, -Math.PI]} />
         <mesh geometry={nodes.CabinetDoor001.geometry} material={materials.AlluminiumDark} position={[-2.307, 0, 0.526]} rotation={[-Math.PI, Math.PI / 6, -Math.PI]} >
@@ -178,7 +184,7 @@ export const Level02Model = forwardRef((props, ref) => {
       <mesh ref={ropeRef} geometry={nodes.Rope.geometry} material={materials.Rope} position={[0, 2.847, -2.518]} rotation={[0, 0, Math.PI]} />
       <mesh geometry={nodes.Walls.geometry} material={materials.Walls} position={[3, 1, 3]} />
       <mesh geometry={nodes.Walls.geometry} material={materials.Walls} position={[3, 1, 3]} />
-      <group name='door' onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
+      <group name='door' onClick={(obj) => setSelectedObject(obj.eventObject)}>
         <mesh geometry={nodes.DoorFrame.geometry} material={materials.WoodWhite} position={[-2.75, 0, -1.19]} rotation={[0, Math.PI / 2, 0]} />
         <mesh geometry={nodes.Door.geometry} material={materials.Wood} position={[-2.728, 1.05, -1.608]} rotation={[0, Math.PI / 2, 0]} />
       </group>

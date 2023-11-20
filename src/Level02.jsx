@@ -187,15 +187,15 @@ export const Level02 = forwardRef((props, ref) => {
   }, [selectedObject])
 
   useControls({
-    progressValue: {
-      value: 0,
-      min: 0,
-      max: 1,
-      step: 0.01,
-      onChange: (value) => {
-        setProgress({ progress: value })
-      },
-    },
+    // progressValue: {
+    //   value: 0,
+    //   min: 0,
+    //   max: 1,
+    //   step: 0.01,
+    //   onChange: (value) => {
+    //     setProgress({ progress: value })
+    //   },
+    // },
     // Switch camera list
     camera: {
       value: "bench",
