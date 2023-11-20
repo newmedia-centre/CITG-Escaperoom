@@ -10,7 +10,7 @@ export const Target = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF('models/gltfjsx/Target2-transformed.glb')
   return (
     <group ref={ref} {...props} dispose={null} >
-      <group position={[0, -1.4, -6.1]} >
+      <group position={[0, -1.4, -6.1]} scale={[0.2, 1, 0.2]} >
         <mesh geometry={nodes.Circle002.geometry} material={materials.BlackTarget} />
         <mesh geometry={nodes.Circle002_1.geometry} material={materials.RedTarget} />
       </group>
