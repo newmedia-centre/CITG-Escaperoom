@@ -733,11 +733,13 @@ function FinishedWinScreen({ penalty, won, playerID }) {
       </Card>
       <Card color="neutral" sx={{
         backgroundColor: 'rgba(22, 22, 22, 1)',
-        p: 2,
+        px: 2,
         textAlign: 'center',
-        color: "gray"
+        color: "gray",
+        width: '90vw',
+        margin: '16px',
       }}>
-        <table width={500}>
+        <table style={{ width: "90vw", tableLayout: "fixed" }}>
           <thead style={{ color: '#fff' }}>
             <tr>
               <th align="left">#</th>
@@ -748,9 +750,9 @@ function FinishedWinScreen({ penalty, won, playerID }) {
           </thead>
           <tbody>
             {leaderboard.map((row, index) => (
-              <tr key={index} style={{ color: row.id === playerID ? 'white' : 'gray' }}>
+              <tr key={index} style={{ color: row.id === playerID ? 'white' : 'gray', height: "1em" }}>
                 <td align="left">{row.id === playerID ? playerIndex + 1 : index + 1}</td>
-                <td align="left">{row.id}</td>
+                <td align="left" style={{ overflow: "hidden", whiteSpace: "nowrap" }}>{row.id}</td>
                 <td align="right">{400 - row.Penalty}</td>
                 <td align="right">{`${String(Math.floor(((row.EndTime - row.StartTime) / 1000) / 60)).padStart(2, "0")}:${String(Math.floor(((row.EndTime - row.StartTime) / 1000) % 60)).padStart(2, "0")}`}</td>
               </tr>
