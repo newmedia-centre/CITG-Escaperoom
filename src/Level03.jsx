@@ -127,8 +127,14 @@ export const Level03 = forwardRef((props, ref) => {
       setGameWon(true)
     }
     else if (solutionEntered === 4) {
-      takeLive()
-      resetLevel()
+      // takeLive()
+
+      const fn = (e) => {
+        resetLevel()
+      }
+
+      window.addEventListener('click', fn)
+      return () => window.removeEventListener('click', fn)
     }
   }, [solutionEntered, puzzleSolved])
 
@@ -300,7 +306,7 @@ function PuzzleSlot({ position, puzzleId, video, showPuzzle }) {
         <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.05} position={[0.16, 0.01, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
           {puzzleId}
         </Text>
-        <Plane args={size2D} rotation={[-Math.PI / 2, 0, 0]}>
+        <Plane args={size2D} visible={false} rotation={[-Math.PI / 2, 0, 0]}>
           <meshStandardMaterial map={puzzleTexture} />
         </Plane>
       </Box>

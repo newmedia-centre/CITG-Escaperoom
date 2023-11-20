@@ -187,7 +187,7 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
 
             <a.mesh {...spring} {...bind()}>
                 <boxBufferGeometry />
-                <a.meshBasicMaterial visible={puzzle?.showPuzzle[puzzleId] ? puzzle.showPuzzle[puzzleId] : false} transparent={true} map={puzzleTexture} />
+                <a.meshBasicMaterial visible={true} transparent={true} map={puzzleTexture} />
             </a.mesh >
             <a.mesh {...spring}>
                 <boxBufferGeometry />
