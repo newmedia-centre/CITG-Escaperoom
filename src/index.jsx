@@ -27,6 +27,7 @@ function App() {
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
   const [showHintPopup, setShowHintPopup] = useState(false)
+  const [geoLock, setGeoLock] = useState(false)
   const [speed, setSpeed] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(5400)
   const [playerID, setPlayerID] = useState(localStorage.getItem('player') ?? '')
@@ -60,7 +61,7 @@ function App() {
 
     if (lives === 0) {
       setGameOver(true)
-      setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives, lost: true } }))
+      setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives, Lost: true, Penalty: 100, EndTime: Date.now() } }))
       return
     }
     setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives } }))
@@ -123,7 +124,7 @@ function App() {
     const get = async () => {
       const token = await DatabaseClient.auth().catch(() => setPlayerState(null))
       const state = await DatabaseClient.read(playerID, token).catch(() => setPlayerState(null))
-      setPlayerState(state === undefined ? null : state)
+      setPlayerState(state === undefined ? null : (state[`Level${currentLevel + 1}`] ? state : { ...state, [`Level${currentLevel + 1}`]: { StartTime: Date.now(), lives: 3, usedHints: 0 } }))
 
       if (state && state[`Level${currentLevel + 1}`]?.Won) {
         setGameWon(true)
@@ -140,23 +141,30 @@ function App() {
       })
     }
 
-    get()
-  }, [playerID])
+    // check geolocation
+    const skipGeo = new URLSearchParams(window.location.search).get('skipgeo')
+    if (!skipGeo) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const citgLat = 51.999
+        const citgLon = 4.376
 
-  // Set StartTime to player state inside the current level object
-  useEffect(() => {
-    if (!playerState) return
-
-    setPlayerState(prev => {
-      if (!prev[`Level${currentLevel + 1}`]) {
-        return {
-          ...prev, [`Level${currentLevel + 1}`]: { StartTime: Date.now(), lives: 3, usedHints: 0 }
+        if ((Math.abs(citgLat - pos.coords.latitude) < 0.002) && (Math.abs(citgLon - pos.coords.longitude) < 0.002)) {
+          setGeoLock(false)
+        } else {
+          setGeoLock(true)
         }
-      }
 
-      return prev
-    })
-  }, [currentLevel, playerState])
+      }, e => {
+        console.error(e)
+        setGeoLock(true)
+      }, {
+        timeout: 10000,
+        maximumAge: 0
+      })
+    }
+
+    get()
+  }, [playerID, currentLevel])
 
   useEffect(() => {
     if (!playerState) return
@@ -179,26 +187,7 @@ function App() {
 
   // handle all games won or lost or finished
   useEffect(() => {
-    if (playerState?.Won || playerState?.Lost || playerState?.Finished) return
-
-    if (playerState?.Level1?.Won && playerState?.Level2?.Won && playerState?.Level3?.Won && playerState?.Level4?.Won) {
-      setPlayerState(prev => ({
-        ...prev,
-        Won: true,
-        EndTime: Date.now(),
-        Penalty: (playerState?.Level1?.Penalty ?? 1000) + (playerState?.Level2?.Penalty ?? 1000) + (playerState?.Level3?.Penalty ?? 1000) + (playerState?.Level4?.Penalty ?? 1000)
-      }))
-      return
-    }
-
-    if (playerState?.Level1?.Lost && playerState?.Level2?.Lost && playerState?.Level3?.Lost && playerState?.Level4?.Lost) {
-      setPlayerState(prev => ({
-        ...prev,
-        Lost: true,
-        EndTime: Date.now()
-      }))
-      return
-    }
+    if (playerState?.Finished) return
 
     if (
       (playerState?.Level1?.Lost || playerState?.Level1?.Won) &&
@@ -208,7 +197,8 @@ function App() {
       setPlayerState(prev => ({
         ...prev,
         Finished: true,
-        EndTime: Date.now()
+        EndTime: Date.now(),
+        Penalty: (playerState?.Level1?.Penalty ?? 100) + (playerState?.Level2?.Penalty ?? 100) + (playerState?.Level3?.Penalty ?? 100) + (playerState?.Level4?.Penalty ?? 100)
       }))
       return
     }
@@ -217,17 +207,18 @@ function App() {
   // Game over when time runs out
   useEffect(() => {
     if (!playerState) return
+    if (playerState.Won || playerState.Lost || playerState.Finished) return
 
-    if (playerState.StartTime + totalTimeInMilliseconds < Date.now() && !playerState.Won) {
+    if (playerState.StartTime + totalTimeInMilliseconds < Date.now()) {
       setGameOver(true)
-      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Lost: true }))
+      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Finished: true }))
     }
   }, [playerState])
 
   // Update database on state change
   useEffect(() => {
     const update = async () => {
-      const token = await DatabaseClient.auth().catch(() => setPlayerState(null))
+      const token = await DatabaseClient.auth()
       await DatabaseClient.update(playerID, playerState, token)
     }
 
@@ -251,9 +242,48 @@ function App() {
     return (<div style={{ padding: '16px' }}>Loading...</div>)
   }
 
-  if (playerState?.Won) return (
-    <FinishedWinScreen onRetry={retry} currentLevel={currentLevel} penalty={playerState.Penalty} />
+  if (playerState?.Finished) return (
+    <FinishedWinScreen penalty={playerState.Penalty} playerID={playerID} />
   )
+
+  // clear playerstate with the clear url
+  const clear = new URLSearchParams(window.location.search).get('clear')
+  if (clear) {
+    console.log('should clear')
+    localStorage.removeItem('player')
+    window.location.href = '/'
+  }
+
+  // show locked screen when levels are loaded in wrong order
+  switch (currentLevel) {
+    case 1:
+      if (!playerState?.Level1) {
+        return (
+          <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
+        )
+      }
+      break;
+    case 2:
+      if (!playerState?.Level1 || !playerState?.Level2) {
+        return (
+          <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
+        )
+      }
+      break;
+    case 3:
+      if (!playerState?.Level1 || !playerState?.Level2 || !playerState?.Level3) {
+        return (
+          <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
+        )
+      }
+      break;
+  }
+
+  if (geoLock) {
+    return (
+      <LockedScreen text='Je moet je op de juiste locatie bevinden om dit level te kunnen spelen' />
+    )
+  }
 
   return (
     <>
@@ -278,7 +308,8 @@ function App() {
           >
             <Card variant="soft" sx={{
               m: 2,
-              overflowY: 'scroll'
+              overflowY: 'scroll',
+              paddingBottom: '64px'
             }}>
               <Typography level="h1">Welkom!</Typography>
               <Typography level="h3">Team van toegewijde civieltechnici, bij deze Dynamica escape room!</Typography>
@@ -545,6 +576,37 @@ function App() {
   )
 }
 
+function LockedScreen({ text }) {
+  return (
+    <Stack spacing={2}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        bgcolor: 'rgba(0, 0, 0, 0.7)',
+        zIndex: 10000,
+        userSelect: 'none'
+      }}
+    >
+      <Card color="neutral" sx={{
+        backgroundColor: 'rgba(22, 22, 22, 1)',
+        p: 2,
+        textAlign: 'center',
+        color: "gray"
+      }}>
+        <Typography level="h2" color="danger">Level niet beschikbaar</Typography>
+        <Typography level="body-md">{text}</Typography>
+      </Card>
+    </Stack>
+  )
+}
+
 function GameOverScreen({ onRetry, currentLevel }) {
   return (
     <Stack spacing={2}
@@ -569,7 +631,7 @@ function GameOverScreen({ onRetry, currentLevel }) {
         textAlign: 'center',
         color: "gray"
       }}>
-        <Typography level="h2" color="danger">Game Over</Typography>
+        <Typography level="h2" color="danger">Geen pogingen over</Typography>
         <Typography level="body-md">{gameMessages.messages[currentLevel]?.lose}</Typography>
         <Typography level="body-md">{gameMessages.messages[currentLevel]?.instruction}</Typography>
       </Card>
@@ -611,9 +673,10 @@ function WinScreen({ onRetry, currentLevel }) {
   );
 }
 
-function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
+function FinishedWinScreen({ penalty, won, playerID }) {
 
   const [leaderboard, setLeaderboard] = useState([])
+  const [playerIndex, setPlayerIndex] = useState(0)
 
   useEffect(() => {
     const get = async () => {
@@ -621,13 +684,26 @@ function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
       const token = await DatabaseClient.auth().catch(e => console.error(e))
       const data = await DatabaseClient.leaderboard(token)
 
-      data.sort((a, b) => b.Penalty - a.Penalty).splice(10)
+      // sort data
+      data.sort((a, b) => a.Penalty - b.Penalty || (a.EndTime - a.StartTime) - (b.EndTime - b.StartTime))
+
+      // get player
+      const playerIndex = data.findIndex(x => x.id === playerID)
+      const player = data[playerIndex]
+
+      // shrink to top 10 only
+      data.splice(10)
+
+      if (!data.includes(player)) {
+        data.push(player)
+      }
 
       setLeaderboard(data)
+      setPlayerIndex(playerIndex)
     }
 
     get()
-  }, [])
+  }, [playerID])
 
   return (
     <Stack spacing={2}
@@ -646,15 +722,14 @@ function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
         userSelect: 'none',
       }}
     >
-      <ConfettiExplosion particleCount={200} duration={4000} />
-
+      <ConfettiExplosion particleCount={400 - penalty} duration={4000} />
       <Card color="neutral" sx={{
         backgroundColor: 'rgba(22, 22, 22, 1)',
         p: 2,
         textAlign: 'center',
         color: "gray"
       }}>
-        <Typography level="h2" color="success">Je bent klaar! Je hebt de game afgerond met een score van {penalty} strafpunten!</Typography>
+        <Typography level="h2" color="success">Je bent klaar! Je hebt de game afgerond met een score van {400 - penalty}</Typography>
       </Card>
       <Card color="neutral" sx={{
         backgroundColor: 'rgba(22, 22, 22, 1)',
@@ -665,16 +740,18 @@ function FinishedWinScreen({ onRetry, currentLevel, penalty }) {
         <table width={500}>
           <thead style={{ color: '#fff' }}>
             <tr>
+              <th align="left">#</th>
               <th align="left">Team</th>
-              <th align="right">Penalty</th>
+              <th align="right">Score</th>
               <th align="right">Tijd</th>
             </tr>
           </thead>
           <tbody>
             {leaderboard.map((row, index) => (
-              <tr key={index}>
+              <tr key={index} style={{ color: row.id === playerID ? 'white' : 'gray' }}>
+                <td align="left">{row.id === playerID ? playerIndex + 1 : index + 1}</td>
                 <td align="left">{row.id}</td>
-                <td align="right">{row.Penalty}</td>
+                <td align="right">{400 - row.Penalty}</td>
                 <td align="right">{`${String(Math.floor(((row.EndTime - row.StartTime) / 1000) / 60)).padStart(2, "0")}:${String(Math.floor(((row.EndTime - row.StartTime) / 1000) % 60)).padStart(2, "0")}`}</td>
               </tr>
             ))}

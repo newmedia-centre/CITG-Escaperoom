@@ -36,9 +36,25 @@ export const Level03 = forwardRef((props, ref) => {
   const cameraControlsRef = useRef()
   const tableRef = useRef()
   const puzzleSlotViewRef = useRef()
+  const puzzle00Ref = useRef()
+  const puzzle01Ref = useRef()
+  const puzzle02Ref = useRef()
+  const puzzle03Ref = useRef()
 
   const resetLevel = () => {
-    // TODO: Resetlevel
+    setSolutionEntered(0)
+    setPuzzleSolved(0)
+    Object.keys(puzzles.showPuzzle).forEach(key => {
+      puzzles.showPuzzle[key] = false
+      puzzles.showVector[key] = false
+      puzzles.puzzleInPlace = 0
+      puzzles.puzzleId = -1
+    })
+    changeCamera("ground")
+    puzzle00Ref?.current.resetLevel()
+    puzzle01Ref?.current.resetLevel()
+    puzzle02Ref?.current.resetLevel()
+    puzzle03Ref?.current.resetLevel()
   }
 
   const takeLive = () => {
@@ -96,10 +112,31 @@ export const Level03 = forwardRef((props, ref) => {
 
   useEffect(() => {
     changeCamera("ground")
-    if (resetGame) {
-      setResetGame(false)
-    }
   }, [])
+
+  useEffect(() => {
+    if (selectedObject?.name) {
+      changeCamera(selectedObject.name)
+    }
+  }, [selectedObject])
+
+  useEffect(() => {
+    changeCamera("puzzletable")
+
+    if (solutionEntered === 4 && puzzleSolved === 4) {
+      setGameWon(true)
+    }
+    else if (solutionEntered === 4) {
+      takeLive()
+
+      const fn = (e) => {
+        resetLevel()
+      }
+
+      window.addEventListener('click', fn)
+      return () => window.removeEventListener('click', fn)
+    }
+  }, [solutionEntered, puzzleSolved])
 
   useEffect(() => {
     setPuzzle(prev => {
@@ -149,11 +186,11 @@ export const Level03 = forwardRef((props, ref) => {
           </Text3D>
 
         </Center>
-        <Box ref={puzzleSlotViewRef} args={[2, 2, 2]} position={[0, 0, 0.5]} visible={false} onClick={() => changeCamera("puzzletable")} />
+        <Box ref={puzzleSlotViewRef} args={[2, 2, 2]} position={[0, 0, 0.5]} visible={false} />
         <Box ref={tableRef} args={[3.5, 3.5, 3.5]} position={[0, 0, 0]} visible={false} />
 
         <group name="Pieces" position={[0.193, 0.871, -0.505]}>
-          <PuzzlePiece puzzleId={0} position={[0.221, 0.013, 0.217]} video="videos/Puzzle_0"
+          <PuzzlePiece ref={puzzle00Ref} puzzleId={0} position={[0.221, 0.013, 0.217]} video="videos/Puzzle_0"
             setPuzzle={() => setPuzzle(prev => ({
               ...prev,
               puzzleInPlace: puzzles.puzzleInPlace + 1,
@@ -161,8 +198,8 @@ export const Level03 = forwardRef((props, ref) => {
             }))}
             puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.22, 0, -0.25]} takeLive={takeLive} />
-          <PuzzlePiece puzzleId={1} position={[-0.221, 0.013, 0.217]} video="videos/Puzzle_1"
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.22, 0, -0.25]} />
+          <PuzzlePiece ref={puzzle01Ref} puzzleId={1} position={[-0.221, 0.013, 0.217]} video="videos/Puzzle_1"
             setPuzzle={() => setPuzzle(prev => ({
               ...prev,
               puzzleInPlace: puzzles.puzzleInPlace + 1,
@@ -170,8 +207,8 @@ export const Level03 = forwardRef((props, ref) => {
             }))}
             puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.40, 0, -0.4]} takeLive={takeLive} />
-          <PuzzlePiece puzzleId={2} position={[-0.221, 0.013, -0.217]} video="videos/Puzzle_2"
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.40, 0, -0.4]} />
+          <PuzzlePiece ref={puzzle02Ref} puzzleId={2} position={[-0.221, 0.013, -0.217]} video="videos/Puzzle_2"
             setPuzzle={() => setPuzzle(prev => ({
               ...prev,
               puzzleInPlace: puzzles.puzzleInPlace + 1,
@@ -179,8 +216,8 @@ export const Level03 = forwardRef((props, ref) => {
             }))}
             puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.33, 0, -0.39]} takeLive={takeLive} />
-          <PuzzlePiece puzzleId={3} position={[0.221, 0.013, -0.217]} video="videos/Puzzle_3"
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[-0.33, 0, -0.39]} />
+          <PuzzlePiece ref={puzzle03Ref} puzzleId={3} position={[0.221, 0.013, -0.217]} video="videos/Puzzle_3"
             setPuzzle={() => setPuzzle(prev => ({
               ...prev,
               puzzleInPlace: puzzles.puzzleInPlace + 1,
@@ -188,7 +225,7 @@ export const Level03 = forwardRef((props, ref) => {
             }))}
             puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.265, 0, 0.12]} takeLive={takeLive} />
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.265, 0, 0.12]} />
           <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} video="videos/Puzzle_0" />
           <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} video="videos/Puzzle_1" />
           <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} video="videos/Puzzle_2" />
@@ -269,7 +306,7 @@ function PuzzleSlot({ position, puzzleId, video, showPuzzle }) {
         <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.05} position={[0.16, 0.01, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
           {puzzleId}
         </Text>
-        <Plane args={size2D} rotation={[-Math.PI / 2, 0, 0]}>
+        <Plane args={size2D} visible={false} rotation={[-Math.PI / 2, 0, 0]}>
           <meshStandardMaterial map={puzzleTexture} />
         </Plane>
       </Box>

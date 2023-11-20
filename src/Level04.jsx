@@ -14,7 +14,6 @@ import { Vector3 } from "three"
 import { useControls } from "leva"
 import React, { useEffect, useRef, forwardRef, useImperativeHandle, useState, useTransition } from "react"
 import { Level04Model } from "../public/models/gltfjsx/Level04Model"
-import { useSpring, animated, easings } from '@react-spring/three'
 import JSONPretty from 'react-json-pretty'
 
 export const Level04 = forwardRef((props, ref) => {
