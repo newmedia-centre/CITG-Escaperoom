@@ -60,7 +60,7 @@ function App() {
 
     if (lives === 0) {
       setGameOver(true)
-      setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives, lost: true } }))
+      setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives, lost: true, Penalty: 100 } }))
       return
     }
     setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives } }))
@@ -164,26 +164,7 @@ function App() {
 
   // handle all games won or lost or finished
   useEffect(() => {
-    if (playerState?.Won || playerState?.Lost || playerState?.Finished) return
-
-    if (playerState?.Level1?.Won && playerState?.Level2?.Won && playerState?.Level3?.Won && playerState?.Level4?.Won) {
-      setPlayerState(prev => ({
-        ...prev,
-        Won: true,
-        EndTime: Date.now(),
-        Penalty: (playerState?.Level1?.Penalty ?? 1000) + (playerState?.Level2?.Penalty ?? 1000) + (playerState?.Level3?.Penalty ?? 1000) + (playerState?.Level4?.Penalty ?? 1000)
-      }))
-      return
-    }
-
-    if (playerState?.Level1?.Lost && playerState?.Level2?.Lost && playerState?.Level3?.Lost && playerState?.Level4?.Lost) {
-      setPlayerState(prev => ({
-        ...prev,
-        Lost: true,
-        EndTime: Date.now()
-      }))
-      return
-    }
+    if (playerState?.Finished) return
 
     if (
       (playerState?.Level1?.Lost || playerState?.Level1?.Won) &&
@@ -193,7 +174,8 @@ function App() {
       setPlayerState(prev => ({
         ...prev,
         Finished: true,
-        EndTime: Date.now()
+        EndTime: Date.now(),
+        Penalty: (playerState?.Level1?.Penalty ?? 100) + (playerState?.Level2?.Penalty ?? 100) + (playerState?.Level3?.Penalty ?? 100) + (playerState?.Level4?.Penalty ?? 100)
       }))
       return
     }
@@ -206,7 +188,7 @@ function App() {
 
     if (playerState.StartTime + totalTimeInMilliseconds < Date.now()) {
       setGameOver(true)
-      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Lost: true }))
+      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Finished: true }))
     }
   }, [playerState])
 
@@ -237,9 +219,39 @@ function App() {
     return (<div style={{ padding: '16px' }}>Loading...</div>)
   }
 
-  if (playerState?.Won || playerState?.Lost) return (
-    <FinishedWinScreen penalty={playerState.Penalty} won={!!playerState?.Won} />
+  if (playerState?.Finished) return (
+    <FinishedWinScreen penalty={playerState.Penalty} playerID={playerID} />
   )
+
+  // clear playerstate with the clear url
+  const clear = new URLSearchParams(window.location.search).get('clear')
+  if (clear) {
+    console.log('should clear')
+    localStorage.removeItem('player')
+    window.location.href = '/'
+  }
+
+  // show locked screen when levels are loaded in wrong order
+  switch (currentLevel) {
+    case 1:
+      if (!playerState?.Level1) {
+        return (
+          <LockedScreen />
+        )
+      }
+    case 2:
+      if (!playerState?.Level1 || !playerState?.Level2) {
+        return (
+          <LockedScreen />
+        )
+      }
+    case 3:
+      if (!playerState?.Level1 || !playerState?.Level2, !playerState?.Level3) {
+        return (
+          <LockedScreen />
+        )
+      }
+  }
 
   return (
     <>
@@ -531,6 +543,37 @@ function App() {
   )
 }
 
+function LockedScreen() {
+  return (
+    <Stack spacing={2}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        bgcolor: 'rgba(0, 0, 0, 0.7)',
+        zIndex: 10000,
+        userSelect: 'none'
+      }}
+    >
+      <Card color="neutral" sx={{
+        backgroundColor: 'rgba(22, 22, 22, 1)',
+        p: 2,
+        textAlign: 'center',
+        color: "gray"
+      }}>
+        <Typography level="h2" color="danger">Level niet beschikbaar</Typography>
+        <Typography level="body-md">Je moet eerst het vorige level afronden voordat je dit level kunt spelen</Typography>
+      </Card>
+    </Stack>
+  )
+}
+
 function GameOverScreen({ onRetry, currentLevel }) {
   return (
     <Stack spacing={2}
@@ -597,9 +640,10 @@ function WinScreen({ onRetry, currentLevel }) {
   );
 }
 
-function FinishedWinScreen({ penalty, won }) {
+function FinishedWinScreen({ penalty, won, playerID }) {
 
   const [leaderboard, setLeaderboard] = useState([])
+  const [playerIndex, setPlayerIndex] = useState(0)
 
   useEffect(() => {
     const get = async () => {
@@ -607,13 +651,26 @@ function FinishedWinScreen({ penalty, won }) {
       const token = await DatabaseClient.auth().catch(e => console.error(e))
       const data = await DatabaseClient.leaderboard(token)
 
-      data.sort((a, b) => b.Penalty - a.Penalty).splice(10)
+      // sort data
+      data.sort((a, b) => a.Penalty - b.Penalty || (a.EndTime - a.StartTime) - (b.EndTime - b.StartTime))
+
+      // get player
+      const playerIndex = data.findIndex(x => x.id === playerID)
+      const player = data[playerIndex]
+
+      // shrink to top 10 only
+      data.splice(10)
+
+      if (!data.includes(player)) {
+        data.push(player)
+      }
 
       setLeaderboard(data)
+      setPlayerIndex(playerIndex)
     }
 
     get()
-  }, [])
+  }, [playerID])
 
   return (
     <Stack spacing={2}
@@ -632,21 +689,14 @@ function FinishedWinScreen({ penalty, won }) {
         userSelect: 'none',
       }}
     >
-      {won && (
-        <ConfettiExplosion particleCount={200} duration={4000} />
-      )}
-
+      <ConfettiExplosion particleCount={400 - penalty} duration={4000} />
       <Card color="neutral" sx={{
         backgroundColor: 'rgba(22, 22, 22, 1)',
         p: 2,
         textAlign: 'center',
         color: "gray"
       }}>
-        {won ? (
-          <Typography level="h2" color="success">Je bent klaar! Je hebt de game afgerond met een score van {penalty} strafpunten!</Typography>
-        ) : (
-          <Typography level="h2" color="danger">Game Over</Typography>
-        )}
+        <Typography level="h2" color="success">Je bent klaar! Je hebt de game afgerond met een score van {400 - penalty}</Typography>
       </Card>
       <Card color="neutral" sx={{
         backgroundColor: 'rgba(22, 22, 22, 1)',
@@ -657,16 +707,18 @@ function FinishedWinScreen({ penalty, won }) {
         <table width={500}>
           <thead style={{ color: '#fff' }}>
             <tr>
+              <th align="left">#</th>
               <th align="left">Team</th>
-              <th align="right">Penalty</th>
+              <th align="right">Score</th>
               <th align="right">Tijd</th>
             </tr>
           </thead>
           <tbody>
             {leaderboard.map((row, index) => (
-              <tr key={index}>
+              <tr key={index} style={{ color: row.id === playerID ? 'white' : 'gray' }}>
+                <td align="left">{row.id === playerID ? playerIndex + 1 : index + 1}</td>
                 <td align="left">{row.id}</td>
-                <td align="right">{row.Penalty}</td>
+                <td align="right">{400 - row.Penalty}</td>
                 <td align="right">{`${String(Math.floor(((row.EndTime - row.StartTime) / 1000) / 60)).padStart(2, "0")}:${String(Math.floor(((row.EndTime - row.StartTime) / 1000) % 60)).padStart(2, "0")}`}</td>
               </tr>
             ))}

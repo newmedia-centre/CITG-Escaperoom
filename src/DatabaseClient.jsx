@@ -92,9 +92,46 @@ export const remove = async (user, token) => { // user = unique id, data = seria
 } // returns bool
 
 export const leaderboard = async (token) => {
+    // check for stale leaderboard data
+    const allResponse = await fetch(import.meta.env.VITE_DB_SITE + '/project/citg-er/data', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
+    })
+    const allData = await allResponse.json()
+    const totalTimeInMilliseconds = 90 * 60 * 1000
+
+    // update stale data
+    await Promise.all(allData.map(async (data) => {
+        if (!data.Won && !data.Lost && !data.Finished) {
+            if (data.StartTime + totalTimeInMilliseconds < Date.now()) {
+                await fetch(import.meta.env.VITE_DB_SITE + '/project/citg-er/data', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        filter: {
+                            id: data.id
+                        },
+                        data: {
+                            ...data,
+                            EndTime: data.StartTime + totalTimeInMilliseconds,
+                            Finished: true
+                        }
+                    }),
+                })
+            }
+        }
+    }))
+
+    // get the leaderboard data to show
     const response = await fetch(import.meta.env.VITE_DB_SITE + '/project/citg-er/data?' + new URLSearchParams({
         filter: JSON.stringify({
-            Won: true
+            Finished: true
         }),
     }), {
         method: 'GET',
@@ -103,6 +140,9 @@ export const leaderboard = async (token) => {
             'Authorization': 'Bearer ' + token
         }
     })
+
+    // update stale leaderboard data
+
 
     // return the data
     const data = await response.json()
