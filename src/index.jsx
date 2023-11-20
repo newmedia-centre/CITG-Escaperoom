@@ -262,18 +262,21 @@ function App() {
           <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
         )
       }
+      break;
     case 2:
       if (!playerState?.Level1 || !playerState?.Level2) {
         return (
           <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
         )
       }
+      break;
     case 3:
       if (!playerState?.Level1 || !playerState?.Level2 || !playerState?.Level3) {
         return (
           <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
         )
       }
+      break;
   }
 
   if (geoLock) {
