@@ -37,8 +37,8 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     onCollide: (e) => handleCollision(e, "cannonBall")
   }))
   const [targetRef] = useBox(() => ({
-    args: [0.3, 0.3, 0.3],
-    position: [-2, 2, 2.75],
+    args: [0.15, 0.15, 0.15],
+    position: [-2.3, 2, 2.75],
     type: "Kinematic",
     onCollide: (e) => handleCollision(e, "target")
   }))
@@ -113,7 +113,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
       hitHandled = false
 
-      cannonBallApi.mass.set(0.015)
+      cannonBallApi.mass.set(0.0155)
       const cannonPosition = cannonRef.current.getWorldPosition(new THREE.Vector3())
       const cannonRotation = cannonRef.current.getWorldQuaternion(new THREE.Quaternion())
 
