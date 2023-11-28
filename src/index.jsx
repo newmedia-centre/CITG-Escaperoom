@@ -34,6 +34,7 @@ function App() {
   const [playerState, setPlayerState] = useState()
   const [playerIDInput, setPlayerIDInput] = useState('')
   const [animationProgress, setAnimationProgress] = useState(0)
+  const [welcomeScreen, setWelcomeScreen] = useState(true)
 
   const level02Ref = useRef()
   const level04Ref = useRef()
@@ -380,6 +381,7 @@ function App() {
               bottom: '4px',
               right: '0',
               zIndex: 20000,
+              userSelect: 'none',
             }}>
               <Card sx={{
                 padding: '8px',
@@ -405,6 +407,7 @@ function App() {
                   bottom: '38px',
                   right: '20px',
                   pr: 1.4,
+                  userSelect: 'none',
                 }}>
                 <QuestionMark />
                 Hints
@@ -495,15 +498,49 @@ function App() {
               </Stack>
             )}
             {currentLevel === 3 && (
-              <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
-                position: 'absolute',
-                m: 1,
-                bottom: '32px',
-                left: '0',
-                zIndex: 10000,
-              }}>
-                <Button onClick={() => level04Ref.current.play()}>Duw boot</Button>
-              </Stack>
+              <>
+                {/* Only render when welcomescreen is true */}
+                {welcomeScreen &&
+                  <Card variant="outlined" sx={
+                    // Move to middle of screen
+                    {
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '80%',
+                      maxWidth: '600px',
+                      transition: 'opacity 1s ease-in-out',
+                      zIndex: 100000,
+                      position: 'absolute',
+                    }}>
+                    <Typography level="title-md" sx={{ textAlign: 'center', mb: 1 }}>
+                      Welkom bij de laatste puzzel!
+                    </Typography>
+                    <Typography level="body-md" sx={{ mb: 1 }}>
+                      In deze puzzel moeten jullie een boot naar de overkant bij EWI duwen. Jullie moeten hiervoor eerst een ondergrond materiaal uitkiezen waarbij jullie denken dat de boot voor het EWI gebouw terecht komt. Daarna moeten jullie de boot duwen door op de knop te drukken. Als de boot voor het EWI gebouw terecht komt, dan hebben jullie de puzzel opgelost.
+                    </Typography>
+
+                    <IconButton onClick={() => setWelcomeScreen(false)} color="danger" size="sm" sx={{
+                      position: 'absolute',
+                      top: '0',
+                      right: '0',
+                      m: 1,
+                      mt: 0.4,
+                    }}>
+                      <Close />
+                    </IconButton>
+                  </ Card >
+                }
+                <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
+                  position: 'absolute',
+                  m: 1,
+                  bottom: '32px',
+                  left: '0',
+                  zIndex: 10000,
+                }}>
+                  <Button onClick={() => level04Ref.current.play()}>Duw boot</Button>
+                </Stack>
+              </>
             )}
           </>
         ) : gameWon ? ( // If game is won show win screen
@@ -845,7 +882,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
   const text = useMemo(() => {
     if (unlockedHints < 1)
       return <Typography level="title-md">
-        Press unlock to unlock a hint.
+        Druk op de knop 'Nieuwe Hint' om een hint te verkrijgen.
       </Typography>
 
     return <Typography sx={{ whiteSpace: 'pre-line' }} level="title-md">
@@ -871,9 +908,9 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
         orientation="horizontal"
         size="sm"
         variant="soft">
-        <Button onClick={previous} disabled={currentHintIndex === 0}>Previous</Button>
-        <Button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Next</Button>
-        <Button onClick={unlock} disabled={unlockedHints > 4}>Unlock Hint</Button>
+        <Button onClick={previous} disabled={currentHintIndex === 0}>Vorige</Button>
+        <Button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Volgende</Button>
+        <Button onClick={unlock} disabled={unlockedHints > 4}>Nieuwe Hint</Button>
       </ButtonGroup>
       <IconButton color="danger" onClick={() => setShowHintPopup(false)} size="sm" sx={{
         position: 'absolute',

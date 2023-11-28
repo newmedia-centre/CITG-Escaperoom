@@ -7,13 +7,14 @@ import {
   PerformanceMonitor,
   CameraControls,
   ContactShadows,
-
 } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { Vector3 } from "three"
 import { useControls } from "leva"
 import React, { useEffect, useRef, forwardRef, useImperativeHandle, useState, useTransition } from "react"
 import { Level04Model } from "../public/models/gltfjsx/Level04Model"
+import { Typography, IconButton, Card } from "@mui/joy";
+import { Close } from "@mui/icons-material";
 import JSONPretty from 'react-json-pretty'
 
 export const Level04 = forwardRef((props, ref) => {
@@ -44,7 +45,7 @@ export const Level04 = forwardRef((props, ref) => {
       case "default":
         setCamControls(true)
         setCameraFollowing({})
-        cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, true)
+        cameraControlsRef.current?.setLookAt(-17, -20, 38.45, -19, -20, 38.45, true)
         break;
       case "materials":
         setCamControls(true)
@@ -146,17 +147,6 @@ export const Level04 = forwardRef((props, ref) => {
           resetLevel={resetLevel}
         />
       </Center>
-
-      {/* 
-      Acceleratie: 2
-      Mgroep: 200
-      Mboot: 5
-      Low 1: 0.2133186217
-      Correct: 0.2143286547
-      High 2: 0.3153386877
-      High 1: 0.4123188197
-      
-      */}
 
       <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
         <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />
