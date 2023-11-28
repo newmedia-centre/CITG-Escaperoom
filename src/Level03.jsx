@@ -304,7 +304,7 @@ function PuzzleSlot({ position, puzzleId, video, showPuzzle }) {
       <Box args={size3D} position={position} ref={physicsRef} name={puzzleId} userData={{ index }}>
         <meshBasicMaterial visible={false} />
         <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.05} position={[0.16, 0.01, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
-          {puzzleId}
+          {puzzleId + 1}
         </Text>
         <Plane args={size2D} visible={false} rotation={[-Math.PI / 2, 0, 0]}>
           <meshStandardMaterial map={puzzleTexture} />

@@ -181,7 +181,7 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
         <>
             <a.group position={spring.position} rotation={spring.rotation}>
                 <Text anchorX={"center"} anchorY={"middle"} color={"red"} fontSize={0.05} position={[0.16, 0.03, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
-                    {puzzleId}
+                    {puzzleId + 1}
                 </Text>
             </a.group>
 

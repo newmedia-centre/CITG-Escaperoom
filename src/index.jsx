@@ -837,6 +837,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
           ...prev, [`Level${currentLevel + 1}`]: level
         }
       })
+      setCurrentHintIndex(unlockedHints)
     }
   }
 
