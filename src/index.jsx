@@ -45,9 +45,9 @@ function App() {
     switch (urlLevel) {
       case 'wjaejhjc':
         return 0;
-      case 'uijyaqlq':
-        return 1;
       case 'jjsnavux':
+        return 1;
+      case 'uijyaqlq':
         return 2;
       case 'dweqiufh':
         return 3;
@@ -385,10 +385,18 @@ function App() {
                 padding: '8px',
                 position: 'absolute',
                 bottom: '38px',
-                right: '102px',
+                right: '202px',
                 pr: 1.4,
               }}>
                 <Typography>Pogingen: {lives}</Typography>
+              </Card>
+              <Card sx={{
+                padding: '8px',
+                position: 'absolute',
+                bottom: '38px',
+                right: '102px',
+                pr: 1.4,
+              }}>
                 <Typography>Penalty: {(3 - lives) * 20 + (playerState && playerState[`Level${currentLevel + 1}`]?.usedHints || 0) * 10}</Typography>
               </Card>
               <IconButton variant="solid" color="warning" aria-label="Open in new tab" onClick={() => setShowHintPopup(!showHintPopup)}
@@ -423,8 +431,6 @@ function App() {
                 position: 'absolute',
                 bottom: '94px',
                 left: '12px',
-                userSelect: 'none',
-                userEvents: 'none',
                 zIndex: 10000,
               }}>
                 {/* Left Panel */}
@@ -434,8 +440,6 @@ function App() {
                     boxShadow: 2,
                     opacity: 0.95,
                     backgroundColor: '#181c20',
-                    userSelect: 'none',
-                    userEvents: 'none',
                   }}
                 >
                   <Button onClick={() => {
@@ -446,8 +450,6 @@ function App() {
                 {/* Right Panel */}
                 <Stack direction="column" spacing={1} justifyContent="center" p={1}
                   sx={{
-                    userSelect: 'none',
-                    userEvents: 'none',
                     borderRadius: 2,
                     boxShadow: 2,
                     opacity: 0.95,
@@ -456,7 +458,7 @@ function App() {
                 >
                   <GaugeComponent
                     style={{
-                      width: '240px',
+                      width: '50vw',
                     }}
                     type="semicircle"
                     value={speed}
@@ -564,7 +566,7 @@ function App() {
         </Suspense>
       </Canvas>
       <div id="info-box">
-        <div id="comment">
+        <div id="comment" style={{ userSelect: "none" }}>
           <div style={{ marginBottom: 4 }}>
             Built by — <img src="/xrzone-16x16.png" /> Zone
           </div>

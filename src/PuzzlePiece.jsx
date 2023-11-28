@@ -155,8 +155,8 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
                 // Calculate the distance between the solution and the input
                 var distance = inputRef.current?.position.distanceTo(solutionRef.current?.position);
 
-                // If the distance is less than 0.08, the puzzle is solved
-                if (distance < 0.08) {
+                // If the distance is less than x the puzzle is solved
+                if (distance < 0.1) {
                     setPuzzleSolved();
                     setSolutionEntered();
                     setSolutionEnteredInt(true);
@@ -180,7 +180,7 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
     return (
         <>
             <a.group position={spring.position} rotation={spring.rotation}>
-                <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.05} position={[0.16, 0.03, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
+                <Text anchorX={"center"} anchorY={"middle"} color={"red"} fontSize={0.05} position={[0.16, 0.03, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
                     {puzzleId}
                 </Text>
             </a.group>
