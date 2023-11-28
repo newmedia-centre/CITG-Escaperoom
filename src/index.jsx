@@ -256,21 +256,21 @@ function App() {
 
   // show locked screen when levels are loaded in wrong order
   switch (currentLevel) {
-    case 1:
-      if (!playerState?.Level1) {
-        return (
-          <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
-        )
-      }
-      break;
-    case 2:
+    case 1: // Puzzle piece level
       if (!playerState?.Level1 || !playerState?.Level2) {
         return (
           <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
         )
       }
       break;
-    case 3:
+    case 2: // Pulley level
+      if (!playerState?.Level1) {
+        return (
+          <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
+        )
+      }
+      break;
+    case 3: // Boat level
       if (!playerState?.Level1 || !playerState?.Level2 || !playerState?.Level3) {
         return (
           <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
