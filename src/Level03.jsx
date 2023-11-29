@@ -69,9 +69,7 @@ export const Level03 = forwardRef((props, ref) => {
       case "puzzleslots":
         setCamControls(true)
         cameraControlsRef.current?.setLookAt(.2, 3, 0, 0, .1, 0, false)
-        cameraControlsRef.current?.fitToBox(puzzleSlotViewRef.current, false, {
-          cover: true,
-        })
+        cameraControlsRef.current?.fitToBox(puzzleSlotViewRef.current, false)
         setTimeout(() => {
           setCamControls(false)
         }, 20) // Wait for camera to move in place
@@ -186,7 +184,7 @@ export const Level03 = forwardRef((props, ref) => {
           </Text3D>
 
         </Center>
-        <Box ref={puzzleSlotViewRef} args={[2, 2, 2]} position={[0, 0, 0.5]} visible={false} />
+        <Box ref={puzzleSlotViewRef} args={[1, 0.2, 1]} position={[0.2, 1, 0.5]} visible={false} />
         <Box ref={tableRef} args={[3.5, 3.5, 3.5]} position={[0, 0, 0]} visible={false} />
 
         <group name="Pieces" position={[0.193, 0.871, -0.505]}>
