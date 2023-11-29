@@ -43,6 +43,21 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
         resetLevel: () => resetLevel(),
     }))
 
+    // Show puzzle vector when puzzle is selected, it should also check if puzzle id is in place
+    const showPuzzleVector = (puzzleId) => {
+        setPuzzle(prev => {
+            const newShowVector = {}
+            Object.keys(prev.showVector).forEach(key => {
+                newShowVector[key] = false
+            })
+            newShowVector[puzzleId] = true
+            return {
+                ...prev,
+                showVector: newShowVector
+            }
+        });
+    }
+
     const resetLevel = () => {
         set({
             position: originalPosition,
@@ -144,6 +159,10 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
                 set({
                     rotation: [0, (nextIndex * Math.PI) / 2, 0], // Rotate based on currentIndex
                 });
+            }
+
+            if (allowUserInput) {
+                showPuzzleVector(puzzleId)
             }
 
             // If the piece is not interactable, the user can input the solution
