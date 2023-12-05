@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react'
+import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef, Suspense } from 'react'
 import { useThree } from "@react-three/fiber"
 import { Point, Points, PointMaterial, useTexture, Text, useVideoTexture } from '@react-three/drei'
 import { useGesture } from '@use-gesture/react'
@@ -8,12 +8,9 @@ import { useRaycastAll } from '@react-three/cannon'
 export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
     const yPos = props.position[1]
     const { puzzleId, position, video, setPuzzle, puzzle, setPuzzleSolved, solutionCoords, showPuzzle, setSolutionEntered } = props
-    const { size, viewport } = useThree()
-    const gridTexture = useTexture("grid-pattern.png")
-    const puzzleTexture = useVideoTexture(video + ".mp4")
-    const vectorTexture = useVideoTexture(video + "_Arrow.mp4")
     const index = Math.floor(Math.random() * 4)
 
+    const { size, viewport } = useThree()
     const aspect = size.width / viewport.width
     const scale = [0.4, 0.05, 0.4]
     const scaleFactor = 1.1
@@ -30,6 +27,10 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
     const [solutionEnteredInt, setSolutionEnteredInt] = useState(false)
     const [hit, setHit] = useState({})
 
+    const gridTexture = useTexture("grid-pattern.png")
+    const puzzleTexture = useVideoTexture(video + ".mp4")
+    const vectorTexture = useVideoTexture(video + "_Arrow.mp4")
+
     const [spring, set] = useSpring(() => ({
         scale: scale,
         position: position,
@@ -42,6 +43,11 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
     useImperativeHandle(ref, () => ({
         resetLevel: () => resetLevel(),
     }))
+
+    // Stop video from playing when allowing user to input solution
+    useEffect(() => {
+        puzzleTexture.source.data.loop = false
+    }, [allowUserInput])
 
     // Show puzzle vector when puzzle is selected, it should also check if puzzle id is in place
     const showPuzzleVector = (puzzleId) => {
@@ -198,42 +204,44 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
 
     return (
         <>
-            <a.group position={spring.position} rotation={spring.rotation}>
-                <Text anchorX={"center"} anchorY={"middle"} color={"red"} fontSize={0.05} position={[0.16, 0.03, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
-                    {puzzleId + 1}
-                </Text>
-            </a.group>
+            <Suspense fallback={null}>
+                <a.group position={spring.position} rotation={spring.rotation}>
+                    <Text anchorX={"center"} anchorY={"middle"} color={"red"} fontSize={0.05} position={[0.16, 0.03, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
+                        {puzzleId + 1}
+                    </Text>
+                </a.group>
 
-            <a.mesh {...spring} {...bind()}>
-                <boxBufferGeometry />
-                <a.meshBasicMaterial visible={true} transparent={true} map={puzzleTexture} />
-            </a.mesh >
-            <a.mesh {...spring}>
-                <boxBufferGeometry />
-                <a.meshBasicMaterial visible={puzzle?.showVector[puzzleId] ? puzzle.showVector[puzzleId] : false} transparent={true} map={vectorTexture} />
-            </a.mesh >
+                <a.mesh {...spring} {...bind()}>
+                    <boxBufferGeometry />
+                    <a.meshBasicMaterial visible={true} transparent={true} map={puzzleTexture} />
+                </a.mesh >
+                <a.mesh {...spring}>
+                    <boxBufferGeometry />
+                    <a.meshBasicMaterial visible={puzzle?.showVector[puzzleId] ? puzzle.showVector[puzzleId] : false} transparent={true} map={vectorTexture} />
+                </a.mesh >
 
-            <a.mesh {...spring} >
-                <boxBufferGeometry />
-                <a.meshStandardMaterial color={spring.color} />
-            </a.mesh >
-            <Raycast puzzleId={puzzleId} index={index} position={spring.position.get()} />
-            <a.group {...spring}>
+                <a.mesh {...spring} >
+                    <boxBufferGeometry />
+                    <a.meshStandardMaterial color={spring.color} />
+                </a.mesh >
+                <Raycast puzzleId={puzzleId} index={index} position={spring.position.get()} />
+                <a.group {...spring}>
 
-                <Points renderOrder={20} visible={false} positions={[0, 0, 0]}>
-                    <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthTest={false} depthWrite={false} toneMapped={false} />
-                    <Point name='solution' ref={solutionRef} position={solutionCoords} color={"red"} />
-                </Points>
+                    <Points renderOrder={20} visible={false} positions={[0, 0, 0]}>
+                        <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthTest={false} depthWrite={false} toneMapped={false} />
+                        <Point name='solution' ref={solutionRef} position={solutionCoords} color={"red"} />
+                    </Points>
 
-                <Points renderOrder={20} ref={inputRef} visible={solutionEnteredInt}>
-                    <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthTest={false} depthWrite={false} toneMapped={false} />
-                    <Point name='input' position={[0, 0.013, 0]} ref={materialRef} color={"red"} />
-                </Points>
-            </a.group>
-            <a.mesh {...spring} >
-                <boxBufferGeometry />
-                <a.meshBasicMaterial visible={puzzle?.showVector[puzzleId] ? puzzle.showVector[puzzleId] : false} transparent={true} map={gridTexture} />
-            </a.mesh >
+                    <Points renderOrder={20} ref={inputRef} visible={solutionEnteredInt}>
+                        <PointMaterial transparent={true} vertexColors size={15} sizeAttenuation={false} depthTest={false} depthWrite={false} toneMapped={false} />
+                        <Point name='input' position={[0, 0.013, 0]} ref={materialRef} color={"red"} />
+                    </Points>
+                </a.group>
+                <a.mesh {...spring} >
+                    <boxBufferGeometry />
+                    <a.meshBasicMaterial visible={puzzle?.showVector[puzzleId] ? puzzle.showVector[puzzleId] : false} transparent={true} map={gridTexture} />
+                </a.mesh >
+            </Suspense>
         </>
     )
 })
