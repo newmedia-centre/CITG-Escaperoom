@@ -43,6 +43,21 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
         resetLevel: () => resetLevel(),
     }))
 
+    // Show puzzle vector when puzzle is selected, it should also check if puzzle id is in place
+    const showPuzzleVector = (puzzleId) => {
+        setPuzzle(prev => {
+            const newShowVector = {}
+            Object.keys(prev.showVector).forEach(key => {
+                newShowVector[key] = false
+            })
+            newShowVector[puzzleId] = true
+            return {
+                ...prev,
+                showVector: newShowVector
+            }
+        });
+    }
+
     const resetLevel = () => {
         set({
             position: originalPosition,
@@ -146,6 +161,10 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
                 });
             }
 
+            if (allowUserInput) {
+                showPuzzleVector(puzzleId)
+            }
+
             // If the piece is not interactable, the user can input the solution
             if (allowUserInput && puzzle?.showVector[puzzleId] === true) {
                 // Set the position of input ref to the event position
@@ -155,8 +174,8 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
                 // Calculate the distance between the solution and the input
                 var distance = inputRef.current?.position.distanceTo(solutionRef.current?.position);
 
-                // If the distance is less than 0.08, the puzzle is solved
-                if (distance < 0.08) {
+                // If the distance is less than x the puzzle is solved
+                if (distance < 0.1) {
                     setPuzzleSolved();
                     setSolutionEntered();
                     setSolutionEnteredInt(true);
@@ -180,8 +199,8 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
     return (
         <>
             <a.group position={spring.position} rotation={spring.rotation}>
-                <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.05} position={[0.16, 0.03, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
-                    {puzzleId}
+                <Text anchorX={"center"} anchorY={"middle"} color={"red"} fontSize={0.05} position={[0.16, 0.03, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
+                    {puzzleId + 1}
                 </Text>
             </a.group>
 

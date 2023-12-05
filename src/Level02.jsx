@@ -197,13 +197,13 @@ export const Level02 = forwardRef((props, ref) => {
     //   },
     // },
     // Switch camera list
-    camera: {
-      value: "bench",
-      options: ["cabinet", "door", "bench", "weight", "solution"],
-      onChange: (value) => {
-        changeCamera(value)
-      },
-    },
+    // camera: {
+    //   value: "bench",
+    //   options: ["cabinet", "door", "bench", "weight", "solution"],
+    //   onChange: (value) => {
+    //     changeCamera(value)
+    //   },
+    // },
   })
 
   useFrame(({ clock }) => {

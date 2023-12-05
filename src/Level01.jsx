@@ -19,7 +19,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Level01Model } from "../public/models/gltfjsx/Level01Model";
 import { Cannon } from "../public/models/gltfjsx/Cannon";
 import { Target } from "../public/models/gltfjsx/Target";
-import { CannonBallHint } from "../public/models/gltfjsx/CannonBallHint"
 import { WaterLevel } from "../public/models/gltfjsx/WaterLevel"
 import { WindowBlueprint } from "../public/models/gltfjsx/WindowBlueprint"
 import { PilarBlueprint } from "../public/models/gltfjsx/PilarBlueprint"
@@ -248,19 +247,19 @@ function Env() {
 function Ground({ ref }) {
   const gridConfig = {
     cellSize: 0.5,
-    cellThickness: 0.5,
-    cellColor: 'white',
+    cellThickness: 0.34,
+    cellColor: 'black',
     sectionSize: 3,
     sectionThickness: 1,
     sectionColor: 'gray',
-    fadeDistance: 30,
+    fadeDistance: 39,
     fadeStrength: 1,
     followCamera: false,
     infiniteGrid: true
   }
   return (
     <>
-      <Grid ref={ref} position={[0, -0.01, 0]} args={[10.5, 10.5]} {...gridConfig} />
+      <Grid ref={ref} position={[0, 2.1, 0]} args={[10.5, 10.5]} {...gridConfig} />
     </>)
 }
 

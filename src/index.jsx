@@ -34,6 +34,7 @@ function App() {
   const [playerState, setPlayerState] = useState()
   const [playerIDInput, setPlayerIDInput] = useState('')
   const [animationProgress, setAnimationProgress] = useState(0)
+  const [welcomeScreen, setWelcomeScreen] = useState(true)
 
   const level02Ref = useRef()
   const level04Ref = useRef()
@@ -45,9 +46,9 @@ function App() {
     switch (urlLevel) {
       case 'wjaejhjc':
         return 0;
-      case 'uijyaqlq':
-        return 1;
       case 'jjsnavux':
+        return 1;
+      case 'uijyaqlq':
         return 2;
       case 'dweqiufh':
         return 3;
@@ -256,21 +257,21 @@ function App() {
 
   // show locked screen when levels are loaded in wrong order
   switch (currentLevel) {
-    case 1:
-      if (!playerState?.Level1) {
-        return (
-          <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
-        )
-      }
-      break;
-    case 2:
+    case 1: // Puzzle piece level
       if (!playerState?.Level1 || !playerState?.Level2) {
         return (
           <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
         )
       }
       break;
-    case 3:
+    case 2: // Pulley level
+      if (!playerState?.Level1) {
+        return (
+          <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
+        )
+      }
+      break;
+    case 3: // Boat level
       if (!playerState?.Level1 || !playerState?.Level2 || !playerState?.Level3) {
         return (
           <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
@@ -380,7 +381,17 @@ function App() {
               bottom: '4px',
               right: '0',
               zIndex: 20000,
+              userSelect: 'none',
             }}>
+              <Card sx={{
+                padding: '8px',
+                position: 'absolute',
+                bottom: '38px',
+                right: '202px',
+                pr: 1.4,
+              }}>
+                <Typography>Pogingen: {lives}</Typography>
+              </Card>
               <Card sx={{
                 padding: '8px',
                 position: 'absolute',
@@ -388,7 +399,6 @@ function App() {
                 right: '102px',
                 pr: 1.4,
               }}>
-                <Typography>Pogingen: {lives}</Typography>
                 <Typography>Penalty: {(3 - lives) * 20 + (playerState && playerState[`Level${currentLevel + 1}`]?.usedHints || 0) * 10}</Typography>
               </Card>
               <IconButton variant="solid" color="warning" aria-label="Open in new tab" onClick={() => setShowHintPopup(!showHintPopup)}
@@ -397,6 +407,7 @@ function App() {
                   bottom: '38px',
                   right: '20px',
                   pr: 1.4,
+                  userSelect: 'none',
                 }}>
                 <QuestionMark />
                 Hints
@@ -423,8 +434,6 @@ function App() {
                 position: 'absolute',
                 bottom: '94px',
                 left: '12px',
-                userSelect: 'none',
-                userEvents: 'none',
                 zIndex: 10000,
               }}>
                 {/* Left Panel */}
@@ -434,8 +443,6 @@ function App() {
                     boxShadow: 2,
                     opacity: 0.95,
                     backgroundColor: '#181c20',
-                    userSelect: 'none',
-                    userEvents: 'none',
                   }}
                 >
                   <Button onClick={() => {
@@ -446,8 +453,6 @@ function App() {
                 {/* Right Panel */}
                 <Stack direction="column" spacing={1} justifyContent="center" p={1}
                   sx={{
-                    userSelect: 'none',
-                    userEvents: 'none',
                     borderRadius: 2,
                     boxShadow: 2,
                     opacity: 0.95,
@@ -456,7 +461,7 @@ function App() {
                 >
                   <GaugeComponent
                     style={{
-                      width: '240px',
+                      width: '50vw',
                     }}
                     type="semicircle"
                     value={speed}
@@ -493,15 +498,49 @@ function App() {
               </Stack>
             )}
             {currentLevel === 3 && (
-              <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
-                position: 'absolute',
-                m: 1,
-                bottom: '32px',
-                left: '0',
-                zIndex: 10000,
-              }}>
-                <Button onClick={() => level04Ref.current.play()}>Duw boot</Button>
-              </Stack>
+              <>
+                {/* Only render when welcomescreen is true */}
+                {welcomeScreen &&
+                  <Card variant="outlined" sx={
+                    // Move to middle of screen
+                    {
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '80%',
+                      maxWidth: '600px',
+                      transition: 'opacity 1s ease-in-out',
+                      zIndex: 100000,
+                      position: 'absolute',
+                    }}>
+                    <Typography level="title-md" sx={{ textAlign: 'center', mb: 1 }}>
+                      Welkom bij de laatste puzzel!
+                    </Typography>
+                    <Typography level="body-md" sx={{ mb: 1 }}>
+                      In deze puzzel moeten jullie een boot naar de overkant bij EWI duwen. Jullie moeten hiervoor eerst een ondergrond materiaal uitkiezen waarbij jullie denken dat de boot voor het EWI gebouw terecht komt. Daarna moeten jullie de boot duwen door op de knop te drukken. Als de boot voor het EWI gebouw terecht komt, dan hebben jullie de puzzel opgelost.
+                    </Typography>
+
+                    <IconButton onClick={() => setWelcomeScreen(false)} color="danger" size="sm" sx={{
+                      position: 'absolute',
+                      top: '0',
+                      right: '0',
+                      m: 1,
+                      mt: 0.4,
+                    }}>
+                      <Close />
+                    </IconButton>
+                  </ Card >
+                }
+                <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
+                  position: 'absolute',
+                  m: 1,
+                  bottom: '32px',
+                  left: '0',
+                  zIndex: 10000,
+                }}>
+                  <Button onClick={() => level04Ref.current.play()}>Duw boot</Button>
+                </Stack>
+              </>
             )}
           </>
         ) : gameWon ? ( // If game is won show win screen
@@ -564,7 +603,7 @@ function App() {
         </Suspense>
       </Canvas>
       <div id="info-box">
-        <div id="comment">
+        <div id="comment" style={{ userSelect: "none" }}>
           <div style={{ marginBottom: 4 }}>
             Built by — <img src="/xrzone-16x16.png" /> Zone
           </div>
@@ -836,6 +875,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
           ...prev, [`Level${currentLevel + 1}`]: level
         }
       })
+      setCurrentHintIndex(unlockedHints)
     }
   }
 
@@ -843,7 +883,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
   const text = useMemo(() => {
     if (unlockedHints < 1)
       return <Typography level="title-md">
-        Press unlock to unlock a hint.
+        Druk op de knop 'Nieuwe Hint' om een hint te verkrijgen.
       </Typography>
 
     return <Typography sx={{ whiteSpace: 'pre-line' }} level="title-md">
@@ -869,9 +909,9 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
         orientation="horizontal"
         size="sm"
         variant="soft">
-        <Button onClick={previous} disabled={currentHintIndex === 0}>Previous</Button>
-        <Button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Next</Button>
-        <Button onClick={unlock} disabled={unlockedHints > 4}>Unlock Hint</Button>
+        <Button onClick={previous} disabled={currentHintIndex === 0}>Vorige</Button>
+        <Button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Volgende</Button>
+        <Button onClick={unlock} disabled={unlockedHints > 4}>Nieuwe Hint</Button>
       </ButtonGroup>
       <IconButton color="danger" onClick={() => setShowHintPopup(false)} size="sm" sx={{
         position: 'absolute',
