@@ -8,7 +8,7 @@ import Level02 from "./Level02"
 import Level03 from "./Level03"
 import Level04 from "./Level04"
 import { Suspense, useRef, useState, useEffect, useMemo } from "react";
-import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Input, Card, List, ListItem, Divider, Textarea, Table, Container } from "@mui/joy";
+import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Card } from "@mui/joy";
 import { QuestionMark, Close } from "@mui/icons-material";
 import { Stack } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
@@ -393,7 +393,7 @@ function App() {
                 >
                   <GaugeComponent
                     style={{
-                      width: '50vw',
+                      width: '200px',
                     }}
                     type="semicircle"
                     value={speed}
@@ -419,13 +419,15 @@ function App() {
                       animationDuration: 1000
                     }}
                     labels={{
+                      valueLabel: { formatTextValue: value => value + ' m/s²' },
                       tickLabels: {
                         defaultTickValueConfig: {
-                          style: { fontSize: 18 }
+                          style: { fontSize: 18 },
                         }
                       }
                     }}
                   />
+                  <Typography level="body-md" textColor="white" sx={{ textAlign: 'center' }}>Acceleratie</Typography>
                 </Stack >
               </Stack>
             )}
@@ -701,7 +703,7 @@ function FinishedWinScreen({ penalty, won, playerID }) {
         color: "gray"
       }}>
         <Typography level="h3" color="white">Gefeliciteerd, geweldige civieltechnische helden! Jullie hebben het onmogelijke gedaan en met succes de Deltawerken gesloten, waardoor een catastrofe werd afgewend en talloze levens werden gered. Jullie teamwork, doorzettingsvermogen en begrip van dynamica hebben het verschil gemaakt.</Typography>
-        <Typography level="h3" color="white">Jullie hebben als team {400 - penalty} punten en staan daarmee voorlopig op plaats {playerIndex}.</Typography>
+        <Typography level="h3" color="white">Jullie hebben als team {400 - penalty} punten en staan daarmee voorlopig op plaats {playerIndex + 1}.</Typography>
       </Card>
       <Card color="neutral" sx={{
         backgroundColor: 'rgba(22, 22, 22, 1)',

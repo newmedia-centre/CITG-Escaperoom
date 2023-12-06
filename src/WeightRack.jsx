@@ -4,15 +4,17 @@ import Cylinder from '../public/models/gltfjsx/Cylinder'
 import Sphere from '../public/models/gltfjsx/Sphere'
 import { useSpring, animated } from '@react-spring/three'
 import { Text } from '@react-three/drei'
+import level02Solutions from './level02-solutions'
 
 export const WeightRack = forwardRef((props, ref) => {
-    const { objectType, position, offsetZ, weight, setWeight, setSelectedSolution } = props
+    const { objectType, position, offsetZ, weight: weightIndex, setWeight, setSelectedSolution } = props
 
-    const weights = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    // Get all the weights from the solutions array where the object type matches
+    const weights = Object.values(level02Solutions)
+        .flatMap(solution => solution[objectType].map(object => object.weight))
     const totalDisplays = 5
 
     // Set the default weight to the middle item of the array
-    // const [weight, setWeight] = useState(Math.floor(weights.length / 2))
 
     const [objectAnim, setObjectAnim] = useSpring(() => ({
         from: [0, 0, 0],
@@ -27,7 +29,7 @@ export const WeightRack = forwardRef((props, ref) => {
     }))
 
     useImperativeHandle(ref, () => ({
-        getWeight: () => weight, // Expose a function to get the current weight
+        getWeight: () => weightIndex, // Expose a function to get the current weight
     }))
 
     const objectRack = Array.from({ length: totalDisplays }).map((_, index) => {
@@ -60,21 +62,22 @@ export const WeightRack = forwardRef((props, ref) => {
 
         if (object.userData.display < 2) {
             // Set the weight to the min or max if it goes out of bounds
-            if (weight < 2) {
+            if (weightIndex < 2) {
                 setWeight(0)
+                return
             }
             else {
-                setWeight(weight - 1)
+                setWeight(weightIndex - 1)
             }
             positionOffset = [0, 0, offsetZ]
         }
         else if (object.userData.display > 2) {
-            if (weight >= weights.length - 1) {
-                setWeight(weights.length)
+            if (weightIndex >= weights.length - 1) {
+                setWeight(weights.length - 1)
                 return
             }
             else {
-                setWeight(weight + 1)
+                setWeight(weightIndex + 1)
             }
             positionOffset = [0, 0, -offsetZ]
         }
@@ -84,9 +87,9 @@ export const WeightRack = forwardRef((props, ref) => {
     }
 
     return <group position={position}>
-        <Text fontSize={0.2} rotation={[0, Math.PI / 2, 0]} position={[0, .26, offsetZ * 2]}>{weights[weight] - 1}kg</Text>
-        <Text fontSize={0.1} rotation={[0, Math.PI / 2, 0]} position={[0, .26, offsetZ]}>{weights[weight] - 2}</Text>
-        <Text fontSize={0.1} rotation={[0, Math.PI / 2, 0]} position={[0, .26, offsetZ * 3]}>{weights[weight]}</Text>
+        <Text fontSize={0.1} rotation={[0, Math.PI / 2, 0]} position={[0, .26, offsetZ]}>{weights[weightIndex - 1]}</Text>
+        <Text fontSize={0.2} rotation={[0, Math.PI / 2, 0]} position={[0, .26, offsetZ * 2]}>{weights[weightIndex]}kg</Text>
+        <Text fontSize={0.1} rotation={[0, Math.PI / 2, 0]} position={[0, .26, offsetZ * 3]}>{weights[weightIndex + 1]}</Text>
         {objectRack.map((object, index) => (
             <>
                 <animated.group key={index} position={objectAnim.positionOffset}>

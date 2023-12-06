@@ -11,12 +11,11 @@ import { MathUtils } from 'three'
 import Ring from './Ring'
 import Cylinder from './Cylinder'
 import Sphere from './Sphere'
+import level02Solutions from '../../../src/level02-solutions'
 
 export const Level02Model = forwardRef((props, ref) => {
   const { weightRef, laserRef, cabinetRef, solutionRef } = ref
   var { progress, setSelectedObject, weightsIndex, selectedSolution } = props
-
-  const weights = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
 
   const rope001Ref = useRef()
   const rope002Ref = useRef()
@@ -27,8 +26,8 @@ export const Level02Model = forwardRef((props, ref) => {
   const benchRef = useRef()
 
   const { nodes, materials } = useGLTF('models/gltfjsx/Level02-transformed.glb')
-  const [planes] = useState(() => [[-0.05, 0, 0]].map(v => new THREE.Plane(new THREE.Vector3(...v), 1))) // prettier-ignore
-  const [planeObjects] = useState(() => [createRef()])
+  // const [planes] = useState(() => [[-0.05, 0, 0]].map(v => new THREE.Plane(new THREE.Vector3(...v), 1))) // prettier-ignore
+  // const [planeObjects] = useState(() => [createRef()])
 
   const initRope001Position = new THREE.Vector3(0, 0.6, 2.304)
   const initRope002Position = new THREE.Vector3(0, 0.6, -2.366)
@@ -123,7 +122,7 @@ export const Level02Model = forwardRef((props, ref) => {
         <mesh name='weight' geometry={nodes.Pulley004.geometry} material={materials.BlackMetal} position={[0, 0.355, -2.467]} />
         <mesh geometry={nodes.PulleyWeight.geometry} material={materials.Alluminium} position={[0, 0.355, -2.467]} rotation={[0, 0, -Math.PI / 2]} scale={[0.01, 0.032, 0.01]} />
         <mesh geometry={nodes.Weight.geometry} material={materials.AlluminiumDark} position={[0, 0.178, -2.467]} scale={[0.069, 0.089, 0.069]}>
-          <Box args={[2, 50, 10]} visible={false} />
+          <Box args={[8, 50, 10]} visible={false} />
         </mesh>
       </group>
 
@@ -134,7 +133,7 @@ export const Level02Model = forwardRef((props, ref) => {
         setSelectedObject(obj.eventObject)
       }}>
         <group position={[0, -0.15, -2.09]} rotation={[0, -Math.PI, 0]} scale={[.2, .2, .2]}>
-          <Text color="white" anchorX="center" anchorY="middle" scale={[0.4, 0.4, 0.4]} text={"Gewicht: 10kg \n Acceleratie: -1"} />
+          <Text color="white" anchorX="center" anchorY="middle" scale={[0.4, 0.4, 0.4]} text={"Gewicht: 10kg"} />
         </group>
       </mesh >
       <mesh ref={rope003Ref} geometry={nodes.Rope003.geometry} material={materials.Rope} position={[0, 0.548, -2.416]} rotation={[0, 0, -Math.PI]} />
@@ -145,16 +144,16 @@ export const Level02Model = forwardRef((props, ref) => {
       }}>
         <group name="ring" visible={false}>
           <Ring />
-          <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights[weightsIndex.weightRing] - 1}kg</Text3D>
+          <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{level02Solutions.solutions.ring[weightsIndex.weightRing].weight}kg</Text3D>
         </group>
         <group name="cylinder" visible={false}>
           <Cylinder />
-          <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{weights[weightsIndex.weightCylinder] - 1}kg</Text3D>
+          <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json"><meshStandardMaterial color="white" />{level02Solutions.solutions.cylinder[weightsIndex.weightCylinder].weight}kg</Text3D>
         </group>
         <group name="sphere" visible={false}>
           <Sphere />
           <Text3D rotation={[Math.PI, Math.PI, 0]} position={[0.065, -0.05, -0.02]} height={.04} size={0.07} font="/Roboto_Regular.json">
-            <meshStandardMaterial color="white" />{weights[weightsIndex.weightSphere] - 1}kg</Text3D>
+            <meshStandardMaterial color="white" />{level02Solutions.solutions.sphere[weightsIndex.weightSphere].weight}kg</Text3D>
         </group>
       </group>
       <group position={[0, -4, -2.077]} rotation={[-Math.PI, 0, -Math.PI]}>
@@ -171,9 +170,10 @@ export const Level02Model = forwardRef((props, ref) => {
         <mesh geometry={nodes.CabinetDoor.geometry} material={materials.AlluminiumDark} position={[-2.307, 0, 1.893]} rotation={[-Math.PI, -0.527, -Math.PI]} />
         <mesh geometry={nodes.CabinetDoor001.geometry} material={materials.AlluminiumDark} position={[-2.307, 0, 0.526]} rotation={[-Math.PI, Math.PI / 6, -Math.PI]} >
 
-          <group position={[0, 1.5, 0.05]} rotation={[0, -Math.PI / 2, 0]} scale={[0.05, 0.05, 0.05]}>
-            <Text text={"Radius objecten: 0.2m \nAcceleratie: 2m²/s \nHoekversnelling: 10m²/s"} color="white" anchorX="left" anchorY="middle">
-            </Text>
+          <group position={[0, 1.2, 0.05]} rotation={[0, -Math.PI / 2, 0]} scale={[0.055, 0.055, 0.055]}>
+            <Text text={'Radius objecten = 0.2m'} color="white" anchorX="left" anchorY="middle" />
+            <Text position={[0, -3.8, 0]} scale={1.3} text={'Rol = 0.5m r²\nBal = 0.4 m r²\nWiel = m r²'}
+              color="white" anchorX="left" anchorY="middle" />
           </group>
 
         </mesh>
