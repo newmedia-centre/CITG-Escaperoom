@@ -37,7 +37,7 @@ function App() {
   const [animationProgress, setAnimationProgress] = useState(0)
   const [welcomeScreen, setWelcomeScreen] = useState(true)
 
-  const level02Ref = useRef()
+  const level03Ref = useRef()
   const level04Ref = useRef()
   const totalTimeInMilliseconds = 90 * 60 * 1000
 
@@ -96,11 +96,11 @@ function App() {
   }
 
   const handleActivateClick = () => {
-    level02Ref.current.activatePulley()
+    level03Ref.current.activatePulley()
   }
 
   const handleResetClick = () => {
-    level02Ref.current.resetLevel()
+    level03Ref.current.resetLevel()
   }
 
   // Reset game
@@ -393,37 +393,38 @@ function App() {
                 >
                   <GaugeComponent
                     style={{
-                      width: '200px',
+                      width: '220px',
                     }}
                     type="semicircle"
                     value={speed}
-                    minValue={-2}
-                    maxValue={0}
+                    minValue={0}
+                    maxValue={3}
                     arc={{
                       width: 0.22,
                       padding: 0,
                       cornerRadius: 0,
                       subArcs: [
-                        { limit: -1.5, color: '#EA4228', showTick: true },
-                        { limit: -1.1, color: '#F5CD19', showTick: true },
-                        { limit: -0.9, color: '#5BE12C', showTick: true },
-                        { limit: -0.5, color: '#F5CD19', showTick: true },
+                        { limit: 0.5, color: '#EA4228', showTick: true },
+                        { limit: 0.95, color: '#F5CD19', showTick: true },
+                        { limit: 1.05, color: '#5BE12C', showTick: true },
+                        { limit: 1.5, color: '#F5CD19', showTick: true },
                         { color: '#EA4228' }
                       ]
                     }}
                     pointer={{
-                      color: '#3c93ff',
+                      color: 'gray',
                       length: 0.80,
                       width: 14,
                       elastic: true,
-                      animationDuration: 1000
+                      animationDuration: 1000,
                     }}
                     labels={{
                       valueLabel: { formatTextValue: value => value + ' m/s²' },
                       tickLabels: {
                         defaultTickValueConfig: {
-                          style: { fontSize: 18 },
-                        }
+                          style: { fontSize: 12 },
+                        },
+
                       }
                     }}
                   />
@@ -512,21 +513,21 @@ function App() {
             )}
             {currentLevel === 1 && (
               <Level03
-                ref={level02Ref}
-                speed={speed}
-                setSpeed={setSpeed}
                 lives={lives}
                 setLives={setLives}
                 setGameWon={setGameWon}
                 gameWon={gameWon}
                 gameOver={gameOver}
                 setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame}
-                animationProgress={animationProgress}
-                setAnimationProgress={setAnimationProgress}
+
               />
             )}
             {currentLevel === 2 && (
-              <Level02 lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
+              <Level02
+                ref={level03Ref} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} animationProgress={animationProgress}
+                setAnimationProgress={setAnimationProgress}
+                speed={speed}
+                setSpeed={setSpeed} />
             )}
             {currentLevel === 3 && (
               <Level04 ref={level04Ref} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />

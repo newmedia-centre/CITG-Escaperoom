@@ -66,18 +66,6 @@ export const Level02 = forwardRef((props, ref) => {
     }
   }))
 
-  const accelerations = {
-    ring: [
-      -4.2, -3.4, -2.6, -1.8, -1.0, -0.2, 0.6, 1.4, 2.2, 3.0, 3.8, 4.6, 5.4, 6.2
-    ],
-    cylinder: [
-      -5.6, -5.0, -4.4, -3.8, -3.2, -2.6, -2.0, -1.4, -0.8, -0.2, 0.4, 1.0, 1.6, 2.2
-    ],
-    sphere: [
-      -5.9, -5.3, -4.8, -4.2, -3.7, -3.1, -2.5, -2.0, -1.4, -0.85, -0.3, 0.3, 0.8, 1.4
-    ]
-  }
-
   const resetLevel = () => {
     changeCamera("bench")
     setProgress({
@@ -210,7 +198,7 @@ export const Level02 = forwardRef((props, ref) => {
       const intersections = laserRaycast()
       if (intersections.length > 3) {
         setWeightHit(true)
-        if (acceleration <= -0.9 && acceleration >= -1.0) {
+        if (acceleration <= 1.05 && acceleration >= 0.95) {
           setGameWon(true)
         }
         else {
