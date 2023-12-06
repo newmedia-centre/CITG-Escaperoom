@@ -8,7 +8,7 @@ import Level02 from "./Level02"
 import Level03 from "./Level03"
 import Level04 from "./Level04"
 import { Suspense, useRef, useState, useEffect, useMemo } from "react";
-import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Card, Select, MenuItem } from "@mui/joy";
+import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Card, Select, Option } from "@mui/joy";
 import { QuestionMark, Close } from "@mui/icons-material";
 import { Stack } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
@@ -480,11 +480,11 @@ function App() {
                   left: '0',
                   zIndex: 10000,
                 }}>
-                  <Select value={level4Force} onChange={e => setLevel4Force(e?.target.value ?? 700)}>
+                  <Select value={level4Force} onChange={(e, value) => setLevel4Force(value)} >
                     {level4ForceOptions.map(option => (
-                      <MenuItem key={option} value={option}>
+                      <Option key={option} value={option}>
                         Duwkracht: {option}N
-                      </MenuItem>
+                      </Option>
                     ))}
                   </Select>
                   <Button onClick={() => level04Ref.current.play()}>Duw boot</Button>
