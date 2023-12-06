@@ -13,12 +13,9 @@ import { Vector3 } from "three"
 import { useControls } from "leva"
 import React, { useEffect, useRef, forwardRef, useImperativeHandle, useState, useTransition } from "react"
 import { Level04Model } from "../public/models/gltfjsx/Level04Model"
-import { Typography, IconButton, Card } from "@mui/joy";
-import { Close } from "@mui/icons-material";
-import JSONPretty from 'react-json-pretty'
 
 export const Level04 = forwardRef((props, ref) => {
-  const { lives, setLives, setGameWon, setGameOver, setResetGame, resetGame } = props
+  const { lives, setLives, setGameWon, setGameOver } = props
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [camControlsEnabled, setCamControls] = useState(true)
   const [selectedObject, setSelectedObject] = useState([])
@@ -88,8 +85,8 @@ export const Level04 = forwardRef((props, ref) => {
     play: () => {
       if (selectedObject.length != 0) {
         switch (selectedObject?.name) {
-          case "Wood":
-            setAnimation("Correct")
+          case "Beton":
+            setAnimation("TooNear")
             break;
           case "Ice":
             setAnimation("TooFar")
@@ -98,7 +95,7 @@ export const Level04 = forwardRef((props, ref) => {
             setAnimation("TooFar")
             break;
           case "Concrete":
-            setAnimation("TooNear")
+            setAnimation("Correct")
             break;
         }
 
@@ -113,13 +110,13 @@ export const Level04 = forwardRef((props, ref) => {
 
   useControls({
     // Switch camera list
-    camera: {
-      value: "materials",
-      options: ["default", "materials", "boat"],
-      onChange: (value) => {
-        changeCamera(value)
-      },
-    },
+    // camera: {
+    //   value: "materials",
+    //   options: ["default", "materials", "boat"],
+    //   onChange: (value) => {
+    //     changeCamera(value)
+    //   },
+    // },
   })
 
   useFrame(({ clock }) => {
