@@ -47,9 +47,9 @@ function App() {
     switch (urlLevel) {
       case 'wjaejhjc':
         return 0;
-      case 'jjsnavux':
-        return 1;
       case 'uijyaqlq':
+        return 1;
+      case 'jjsnavux':
         return 2;
       case 'dweqiufh':
         return 3;
@@ -259,14 +259,14 @@ function App() {
   // show locked screen when levels are loaded in wrong order
   switch (currentLevel) {
     case 1: // Puzzle piece level
-      if (!playerState?.Level1 || !playerState?.Level2) {
+      if (!playerState?.Level1) {
         return (
           <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
         )
       }
       break;
     case 2: // Pulley level
-      if (!playerState?.Level1) {
+      if (!playerState?.Level1 || !playerState?.Level2) {
         return (
           <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
         )
@@ -361,7 +361,7 @@ function App() {
                 <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
               </Stack >
             )}
-            {currentLevel === 1 && (
+            {currentLevel === 2 && (
               <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
                 position: 'absolute',
                 bottom: '94px',
@@ -511,7 +511,7 @@ function App() {
               <Level01 cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
             )}
             {currentLevel === 1 && (
-              <Level02
+              <Level03
                 ref={level02Ref}
                 speed={speed}
                 setSpeed={setSpeed}
@@ -526,7 +526,7 @@ function App() {
               />
             )}
             {currentLevel === 2 && (
-              <Level03 lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
+              <Level02 lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
             )}
             {currentLevel === 3 && (
               <Level04 ref={level04Ref} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
