@@ -27,7 +27,7 @@ Vul deze waarde rechtsboven in en klik op vuur!`
 			- T*r = (Xm*r^2  + I_a)*α_a
 			- -g*m_blok+ 2*T = m_blok*a_blok
 			- a_a= r*α_a
-Check of de combinatie van massa en type object beschikbaar is in de kast. Kies het object waarvoor dit het geval is en klik op activeren.`
+Check of de combinatie van massa en type object beschikbaar is in de kast. Kies het object waarvoor dit het geval is en klik op Duw Boot.`
 	],
 	3: [
 		'Om deze puzzel op te lossen moet je het gewicht en de doelversnelling weten te vinden in de ruimte. Bekijk ook uit welke duwkrachten en vloertypen je kunt kiezen. Wat verandert er als je een andere ondergrond gebruikt om de boot overheen te duwen richting de glijbaan?',
