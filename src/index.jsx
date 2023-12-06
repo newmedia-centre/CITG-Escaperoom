@@ -221,7 +221,12 @@ function App() {
 
     if (playerState.StartTime + totalTimeInMilliseconds < Date.now()) {
       setGameOver(true)
-      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Finished: true }))
+      setPlayerState(prev => ({
+        ...prev,
+        EndTime: prev.StartTime + totalTimeInMilliseconds,
+        Finished: true,
+        Penalty: (playerState?.Level1?.Penalty ?? 100) + (playerState?.Level2?.Penalty ?? 100) + (playerState?.Level3?.Penalty ?? 100) + (playerState?.Level4?.Penalty ?? 100)
+      }))
     }
   }, [playerState])
 
