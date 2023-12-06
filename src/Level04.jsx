@@ -13,18 +13,15 @@ import { Vector3 } from "three"
 import { useControls } from "leva"
 import React, { useEffect, useRef, forwardRef, useImperativeHandle, useState, useTransition } from "react"
 import { Level04Model } from "../public/models/gltfjsx/Level04Model"
-import { Typography, IconButton, Card } from "@mui/joy";
-import { Close } from "@mui/icons-material";
-import JSONPretty from 'react-json-pretty'
 
 export const Level04 = forwardRef((props, ref) => {
-  const { lives, setLives, setGameWon, setGameOver, setResetGame, resetGame } = props
+  const { lives, setLives, setGameWon, setGameOver, force } = props
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [camControlsEnabled, setCamControls] = useState(true)
   const [selectedObject, setSelectedObject] = useState([])
   const [animation, setAnimation] = useState()
-  const { camera } = useThree()
 
+  const { camera } = useThree()
   const cameraControlsRef = useRef()
   const boatRef = useRef()
   const materialsRef = useRef()
@@ -42,10 +39,18 @@ export const Level04 = forwardRef((props, ref) => {
 
   const changeCamera = (scene) => {
     switch (scene) {
-      case "default":
+      default:
         setCamControls(true)
         setCameraFollowing({})
-        cameraControlsRef.current?.setLookAt(-17, -20, 38.45, -19, -20, 38.45, true)
+        // Fit the camera to the materials
+
+        cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, false)
+        cameraControlsRef.current?.fitToBox(materialsRef.current, true, {
+          cover: true
+        })
+        // Get position of the materials
+        var dir = materialsRef.current?.getWorldPosition(new Vector3())
+        cameraControlsRef.current?.setTarget(dir.x, dir.y - 0.2, dir.z - 0.2, true)
         break;
       case "materials":
         setCamControls(true)
@@ -87,21 +92,37 @@ export const Level04 = forwardRef((props, ref) => {
     changeCamera: (scene) => changeCamera(scene),
     play: () => {
       if (selectedObject.length != 0) {
-        switch (selectedObject?.name) {
-          case "Wood":
+
+        // TODO: Receive current force value from the UI
+
+        if (selectedObject?.name == "Concrete") {
+          if (force == 800) {
             setAnimation("Correct")
-            break;
-          case "Ice":
+          }
+          else if (force > 800) {
             setAnimation("TooFar")
-            break;
-          case "Sand":
-            setAnimation("TooFar")
-            break;
-          case "Concrete":
+          }
+          else {
             setAnimation("TooNear")
-            break;
+          }
         }
 
+        if (selectedObject?.name == "Ice") {
+          setAnimation("TooFar")
+        }
+
+        if (selectedObject?.name == "Sand") {
+          setAnimation("TooNear")
+        }
+
+        if (selectedObject?.name == "Wood") {
+          if (force <= 800) {
+            setAnimation("TooNear")
+          }
+          else {
+            setAnimation("TooFar")
+          }
+        }
         changeCamera("boat")
       }
     }
@@ -113,13 +134,13 @@ export const Level04 = forwardRef((props, ref) => {
 
   useControls({
     // Switch camera list
-    camera: {
-      value: "materials",
-      options: ["default", "materials", "boat"],
-      onChange: (value) => {
-        changeCamera(value)
-      },
-    },
+    // camera: {
+    //   value: "materials",
+    //   options: ["default", "materials", "boat"],
+    //   onChange: (value) => {
+    //     changeCamera(value)
+    //   },
+    // },
   })
 
   useFrame(({ clock }) => {
