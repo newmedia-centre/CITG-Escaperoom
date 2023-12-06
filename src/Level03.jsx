@@ -223,7 +223,7 @@ export const Level03 = forwardRef((props, ref) => {
             }))}
             puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.265, 0, 0.12]} />
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.26, 0, 0.14]} />
           <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} video="videos/Puzzle_0" />
           <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} video="videos/Puzzle_1" />
           <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} video="videos/Puzzle_2" />
