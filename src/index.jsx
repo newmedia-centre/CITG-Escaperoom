@@ -35,6 +35,14 @@ function App() {
   const [playerIDInput, setPlayerIDInput] = useState('')
   const [animationProgress, setAnimationProgress] = useState(0)
   const [welcomeScreen, setWelcomeScreen] = useState(true)
+  const [level4Force, setLevel4Force] = useState(700)
+
+  const level4ForceOptions = [
+    700,
+    800,
+    900,
+    1000
+  ]
 
   const level02Ref = useRef()
   const level04Ref = useRef()
