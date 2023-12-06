@@ -237,7 +237,6 @@ export const Level04Model = forwardRef((props, ref) => {
         <mesh name="Walls" geometry={nodes.Walls.geometry} material={materials.Gray} scale={[4, 15, 4]} />
         <MaterialSelector name="MaterialSelector" setSelectedObject={setSelectedObject} />
         <group position={[2.444, 19.3, -0.751]}>
-          {/* <Text3D rotation={[0, Math.PI / 2, 0]} position={[-2.2, 1, 1.6]} height={0.02} size={0.2} font="/Roboto_Regular.json"><meshStandardMaterial color="black" />Duw acc: 2m/s²</Text3D> */}
           <Box ref={materialsRef} args={[3, 3, 3]} position={[-1, 1.5, 0]} visible={false} />
         </group>
 
