@@ -52,7 +52,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   const [cameraFocus, setCameraFocus] = useState('default')
   const [selectedObject, setSelectedObject] = useState([])
 
-  const cannonAngleSolution = 3.2
+  const cannonAngleSolutionRange = [22, 26]
 
   const changeCamera = (scene) => {
     switch (scene) {
@@ -147,18 +147,18 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     if (cannonRef.current && cannonBallRef.current) {
 
       let forceMagnitude = 7.5
-      cannonBallApi.mass.set(0.0145)
+      cannonBallApi.mass.set(0.0165)
 
       // Create a direction vector pointing in the direction of the cannon barrel
       const direction = new THREE.Vector3(0, 0, -1) // 1 unit along the z-axis
 
-      // Offset the force magnitude if the angle solution is not within the error margin of the cannon angle
-      const errorMargin = 0.2
 
-      if ((cannonAngle - cannonAngleSolution) > errorMargin) {
+      // Offset the force magnitude if the angle solution is not within the error margin of the cannon angle
+      // Check if the value is in between the solution range array
+      if (cannonAngle > cannonAngleSolutionRange[1]) {
         forceMagnitude = forceMagnitude * 1.2
       }
-      else if ((cannonAngle - cannonAngleSolution) < -errorMargin) {
+      else if (cannonAngle < cannonAngleSolutionRange[0]) {
         forceMagnitude = forceMagnitude * 0.8
       }
 
