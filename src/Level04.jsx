@@ -27,7 +27,7 @@ export const Level04 = forwardRef((props, ref) => {
   const materialsRef = useRef()
 
   const resetLevel = () => {
-    changeCamera("materials")
+    changeCamera()
   }
 
   const takeLive = () => {
@@ -63,8 +63,8 @@ export const Level04 = forwardRef((props, ref) => {
         break;
 
       default:
-        setCamControls(true)
         setCameraFollowing({})
+        setCamControls(true)
         // Fit the camera to the materials
 
         cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, false)

@@ -362,88 +362,190 @@ function App() {
 
 
             {currentLevel === 0 && (
-              <Stack direction="row" spacing={3} justifyContent="center"
-                sx={{
-                  position: 'absolute',
-                  bottom: '32px',
-                  left: '50px',
-                  transform: 'translate(-50%, -20%)',
-                  userSelect: 'none',
-                }}
-                zIndex={10000}>
-                <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
-              </Stack >
+              <>
+                {welcomeScreen &&
+                  <Card variant="outlined" sx={
+                    // Move to middle of screen
+                    {
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '80%',
+                      maxWidth: '600px',
+                      transition: 'opacity 1s ease-in-out',
+                      zIndex: 100000,
+                      position: 'absolute',
+                    }}>
+                    <Typography level="title-md" sx={{ textAlign: 'center', mb: 1 }}>
+                      Welkom bij Kanon level
+                    </Typography>
+                    <Typography level="body-md" sx={{ mb: 1 }}>
+                      Vuur de kanonskogel af en raak de rode knop om de Maeslantkering te sluiten.
+                    </Typography>
+
+                    <IconButton onClick={() => setWelcomeScreen(false)} color="danger" size="sm" sx={{
+                      position: 'absolute',
+                      top: '0',
+                      right: '0',
+                      m: 1,
+                      mt: 0.4,
+                    }}>
+                      <Close />
+                    </IconButton>
+                  </ Card >
+                }
+                <Stack direction="row" spacing={3} justifyContent="center"
+                  sx={{
+                    position: 'absolute',
+                    bottom: '32px',
+                    left: '50px',
+                    transform: 'translate(-50%, -20%)',
+                    userSelect: 'none',
+                  }}
+                  zIndex={10000}>
+                  <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
+                </Stack >
+              </>
+            )}
+            {currentLevel === 1 && (
+              <>
+                {welcomeScreen &&
+                  <Card variant="outlined" sx={
+                    // Move to middle of screen
+                    {
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '80%',
+                      maxWidth: '600px',
+                      transition: 'opacity 1s ease-in-out',
+                      zIndex: 100000,
+                      position: 'absolute',
+                    }}>
+                    <Typography level="title-md" sx={{ textAlign: 'center', mb: 1 }}>
+                      Welkom bij OR puzzel
+                    </Typography>
+                    <Typography level="body-md" sx={{ mb: 1 }}>
+                      Vind het OR van de blauwe staaf in elk van de vier stukken om de Oosterscheldekering te sluiten.
+                    </Typography>
+
+                    <IconButton onClick={() => setWelcomeScreen(false)} color="danger" size="sm" sx={{
+                      position: 'absolute',
+                      top: '0',
+                      right: '0',
+                      m: 1,
+                      mt: 0.4,
+                    }}>
+                      <Close />
+                    </IconButton>
+                  </ Card >
+                }
+              </>
             )}
             {currentLevel === 2 && (
-              <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
-                position: 'absolute',
-                bottom: '94px',
-                left: '12px',
-                zIndex: 10000,
-              }}>
-                {/* Left Panel */}
-                <Stack spacing={1} p={2}
-                  sx={{
-                    borderRadius: 2,
-                    boxShadow: 2,
-                    opacity: 0.95,
-                    backgroundColor: '#181c20',
-                  }}
-                >
-                  <Button onClick={() => {
-                    handleActivateClick()
-                  }}>Activeren</Button>
-                  <Button onClick={() => handleResetClick()}>Reset</Button>
-                </Stack>
-                {/* Right Panel */}
-                <Stack direction="column" spacing={1} justifyContent="center" p={1}
-                  sx={{
-                    borderRadius: 2,
-                    boxShadow: 2,
-                    opacity: 0.95,
-                    backgroundColor: '#181c20',
-                  }}
-                >
-                  <GaugeComponent
-                    style={{
-                      width: '220px',
-                    }}
-                    type="semicircle"
-                    value={speed}
-                    minValue={0}
-                    maxValue={3}
-                    arc={{
-                      width: 0.22,
-                      padding: 0,
-                      cornerRadius: 0,
-                      subArcs: [
-                        { limit: 0.5, color: '#EA4228', showTick: true },
-                        { limit: 0.95, color: '#F5CD19', showTick: true },
-                        { limit: 1.05, color: '#5BE12C', showTick: true },
-                        { limit: 1.5, color: '#F5CD19', showTick: true },
-                        { color: '#EA4228' }
-                      ]
-                    }}
-                    pointer={{
-                      color: 'gray',
-                      length: 0.80,
-                      width: 14,
-                      elastic: true,
-                      animationDuration: 1000,
-                    }}
-                    labels={{
-                      valueLabel: { formatTextValue: value => value + ' m/s²' },
-                      tickLabels: {
-                        defaultTickValueConfig: {
-                          style: { fontSize: 12 },
-                        },
+              <>
+                {welcomeScreen &&
+                  <Card variant="outlined" sx={
+                    // Move to middle of screen
+                    {
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '80%',
+                      maxWidth: '600px',
+                      transition: 'opacity 1s ease-in-out',
+                      zIndex: 100000,
+                      position: 'absolute',
+                    }}>
+                    <Typography level="title-md" sx={{ textAlign: 'center', mb: 1 }}>
+                      Welkom bij Cabinet puzzel!
+                    </Typography>
+                    <Typography level="body-md" sx={{ mb: 1 }}>
+                      Kies een van de objecten uit de kast en activeer het mechanisme om de Hollandsche IJsselkering te sluiten.
+                    </Typography>
 
-                      }
+                    <IconButton onClick={() => setWelcomeScreen(false)} color="danger" size="sm" sx={{
+                      position: 'absolute',
+                      top: '0',
+                      right: '0',
+                      m: 1,
+                      mt: 0.4,
+                    }}>
+                      <Close />
+                    </IconButton>
+                  </ Card >
+                }
+                <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
+                  position: 'absolute',
+                  bottom: '94px',
+                  left: '12px',
+                  zIndex: 10000,
+                }}>
+                  {/* Left Panel */}
+                  <Stack spacing={1} p={2}
+                    sx={{
+                      borderRadius: 2,
+                      boxShadow: 2,
+                      opacity: 0.95,
+                      backgroundColor: '#181c20',
                     }}
-                  />
-                  <Typography level="body-md" textColor="white" sx={{ textAlign: 'center' }}>Acceleratie</Typography>
-                </Stack >
-              </Stack>
+                  >
+                    <Button onClick={() => {
+                      handleActivateClick()
+                    }}>Activeren</Button>
+                    <Button onClick={() => handleResetClick()}>Reset</Button>
+                  </Stack>
+                  {/* Right Panel */}
+                  <Stack direction="column" spacing={1} justifyContent="center" p={1}
+                    sx={{
+                      borderRadius: 2,
+                      boxShadow: 2,
+                      opacity: 0.95,
+                      backgroundColor: '#181c20',
+                    }}
+                  >
+                    <GaugeComponent
+                      style={{
+                        width: '220px',
+                      }}
+                      type="semicircle"
+                      value={speed}
+                      minValue={0}
+                      maxValue={3}
+                      arc={{
+                        width: 0.22,
+                        padding: 0,
+                        cornerRadius: 0,
+                        subArcs: [
+                          { limit: 0.5, color: '#EA4228', showTick: true },
+                          { limit: 0.95, color: '#F5CD19', showTick: true },
+                          { limit: 1.05, color: '#5BE12C', showTick: true },
+                          { limit: 1.5, color: '#F5CD19', showTick: true },
+                          { color: '#EA4228' }
+                        ]
+                      }}
+                      pointer={{
+                        color: 'gray',
+                        length: 0.80,
+                        width: 14,
+                        elastic: true,
+                        animationDuration: 1000,
+                      }}
+                      labels={{
+                        valueLabel: { formatTextValue: value => value + ' m/s²' },
+                        tickLabels: {
+                          defaultTickValueConfig: {
+                            style: { fontSize: 12 },
+                          },
+
+                        }
+                      }}
+                    />
+                    <Typography level="body-md" textColor="white" sx={{ textAlign: 'center' }}>Acceleratie</Typography>
+                  </Stack >
+                </Stack>
+
+              </>
             )}
             {currentLevel === 3 && (
               <>
@@ -465,7 +567,7 @@ function App() {
                       Welkom bij de laatste puzzel!
                     </Typography>
                     <Typography level="body-md" sx={{ mb: 1 }}>
-                      In deze puzzel moeten jullie een boot naar de overkant bij EWI duwen. Jullie moeten hiervoor eerst een ondergrond materiaal uitkiezen waarbij jullie denken dat de boot voor het EWI gebouw terecht komt. Daarna moeten jullie de boot duwen door op de knop te drukken. Als de boot voor het EWI gebouw terecht komt, dan hebben jullie de puzzel opgelost.
+                      Kies het vloertype en de duwkracht om uit het gebouw te ontsnappen met de gewenste acceleratie.
                     </Typography>
 
                     <IconButton onClick={() => setWelcomeScreen(false)} color="danger" size="sm" sx={{
