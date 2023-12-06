@@ -62,10 +62,10 @@ export const Level04Model = forwardRef((props, ref) => {
         if (e.action._clip.name === "TooNear" || e.action._clip.name === "TooFar") {
           takeLive()
           resetLevel()
-          actions['Pushing'].play()
-          actions[animation].play()
-          actions['Pushing'].stop()
-          actions[animation].stop()
+          actions['Pushing']?.play()
+          actions[animation]?.play()
+          actions['Pushing']?.stop()
+          actions[animation]?.stop()
         }
         else if (e.action._clip.name === "Correct") {
           setGameWon(true)

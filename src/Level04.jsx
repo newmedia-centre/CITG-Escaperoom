@@ -39,19 +39,6 @@ export const Level04 = forwardRef((props, ref) => {
 
   const changeCamera = (scene) => {
     switch (scene) {
-      default:
-        setCamControls(true)
-        setCameraFollowing({})
-        // Fit the camera to the materials
-
-        cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, false)
-        cameraControlsRef.current?.fitToBox(materialsRef.current, true, {
-          cover: true
-        })
-        // Get position of the materials
-        var dir = materialsRef.current?.getWorldPosition(new Vector3())
-        cameraControlsRef.current?.setTarget(dir.x, dir.y - 0.2, dir.z - 0.2, true)
-        break;
       case "materials":
         setCamControls(true)
         setCameraFollowing({})
@@ -73,10 +60,28 @@ export const Level04 = forwardRef((props, ref) => {
         //   cover: true,
         // })
         setCameraFollowing(boatRef)
+        break;
 
+      default:
+        setCamControls(true)
+        setCameraFollowing({})
+        // Fit the camera to the materials
+
+        cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, false)
+        cameraControlsRef.current?.fitToBox(materialsRef.current, true, {
+          cover: true
+        })
+        // Get position of the materials
+        var dir = materialsRef.current?.getWorldPosition(new Vector3())
+        cameraControlsRef.current?.setTarget(dir.x, dir.y - 0.2, dir.z - 0.2, true)
         break;
     }
   }
+
+  useEffect(() => {
+    changeCamera("materials")
+
+  }, [])
 
   const followModelPosition = () => {
     if (Object.keys(cameraFollowing) != 0 && cameraControlsRef.current) {
@@ -127,10 +132,6 @@ export const Level04 = forwardRef((props, ref) => {
       }
     }
   }))
-
-  useEffect(() => {
-    changeCamera(selectedObject?.name)
-  }, [selectedObject])
 
   useControls({
     // Switch camera list
