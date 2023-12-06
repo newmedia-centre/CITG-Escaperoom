@@ -19,7 +19,7 @@ import { WeightRack } from "./WeightRack"
 import level02Solutions from "./level02-solutions"
 
 export const Level02 = forwardRef((props, ref) => {
-  const { speed: acceleration, setSpeed: setAcceleration, lives, setLives, setGameOver, setResetGame, resetGame } = props
+  const { speed: acceleration, setSpeed: setAcceleration, lives, setLives, setGameOver, setGameWon } = props
   const weightRef = useRef()
   const cabinetRef = useRef()
   const cameraControlsRef = useRef()
