@@ -373,7 +373,7 @@ function App() {
                       width: '80%',
                       maxWidth: '600px',
                       transition: 'opacity 1s ease-in-out',
-                      zIndex: 100000,
+                      zIndex: 10000,
                       position: 'absolute',
                     }}>
                     <Typography level="title-md" sx={{ textAlign: 'center', mb: 1 }}>
