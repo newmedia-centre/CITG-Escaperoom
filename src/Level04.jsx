@@ -27,7 +27,7 @@ export const Level04 = forwardRef((props, ref) => {
   const materialsRef = useRef()
 
   const resetLevel = () => {
-    changeCamera()
+    changeCamera("materials")
   }
 
   const takeLive = () => {
@@ -40,40 +40,26 @@ export const Level04 = forwardRef((props, ref) => {
   const changeCamera = (scene) => {
     switch (scene) {
       case "materials":
-        setCamControls(true)
         setCameraFollowing({})
-        // Fit the camera to the materials
 
-        cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, false)
-        cameraControlsRef.current?.fitToBox(materialsRef.current, true, {
-          cover: true
-        })
-        // Get position of the materials
-        var dir = materialsRef.current?.getWorldPosition(new Vector3())
-        cameraControlsRef.current?.setTarget(dir.x, dir.y - 0.2, dir.z - 0.2, true)
-
+        // wait for a second to let the camera move to the materials
+        setTimeout(() => {
+          // Fit the camera to the materials
+          cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, false)
+          cameraControlsRef.current?.fitToBox(materialsRef.current, true, {
+            cover: true
+          })
+          // Get position of the materials
+          var dir = materialsRef.current?.getWorldPosition(new Vector3())
+          cameraControlsRef.current?.setTarget(dir.x, dir.y - 0.2, dir.z - 0.2, true)
+        }, 500)
         break;
       case "boat":
-        setCamControls(true)
+        setCameraFollowing(boatRef)
         cameraControlsRef.current?.setLookAt(20, 10, 0, 0, 1, 0, true)
         // cameraControlsRef.current?.fitToBox(boatRef.current, true, {
         //   cover: true,
         // })
-        setCameraFollowing(boatRef)
-        break;
-
-      default:
-        setCameraFollowing({})
-        setCamControls(true)
-        // Fit the camera to the materials
-
-        cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, false)
-        cameraControlsRef.current?.fitToBox(materialsRef.current, true, {
-          cover: true
-        })
-        // Get position of the materials
-        var dir = materialsRef.current?.getWorldPosition(new Vector3())
-        cameraControlsRef.current?.setTarget(dir.x, dir.y - 0.2, dir.z - 0.2, true)
         break;
     }
   }
@@ -94,7 +80,6 @@ export const Level04 = forwardRef((props, ref) => {
 
   useImperativeHandle(ref, () => ({
     resetLevel: () => resetLevel(),
-    changeCamera: (scene) => changeCamera(scene),
     play: () => {
       if (selectedObject.length != 0) {
 

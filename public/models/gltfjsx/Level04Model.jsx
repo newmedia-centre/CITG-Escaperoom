@@ -60,15 +60,17 @@ export const Level04Model = forwardRef((props, ref) => {
     const fn = (e) => {
       if (e.action !== actions['Pushing']) {
         if (e.action._clip.name === "TooNear" || e.action._clip.name === "TooFar") {
-          takeLive()
+          // takeLive()
           resetLevel()
+          // Set the time of the animation to the start frame
+          mixer.setTime(0)
           actions['Pushing']?.play()
           actions[animation]?.play()
           actions['Pushing']?.stop()
           actions[animation]?.stop()
         }
         else if (e.action._clip.name === "Correct") {
-          setGameWon(true)
+          // setGameWon(true)
         }
       }
     }
