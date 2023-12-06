@@ -700,8 +700,8 @@ function FinishedWinScreen({ penalty, won, playerID }) {
         textAlign: 'center',
         color: "gray"
       }}>
-        <Typography level="h3">Gefeliciteerd, geweldige civieltechnische helden! Jullie hebben het onmogelijke gedaan en met succes de Deltawerken gesloten, waardoor een catastrofe werd afgewend en talloze levens werden gered. Jullie teamwork, doorzettingsvermogen en begrip van dynamica hebben het verschil gemaakt.</Typography>
-        <Typography level="h3">Jullie hebben als team {400 - penalty} punten en staan daarmee voorlopig op plaats {playerIndex}.</Typography>
+        <Typography level="h3" color="white">Gefeliciteerd, geweldige civieltechnische helden! Jullie hebben het onmogelijke gedaan en met succes de Deltawerken gesloten, waardoor een catastrofe werd afgewend en talloze levens werden gered. Jullie teamwork, doorzettingsvermogen en begrip van dynamica hebben het verschil gemaakt.</Typography>
+        <Typography level="h3" color="white">Jullie hebben als team {400 - penalty} punten en staan daarmee voorlopig op plaats {playerIndex}.</Typography>
       </Card>
       <Card color="neutral" sx={{
         backgroundColor: 'rgba(22, 22, 22, 1)',

@@ -15,6 +15,7 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
     const scale = [0.4, 0.05, 0.4]
     const scaleFactor = 1.1
     const originalPosition = position
+    const errorMargin = 0.085
 
     const solutionRef = useRef()
     const inputRef = useRef()
@@ -46,8 +47,8 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
 
     // Stop video from playing when allowing user to input solution
     useEffect(() => {
-        puzzleTexture.source.data.loop = false
-    }, [allowUserInput])
+        vectorTexture.source.data.loop = !puzzle?.showVector[puzzleId]
+    }, [puzzle?.showVector[puzzleId]])
 
     // Show puzzle vector when puzzle is selected, it should also check if puzzle id is in place
     const showPuzzleVector = (puzzleId) => {
@@ -181,7 +182,7 @@ export const PuzzlePiece = forwardRef(({ ...props }, ref) => {
                 var distance = inputRef.current?.position.distanceTo(solutionRef.current?.position);
 
                 // If the distance is less than x the puzzle is solved
-                if (distance < 0.1) {
+                if (distance < errorMargin) {
                     setPuzzleSolved();
                     setSolutionEntered();
                     setSolutionEnteredInt(true);

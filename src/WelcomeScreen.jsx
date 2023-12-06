@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { Button, Stack, List, ListItem, Divider, Input, Card, Typography } from '@mui/joy'
+import React, { useState } from 'react'
+import { Button, Stack, List, ListItem, Divider, Input, Card, Typography, ButtonGroup } from '@mui/joy'
 
 export default function WelcomeScreen({ onSubmit, setPlayerIDInput, playerIDInput, registerPlayer }) {
 
@@ -106,8 +106,13 @@ export default function WelcomeScreen({ onSubmit, setPlayerIDInput, playerIDInpu
                 {renderPage()}
 
                 <Divider />
-                <Button variant="text" onClick={() => handleClick(-1)} size="lg">Vorige</Button>
-                <Button variant="text" onClick={() => handleClick(1)} size="lg">Volgende</Button>
+                <ButtonGroup orientation="horizontal" variant="solid" size="md" sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                }}>
+                    <Button onClick={() => handleClick(-1)} size="lg">Vorige</Button>
+                    <Button onClick={() => handleClick(1)} size="lg">Volgende</Button>
+                </ButtonGroup>
             </Card>
         </Stack >
     )
