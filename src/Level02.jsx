@@ -16,17 +16,18 @@ import React, { useEffect, useMemo, useRef, forwardRef, useImperativeHandle, use
 import { Level02Model } from "../public/models/gltfjsx/Level02Model"
 import { useSpring, animated, easings } from '@react-spring/three'
 import { WeightRack } from "./WeightRack"
+import level02Solutions from "./level02-solutions"
 
 export const Level02 = forwardRef((props, ref) => {
-  const { speed: acceleration, setSpeed: setAcceleration, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame } = props
+  const { speed: acceleration, setSpeed: setAcceleration, lives, setLives, setGameOver, setGameWon } = props
   const weightRef = useRef()
   const cabinetRef = useRef()
   const cameraControlsRef = useRef()
   const laserRef = useRef()
   const solutionRef = useRef()
-  const [weightRing, setWeightRing] = useState(0)
-  const [weightSphere, setWeightSphere] = useState(0)
-  const [weightCylinder, setWeightCylinder] = useState(0)
+  const [weightRingIndex, setWeightRingIndex] = useState(0)
+  const [weightSphereIndex, setWeightSphereIndex] = useState(0)
+  const [weightCylinderIndex, setWeightCylinderIndex] = useState(0)
   const { camera } = useThree()
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [weightHit, setWeightHit] = useState(false)
@@ -65,18 +66,6 @@ export const Level02 = forwardRef((props, ref) => {
     }
   }))
 
-  const accelerations = {
-    ring: [
-      -4.2, -3.4, -2.6, -1.8, -1.0, -0.2, 0.6, 1.4, 2.2, 3.0, 3.8, 4.6, 5.4, 6.2
-    ],
-    cylinder: [
-      -5.6, -5.0, -4.4, -3.8, -3.2, -2.6, -2.0, -1.4, -0.8, -0.2, 0.4, 1.0, 1.6, 2.2
-    ],
-    sphere: [
-      -5.9, -5.3, -4.8, -4.2, -3.7, -3.1, -2.5, -2.0, -1.4, -0.85, -0.3, 0.3, 0.8, 1.4
-    ]
-  }
-
   const resetLevel = () => {
     changeCamera("bench")
     setProgress({
@@ -105,13 +94,13 @@ export const Level02 = forwardRef((props, ref) => {
     // Set the acceleration based on the selected solution and weight
     switch (selectedSolution) {
       case "sphere":
-        setAcceleration(accelerations.sphere[weightSphere - 1])
+        setAcceleration(level02Solutions.solutions.sphere[weightSphereIndex].acceleration)
         break;
       case "cylinder":
-        setAcceleration(accelerations.cylinder[weightCylinder - 1])
+        setAcceleration(level02Solutions.solutions.cylinder[weightCylinderIndex].acceleration)
         break;
       case "ring":
-        setAcceleration(accelerations.ring[weightRing - 1])
+        setAcceleration(level02Solutions.solutions.ring[weightRingIndex].acceleration)
         break;
     }
   }
@@ -172,17 +161,6 @@ export const Level02 = forwardRef((props, ref) => {
   }))
 
   useEffect(() => {
-    if (cameraControlsRef.current) {
-      cameraControlsRef.current?.setLookAt(50, 50, -10, 0, 0, 0, false)
-      cameraControlsRef.current?.setLookAt(10, 5, 0, 0, 0, 0, true)
-      changeCamera("bench")
-    }
-    if (resetGame) {
-      setResetGame(false)
-    }
-  }, [])
-
-  useEffect(() => {
     changeCamera(selectedObject?.name)
   }, [selectedObject])
 
@@ -197,13 +175,13 @@ export const Level02 = forwardRef((props, ref) => {
     //   },
     // },
     // Switch camera list
-    camera: {
-      value: "bench",
-      options: ["cabinet", "door", "bench", "weight", "solution"],
-      onChange: (value) => {
-        changeCamera(value)
-      },
-    },
+    // camera: {
+    //   value: "bench",
+    //   options: ["cabinet", "door", "bench", "weight", "solution"],
+    //   onChange: (value) => {
+    //     changeCamera(value)
+    //   },
+    // },
   })
 
   useFrame(({ clock }) => {
@@ -220,7 +198,7 @@ export const Level02 = forwardRef((props, ref) => {
       const intersections = laserRaycast()
       if (intersections.length > 3) {
         setWeightHit(true)
-        if (acceleration <= -0.9 && acceleration >= -1.0) {
+        if (acceleration <= 1.05 && acceleration >= 0.95) {
           setGameWon(true)
         }
         else {
@@ -246,9 +224,9 @@ export const Level02 = forwardRef((props, ref) => {
         }}
           progress={progress.progress}
         >
-          <WeightRack weight={weightSphere} setWeight={setWeightSphere} setSelectedSolution={setSelectedSolution} objectType={'sphere'} scale={1} position={[-2.55, .81, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
-          <WeightRack weight={weightCylinder} setWeight={setWeightCylinder} setSelectedSolution={setSelectedSolution} objectType={'cylinder'} scale={1} position={[-2.55, 1.23, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
-          <WeightRack weight={weightRing} setWeight={setWeightRing} setSelectedSolution={setSelectedSolution} objectType={'ring'} scale={1} position={[-2.55, .42, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+          <WeightRack weight={weightSphereIndex} setWeight={setWeightSphereIndex} setSelectedSolution={setSelectedSolution} objectType={'sphere'} scale={1} position={[-2.55, .81, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+          <WeightRack weight={weightCylinderIndex} setWeight={setWeightCylinderIndex} setSelectedSolution={setSelectedSolution} objectType={'cylinder'} scale={1} position={[-2.55, 1.23, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
+          <WeightRack weight={weightRingIndex} setWeight={setWeightRingIndex} setSelectedSolution={setSelectedSolution} objectType={'ring'} scale={1} position={[-2.55, .42, 2.08]} offsetZ={-0.44} rotation={[0, Math.PI / 2, 0]} />
 
           <Level02Model ref={{
             weightRef: weightRef,
@@ -259,7 +237,7 @@ export const Level02 = forwardRef((props, ref) => {
             progress={progress.progress}
             setSelectedObject={setSelectedObject}
             selectedSolution={selectedSolution}
-            weightsIndex={{ weightSphere, weightRing, weightCylinder }}
+            weightsIndex={{ weightSphere: weightSphereIndex, weightRing: weightRingIndex, weightCylinder: weightCylinderIndex }}
           />
         </animated.group>
 

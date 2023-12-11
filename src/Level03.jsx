@@ -69,9 +69,7 @@ export const Level03 = forwardRef((props, ref) => {
       case "puzzleslots":
         setCamControls(true)
         cameraControlsRef.current?.setLookAt(.2, 3, 0, 0, .1, 0, false)
-        cameraControlsRef.current?.fitToBox(puzzleSlotViewRef.current, false, {
-          cover: true,
-        })
+        cameraControlsRef.current?.fitToBox(puzzleSlotViewRef.current, false)
         setTimeout(() => {
           setCamControls(false)
         }, 20) // Wait for camera to move in place
@@ -186,7 +184,7 @@ export const Level03 = forwardRef((props, ref) => {
           </Text3D>
 
         </Center>
-        <Box ref={puzzleSlotViewRef} args={[2, 2, 2]} position={[0, 0, 0.5]} visible={false} />
+        <Box ref={puzzleSlotViewRef} args={[1, 0.2, 1]} position={[0.2, 1, 0.5]} visible={false} />
         <Box ref={tableRef} args={[3.5, 3.5, 3.5]} position={[0, 0, 0]} visible={false} />
 
         <group name="Pieces" position={[0.193, 0.871, -0.505]}>
@@ -225,7 +223,7 @@ export const Level03 = forwardRef((props, ref) => {
             }))}
             puzzle={puzzles}
             setPuzzleSolved={() => setPuzzleSolved(puzzleSolved + 1)}
-            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.265, 0, 0.12]} />
+            setSolutionEntered={() => setSolutionEntered(solutionEntered + 1)} solutionCoords={[0.26, 0, 0.14]} />
           <PuzzleSlot puzzleId={0} position={[-0.221, 0.013, 1.217]} video="videos/Puzzle_0" />
           <PuzzleSlot puzzleId={1} position={[-0.221, 0.013, 0.783]} video="videos/Puzzle_1" />
           <PuzzleSlot puzzleId={2} position={[0.221, 0.013, 1.217]} video="videos/Puzzle_2" />
@@ -304,7 +302,7 @@ function PuzzleSlot({ position, puzzleId, video, showPuzzle }) {
       <Box args={size3D} position={position} ref={physicsRef} name={puzzleId} userData={{ index }}>
         <meshBasicMaterial visible={false} />
         <Text anchorX={"center"} anchorY={"middle"} color={"black"} fontSize={0.05} position={[0.16, 0.01, 0.16]} rotation={[-Math.PI / 2, 0, 0]} visible={!showPuzzle}>
-          {puzzleId}
+          {puzzleId + 1}
         </Text>
         <Plane args={size2D} visible={false} rotation={[-Math.PI / 2, 0, 0]}>
           <meshStandardMaterial map={puzzleTexture} />

@@ -15,11 +15,10 @@ import * as THREE from "three";
 import { useThree } from "@react-three/fiber";
 import { useControls } from "leva";
 import { EffectComposer, N8AO, SMAA } from "@react-three/postprocessing";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { Level01Model } from "../public/models/gltfjsx/Level01Model";
 import { Cannon } from "../public/models/gltfjsx/Cannon";
 import { Target } from "../public/models/gltfjsx/Target";
-import { CannonBallHint } from "../public/models/gltfjsx/CannonBallHint"
 import { WaterLevel } from "../public/models/gltfjsx/WaterLevel"
 import { WindowBlueprint } from "../public/models/gltfjsx/WindowBlueprint"
 import { PilarBlueprint } from "../public/models/gltfjsx/PilarBlueprint"
@@ -33,6 +32,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   const platformRef = useRef()
   const [cannonBallRef, cannonBallApi] = useSphere(() => ({
     args: [0.2],
+    position: [0, 20, 0],
     mass: 1,
     onCollide: (e) => handleCollision(e, "cannonBall")
   }))
@@ -52,6 +52,8 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   const [cameraFocus, setCameraFocus] = useState('default')
   const [selectedObject, setSelectedObject] = useState([])
 
+  const cannonAngleSolutionRange = [22, 26]
+
   const changeCamera = (scene) => {
     switch (scene) {
       case "cannon":
@@ -68,7 +70,6 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     }
   }
 
-  let hitHandled = false
   const [elapsed, setElapsed] = useState(0) // time elapsed
 
   const waterLevel = 2.3
@@ -77,18 +78,25 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     oceanRef.current.position.y = waterLevel
   }
 
-  const handleCollision = (event, name) => {
-    if (name === "cannonBall" && !hitHandled && !gameOver && !gameWon) {
-      if (event.body.uuid === targetRef.current.uuid) {
-        // console.log("The target was hit first!")
-        setGameWon(true)
-      } else if (event.body.uuid === groundRef.current.uuid) {
-        // console.log("The ground was hit first!")
-        takeLive()
-      }
-      hitHandled = true
+  const { cannonAngle } = useControls({
+    cannonAngle: {
+      value: 0.000, min: 0, max: (THREE.MathUtils.RAD2DEG * Math.PI / 2), step: 0.001,
+      label: "Kanon hoek in graden"
     }
-  }
+  })
+
+  useEffect(() => {
+    if (cannonRef.current) {
+      cannonRef.current.rotation.x = THREE.MathUtils.DEG2RAD * cannonAngle
+    }
+
+  }, [cannonAngle])
+
+  useEffect(() => {
+    if (cannonRef.current) {
+      resetCannonBall()
+    }
+  }, [cannonRef.current])
 
   function CannonBall({ position }) {
     return (
@@ -98,41 +106,75 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     )
   }
 
+  const resetCannonBall = () => {
+    // Reset cannonball
+    if (cannonRef.current == null) return
+
+    const cannonPosition = cannonRef.current.getWorldPosition(new THREE.Vector3())
+    const cannonRotation = cannonRef.current.getWorldQuaternion(new THREE.Quaternion())
+    cannonBallApi.position.set(cannonPosition.x, cannonPosition.y, cannonPosition.z)
+    cannonBallApi.rotation.set(cannonRotation.x, cannonRotation.y, cannonRotation.z)
+    cannonBallApi.velocity.set(0, 0, 0)
+    cannonBallApi.angularVelocity.set(0, 0, 0)
+    cannonBallApi.mass.set(0)
+  }
+
   const takeLive = () => {
     setLives(lives => lives - 1) // Updates lives using callback
   }
 
-  // Define a function to switch the mass
-  const switchMass = (newMass = 0) => {
-    cannonBallApi.mass.set(newMass);
+  const handleCollision = (event, name) => {
+    if (name === "cannonBall" && !gameOver && !gameWon) {
+      if (event.body.uuid === targetRef.current.uuid) {
+        // console.log("The target was hit first!")
+        setGameWon(true)
+      } else if (event.body.uuid === groundRef.current.uuid) {
+        // console.log("The ground was hit first!")
+        takeLive()
+      }
+      resetCannonBall()
+    }
   }
 
   // Cannon speed is 7.5 m/s
-  const fireCannon = (forceMagnitude = 7.5) => {
+  const fireFunction = () => {
+    resetCannonBall()
+
+    if (resetGame) {
+      resetWaterLevel()
+      setResetGame(false)
+    }
     if (cannonRef.current && cannonBallRef.current) {
 
-      hitHandled = false
-
-      cannonBallApi.mass.set(0.0155)
-      const cannonPosition = cannonRef.current.getWorldPosition(new THREE.Vector3())
-      const cannonRotation = cannonRef.current.getWorldQuaternion(new THREE.Quaternion())
-
-      // Calculate the direction vector of the cannon barrel
+      let forceMagnitude = 7.5
+      cannonBallApi.mass.set(0.0165)
 
       // Create a direction vector pointing in the direction of the cannon barrel
       const direction = new THREE.Vector3(0, 0, -1) // 1 unit along the z-axis
 
+
+      // Offset the force magnitude if the angle solution is not within the error margin of the cannon angle
+      // Check if the value is in between the solution range array
+      if (cannonAngle > cannonAngleSolutionRange[1]) {
+        forceMagnitude = forceMagnitude * 1.2
+      }
+      else if (cannonAngle < cannonAngleSolutionRange[0]) {
+        forceMagnitude = forceMagnitude * 0.8
+      }
+
       // Calculate force vector
       const force = direction.multiplyScalar(forceMagnitude);
 
-
-      cannonBallApi.position.set(cannonPosition.x, cannonPosition.y, cannonPosition.z)
-      cannonBallApi.rotation.set(cannonRotation.x, cannonRotation.y, cannonRotation.z)
-      cannonBallApi.velocity.set(0, 0, 0)
-      cannonBallApi.angularVelocity.set(0, 0, 0)
+      // Apply directional force
       cannonBallApi.applyLocalForce(force.toArray(), [0, 0, 0])
+
     }
   }
+
+  useMemo(() => {
+    setFireFunction(() => fireFunction)
+  }, [setFireFunction, cannonAngle, resetGame])
+
 
   const resetWaterLevel = () => {
     setElapsed(0);
@@ -155,28 +197,6 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   useEffect(() => {
     changeCamera(selectedObject?.name)
   }, [selectedObject])
-
-  useEffect(() => {
-    if (cannonBallRef.current && cannonRef.current) {
-      switchMass()
-      let worldPos = new THREE.Vector3()
-      cannonRef.current.getWorldPosition(worldPos)
-      cannonBallApi.position.set(worldPos.x, worldPos.y, worldPos.z)
-    }
-    if (resetGame) {
-      resetWaterLevel()
-      setResetGame(false)
-    }
-    setFireFunction(() => fireCannon)
-  }, [setFireFunction])
-
-  useControls({
-    cannonAngle: {
-      value: 0.000, min: 0, max: (THREE.MathUtils.RAD2DEG * Math.PI / 2), step: 0.001,
-      onChange: (value) => cannonRef.current.rotation.x = THREE.MathUtils.DEG2RAD * value,
-      label: "Kanon hoek in graden"
-    }
-  })
 
   return (
     <>
@@ -248,19 +268,19 @@ function Env() {
 function Ground({ ref }) {
   const gridConfig = {
     cellSize: 0.5,
-    cellThickness: 0.5,
-    cellColor: 'white',
+    cellThickness: 0.34,
+    cellColor: 'black',
     sectionSize: 3,
     sectionThickness: 1,
     sectionColor: 'gray',
-    fadeDistance: 30,
+    fadeDistance: 39,
     fadeStrength: 1,
     followCamera: false,
     infiniteGrid: true
   }
   return (
     <>
-      <Grid ref={ref} position={[0, -0.01, 0]} args={[10.5, 10.5]} {...gridConfig} />
+      <Grid ref={ref} position={[0, 2.1, 0]} args={[10.5, 10.5]} {...gridConfig} />
     </>)
 }
 

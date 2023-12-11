@@ -7,23 +7,21 @@ import {
   PerformanceMonitor,
   CameraControls,
   ContactShadows,
-
 } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { Vector3 } from "three"
 import { useControls } from "leva"
 import React, { useEffect, useRef, forwardRef, useImperativeHandle, useState, useTransition } from "react"
 import { Level04Model } from "../public/models/gltfjsx/Level04Model"
-import JSONPretty from 'react-json-pretty'
 
 export const Level04 = forwardRef((props, ref) => {
-  const { lives, setLives, setGameWon, setGameOver, setResetGame, resetGame } = props
+  const { lives, setLives, setGameWon, setGameOver, force } = props
   const [cameraFollowing, setCameraFollowing] = useState({})
   const [camControlsEnabled, setCamControls] = useState(true)
   const [selectedObject, setSelectedObject] = useState([])
   const [animation, setAnimation] = useState()
-  const { camera } = useThree()
 
+  const { camera } = useThree()
   const cameraControlsRef = useRef()
   const boatRef = useRef()
   const materialsRef = useRef()
@@ -41,36 +39,35 @@ export const Level04 = forwardRef((props, ref) => {
 
   const changeCamera = (scene) => {
     switch (scene) {
-      case "default":
-        setCamControls(true)
-        setCameraFollowing({})
-        cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, true)
-        break;
       case "materials":
-        setCamControls(true)
         setCameraFollowing({})
-        // Fit the camera to the materials
 
-        cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, false)
-        cameraControlsRef.current?.fitToBox(materialsRef.current, true, {
-          cover: true
-        })
-        // Get position of the materials
-        var dir = materialsRef.current?.getWorldPosition(new Vector3())
-        cameraControlsRef.current?.setTarget(dir.x, dir.y - 0.2, dir.z - 0.2, true)
-
+        // wait for a second to let the camera move to the materials
+        setTimeout(() => {
+          // Fit the camera to the materials
+          cameraControlsRef.current?.setLookAt(100, 30, 0, 0, .1, 0, false)
+          cameraControlsRef.current?.fitToBox(materialsRef.current, true, {
+            cover: true
+          })
+          // Get position of the materials
+          var dir = materialsRef.current?.getWorldPosition(new Vector3())
+          cameraControlsRef.current?.setTarget(dir.x, dir.y - 0.2, dir.z - 0.2, true)
+        }, 500)
         break;
       case "boat":
-        setCamControls(true)
+        setCameraFollowing(boatRef)
         cameraControlsRef.current?.setLookAt(20, 10, 0, 0, 1, 0, true)
         // cameraControlsRef.current?.fitToBox(boatRef.current, true, {
         //   cover: true,
         // })
-        setCameraFollowing(boatRef)
-
         break;
     }
   }
+
+  useEffect(() => {
+    changeCamera("materials")
+
+  }, [])
 
   const followModelPosition = () => {
     if (Object.keys(cameraFollowing) != 0 && cameraControlsRef.current) {
@@ -83,42 +80,53 @@ export const Level04 = forwardRef((props, ref) => {
 
   useImperativeHandle(ref, () => ({
     resetLevel: () => resetLevel(),
-    changeCamera: (scene) => changeCamera(scene),
     play: () => {
       if (selectedObject.length != 0) {
-        switch (selectedObject?.name) {
-          case "Wood":
+
+        // TODO: Receive current force value from the UI
+
+        if (selectedObject?.name == "Concrete") {
+          if (force == 800) {
             setAnimation("Correct")
-            break;
-          case "Ice":
+          }
+          else if (force > 800) {
             setAnimation("TooFar")
-            break;
-          case "Sand":
-            setAnimation("TooFar")
-            break;
-          case "Concrete":
+          }
+          else {
             setAnimation("TooNear")
-            break;
+          }
         }
 
+        if (selectedObject?.name == "Ice") {
+          setAnimation("TooFar")
+        }
+
+        if (selectedObject?.name == "Sand") {
+          setAnimation("TooNear")
+        }
+
+        if (selectedObject?.name == "Wood") {
+          if (force <= 800) {
+            setAnimation("TooNear")
+          }
+          else {
+            setAnimation("TooFar")
+          }
+        }
         changeCamera("boat")
       }
     }
   }))
 
-  useEffect(() => {
-    changeCamera(selectedObject?.name)
-  }, [selectedObject])
-
   useControls({
     // Switch camera list
-    camera: {
-      value: "materials",
-      options: ["default", "materials", "boat"],
-      onChange: (value) => {
-        changeCamera(value)
-      },
-    },
+    // camera: {
+    //   value: "materials",
+    //   options: ["default", "materials", "boat"],
+    //   onChange: (value) => {
+    //     changeCamera(value)
+    //   },
+    // },
   })
 
   useFrame(({ clock }) => {
@@ -146,17 +154,6 @@ export const Level04 = forwardRef((props, ref) => {
           resetLevel={resetLevel}
         />
       </Center>
-
-      {/* 
-      Acceleratie: 2
-      Mgroep: 200
-      Mboot: 5
-      Low 1: 0.2133186217
-      Correct: 0.2143286547
-      High 2: 0.3153386877
-      High 1: 0.4123188197
-      
-      */}
 
       <AccumulativeShadows temporal frames={200} color="black" colorBlend={0.5} opacity={1} scale={10} alphaTest={0.85}>
         <RandomizedLight amount={8} radius={4} ambient={0.5} intensity={1} position={[5, 5, -10]} bias={0.001} />

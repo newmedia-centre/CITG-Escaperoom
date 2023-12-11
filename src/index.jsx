@@ -8,7 +8,7 @@ import Level02 from "./Level02"
 import Level03 from "./Level03"
 import Level04 from "./Level04"
 import { Suspense, useRef, useState, useEffect, useMemo } from "react";
-import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Input, Card, List, ListItem, Divider, Textarea, Table, Container } from "@mui/joy";
+import { CircularProgress, Typography, Button, IconButton, ButtonGroup, LinearProgress, Card, Select, Option } from "@mui/joy";
 import { QuestionMark, Close } from "@mui/icons-material";
 import { Stack } from '@mui/material';
 import { Physics, Debug } from "@react-three/cannon";
@@ -18,6 +18,7 @@ import { Leva } from "leva"
 import DatabaseClient from "./DatabaseClient"
 import hints from './hints'
 import gameMessages from "./game-messages"
+import WelcomeScreen from "./WelcomeScreen"
 
 function App() {
   const cannonRef = useRef()
@@ -34,8 +35,17 @@ function App() {
   const [playerState, setPlayerState] = useState()
   const [playerIDInput, setPlayerIDInput] = useState('')
   const [animationProgress, setAnimationProgress] = useState(0)
+  const [welcomeScreen, setWelcomeScreen] = useState(true)
+  const [level4Force, setLevel4Force] = useState(700)
 
-  const level02Ref = useRef()
+  const level4ForceOptions = [
+    700,
+    800,
+    900,
+    1000
+  ]
+
+  const level03Ref = useRef()
   const level04Ref = useRef()
   const totalTimeInMilliseconds = 90 * 60 * 1000
 
@@ -88,17 +98,17 @@ function App() {
 
   // Fire cannon
   const fireCannonBall = () => {
-    if (fireCannon) {
+    if (fireCannon !== null) {
       fireCannon()
     }
   }
 
   const handleActivateClick = () => {
-    level02Ref.current.activatePulley()
+    level03Ref.current.activatePulley()
   }
 
   const handleResetClick = () => {
-    level02Ref.current.resetLevel()
+    level03Ref.current.resetLevel()
   }
 
   // Reset game
@@ -211,7 +221,12 @@ function App() {
 
     if (playerState.StartTime + totalTimeInMilliseconds < Date.now()) {
       setGameOver(true)
-      setPlayerState(prev => ({ ...prev, EndTime: prev.StartTime + totalTimeInMilliseconds, Finished: true }))
+      setPlayerState(prev => ({
+        ...prev,
+        EndTime: prev.StartTime + totalTimeInMilliseconds,
+        Finished: true,
+        Penalty: (playerState?.Level1?.Penalty ?? 100) + (playerState?.Level2?.Penalty ?? 100) + (playerState?.Level3?.Penalty ?? 100) + (playerState?.Level4?.Penalty ?? 100)
+      }))
     }
   }, [playerState])
 
@@ -256,21 +271,21 @@ function App() {
 
   // show locked screen when levels are loaded in wrong order
   switch (currentLevel) {
-    case 1:
+    case 1: // Puzzle piece level
       if (!playerState?.Level1) {
         return (
           <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
         )
       }
       break;
-    case 2:
+    case 2: // Pulley level
       if (!playerState?.Level1 || !playerState?.Level2) {
         return (
           <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
         )
       }
       break;
-    case 3:
+    case 3: // Boat level
       if (!playerState?.Level1 || !playerState?.Level2 || !playerState?.Level3) {
         return (
           <LockedScreen text='Je moet eerst het vorige level afronden voordat je dit level kunt spelen' />
@@ -290,76 +305,7 @@ function App() {
       {/* If player name is not found register new Player */}
       {playerState === null && (
         <>
-          <Stack
-            spacing={2}
-            position={"absolute"}
-            direction={"column"}
-            justifyContent={"center"}
-            alignItems={"center"}
-            textAlign={"center"}
-            display={"flex"}
-            height={"100vh"}
-            width={"100vw"}
-            sx={{
-              backgroundColor: "rgba(0,0,0,0.74)",
-              userSelect: "none",
-              zIndex: 90000,
-            }}
-          >
-            <Card variant="soft" sx={{
-              m: 2,
-              overflowY: 'scroll',
-              paddingBottom: '64px'
-            }}>
-              <Typography level="h1">Welkom!</Typography>
-              <Typography level="h3">Team van toegewijde civieltechnici, bij deze Dynamica escape room!</Typography>
-              <Typography level="body-md">Tegenwoordig bevinden we ons in een wereld waarin de effecten van zeespiegelstijging ons allemaal raken. Maar vandaag is er iets rampzaligs gebeurd. Door een storm is een deel van het land ondergelopen en het is jullie taak als civiel ingenieurs om ervoor te zorgen dat de Deltawerken geactiveerd worden.</Typography>
-              <Typography level="body-md">De oplossing voor het sluiten van de Deltawerken ligt verborgen in een reeks uitdagende dynamische puzzels. Deze opgaven testen jullie kennis en vaardigheden op het gebied van krachten en beweging. Alleen door teamwork, slim denken en de juiste toepassing van dynamische principes kunnen jullie deze puzzels oplossen en de deltawerken activeren voordat het te laat is.</Typography>
-              <Typography level="body-md">Let op: in deze escape room gebruiken we dat de gravitatieversnelling g gelijk is aan 9.81 m/s².</Typography>
-              <Typography level="body-md">Voordat we beginnen, laten we de spelregels en praktische zaken even doornemen.</Typography>
-              <List
-                sx={{
-                  textAlign: 'left',
-                  justifyContent: 'left',
-                  alignItems: 'left',
-                  listStyleType: 'disc',
-                  pl: 2,
-                  '& .MuiListItem-root': {
-                    display: 'list-item',
-                  },
-                }}>
-                <ListItem>
-                  Jullie missie omvat vier cruciale puzzels op verschillende locaties, maar hier is de catch: de volgende locatie wordt pas bekendgemaakt nadat jullie geprobeerd hebben de puzzel op te lossen.
-                </ListItem>
-                <ListItem>
-                  Om de puzzels te openen scan je de QR code met je telefoon.
-                </ListItem>
-                <ListItem>
-                  Jullie hebben in totaal 1,5 uur de tijd om deze missie te voltooien, dus houd de tijd goed in de gaten!
-                </ListItem>
-                <ListItem>
-                  We begrijpen dat zelfs de slimsten onder ons soms vastlopen, dus er zijn hints beschikbaar om jullie op weg te helpen. Maar let op: als je besluit een hint te gebruiken, verlies je kostbare punten, dus gebruik ze met mate!
-                </ListItem>
-                <ListItem>
-                  Jullie zullen de voortgang van andere teams kunnen volgen op ons leaderboard, dus zorg ervoor dat je je best doet om bovenaan te staan als ware dynamica-experts. Voor het winnende team is er zelfs een prijs!
-                </ListItem>
-                <ListItem>
-                  Hier is een cruciale tip: bij een fout antwoord verlies je punten, en je hebt slechts drie pogingen per vraag, dus denk goed na voordat je een antwoord indient. Per vraag kunnen jullie 100 punten verdienen. Per verkeerd antwoord gaan er 20 punten af en per gebruikte hint 10 punten.
-                </ListItem>
-              </List>
-              <Typography level="body-md">De klok tikt, de druk neemt toe en het lot van ons land ligt in jullie handen. Ga de uitdaging aan, werk samen als nooit tevoren en laat zien dat jullie de toekomst van ons land veilig kunnen stellen. Red onze kusten, sluit de deltawerken en triomfeer over de dynamica escape room!</Typography>
-              <Typography level="body-md">De eerste puzzel is te vinden waar je het onderzoek naar beton en staal kunt bewonderen. (Oftewel, ga naar Stevinlab 2.) De tijd start zodra jullie de QR code van de eerste puzzel op de locatie hebben gescand.</Typography>
-              <Divider />
-              <Typography variant="soft" level="body-md">Vul hieronder je groepsnaam in om te beginnen.</Typography>
-
-              <form onSubmit={onSubmit} >
-                <Stack spacing={1}>
-                  <Input placeholder="Voer een groepsnaam in..." variant="plain" required value={playerIDInput} onChange={e => setPlayerIDInput(e.target.value)} />
-                  <Button type={"submit"} onClick={registerPlayer} size="lg">Start</Button>
-                </Stack>
-              </form>
-            </Card>
-          </Stack>
+          <WelcomeScreen onSubmit={onSubmit} setPlayerIDInput={setPlayerIDInput} playerIDInput={playerIDInput} registerPlayer={registerPlayer} />
         </>
       )
       }
@@ -380,7 +326,17 @@ function App() {
               bottom: '4px',
               right: '0',
               zIndex: 20000,
+              userSelect: 'none',
             }}>
+              <Card sx={{
+                padding: '8px',
+                position: 'absolute',
+                bottom: '38px',
+                right: '202px',
+                pr: 1.4,
+              }}>
+                <Typography>Pogingen: {lives}</Typography>
+              </Card>
               <Card sx={{
                 padding: '8px',
                 position: 'absolute',
@@ -388,7 +344,6 @@ function App() {
                 right: '102px',
                 pr: 1.4,
               }}>
-                <Typography>Pogingen: {lives}</Typography>
                 <Typography>Penalty: {(3 - lives) * 20 + (playerState && playerState[`Level${currentLevel + 1}`]?.usedHints || 0) * 10}</Typography>
               </Card>
               <IconButton variant="solid" color="warning" aria-label="Open in new tab" onClick={() => setShowHintPopup(!showHintPopup)}
@@ -397,6 +352,7 @@ function App() {
                   bottom: '38px',
                   right: '20px',
                   pr: 1.4,
+                  userSelect: 'none',
                 }}>
                 <QuestionMark />
                 Hints
@@ -406,102 +362,242 @@ function App() {
 
 
             {currentLevel === 0 && (
-              <Stack direction="row" spacing={3} justifyContent="center"
-                sx={{
-                  position: 'absolute',
-                  bottom: '32px',
-                  left: '50px',
-                  transform: 'translate(-50%, -20%)',
-                  userSelect: 'none',
-                }}
-                zIndex={10000}>
-                <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
-              </Stack >
+              <>
+                {welcomeScreen &&
+                  <Card variant="outlined" sx={
+                    // Move to middle of screen
+                    {
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '80%',
+                      maxWidth: '600px',
+                      transition: 'opacity 1s ease-in-out',
+                      zIndex: 10000,
+                      position: 'absolute',
+                    }}>
+                    <Typography level="title-md" sx={{ textAlign: 'center', mb: 1 }}>
+                      Welkom bij Kanon level
+                    </Typography>
+                    <Typography level="body-md" sx={{ mb: 1 }}>
+                      Vuur de kanonskogel af en raak de rode knop om de Maeslantkering te sluiten.
+                    </Typography>
+
+                    <IconButton onClick={() => setWelcomeScreen(false)} color="danger" size="sm" sx={{
+                      position: 'absolute',
+                      top: '0',
+                      right: '0',
+                      m: 1,
+                      mt: 0.4,
+                    }}>
+                      <Close />
+                    </IconButton>
+                  </ Card >
+                }
+                <Stack direction="row" spacing={3} justifyContent="center"
+                  sx={{
+                    position: 'absolute',
+                    bottom: '32px',
+                    left: '50px',
+                    transform: 'translate(-50%, -20%)',
+                    userSelect: 'none',
+                  }}
+                  zIndex={10000}>
+                  <Button onClick={fireCannonBall} variant="solid" size="lg" color="danger">Vuur!</Button>
+                </Stack >
+              </>
             )}
             {currentLevel === 1 && (
-              <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
-                position: 'absolute',
-                bottom: '94px',
-                left: '12px',
-                userSelect: 'none',
-                userEvents: 'none',
-                zIndex: 10000,
-              }}>
-                {/* Left Panel */}
-                <Stack spacing={1} p={2}
-                  sx={{
-                    borderRadius: 2,
-                    boxShadow: 2,
-                    opacity: 0.95,
-                    backgroundColor: '#181c20',
-                    userSelect: 'none',
-                    userEvents: 'none',
-                  }}
-                >
-                  <Button onClick={() => {
-                    handleActivateClick()
-                  }}>Activeren</Button>
-                  <Button onClick={() => handleResetClick()}>Reset</Button>
-                </Stack>
-                {/* Right Panel */}
-                <Stack direction="column" spacing={1} justifyContent="center" p={1}
-                  sx={{
-                    userSelect: 'none',
-                    userEvents: 'none',
-                    borderRadius: 2,
-                    boxShadow: 2,
-                    opacity: 0.95,
-                    backgroundColor: '#181c20',
-                  }}
-                >
-                  <GaugeComponent
-                    style={{
-                      width: '240px',
+              <>
+                {welcomeScreen &&
+                  <Card variant="outlined" sx={
+                    // Move to middle of screen
+                    {
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '80%',
+                      maxWidth: '600px',
+                      transition: 'opacity 1s ease-in-out',
+                      zIndex: 100000,
+                      position: 'absolute',
+                    }}>
+                    <Typography level="title-md" sx={{ textAlign: 'center', mb: 1 }}>
+                      Welkom bij OR puzzel
+                    </Typography>
+                    <Typography level="body-md" sx={{ mb: 1 }}>
+                      Vind het OR van de blauwe staaf in elk van de vier stukken om de Oosterscheldekering te sluiten.
+                    </Typography>
+
+                    <IconButton onClick={() => setWelcomeScreen(false)} color="danger" size="sm" sx={{
+                      position: 'absolute',
+                      top: '0',
+                      right: '0',
+                      m: 1,
+                      mt: 0.4,
+                    }}>
+                      <Close />
+                    </IconButton>
+                  </ Card >
+                }
+              </>
+            )}
+            {currentLevel === 2 && (
+              <>
+                {welcomeScreen &&
+                  <Card variant="outlined" sx={
+                    // Move to middle of screen
+                    {
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '80%',
+                      maxWidth: '600px',
+                      transition: 'opacity 1s ease-in-out',
+                      zIndex: 100000,
+                      position: 'absolute',
+                    }}>
+                    <Typography level="title-md" sx={{ textAlign: 'center', mb: 1 }}>
+                      Welkom bij Cabinet puzzel!
+                    </Typography>
+                    <Typography level="body-md" sx={{ mb: 1 }}>
+                      Kies een van de objecten uit de kast en activeer het mechanisme om de Hollandsche IJsselkering te sluiten.
+                    </Typography>
+
+                    <IconButton onClick={() => setWelcomeScreen(false)} color="danger" size="sm" sx={{
+                      position: 'absolute',
+                      top: '0',
+                      right: '0',
+                      m: 1,
+                      mt: 0.4,
+                    }}>
+                      <Close />
+                    </IconButton>
+                  </ Card >
+                }
+                <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
+                  position: 'absolute',
+                  bottom: '94px',
+                  left: '12px',
+                  zIndex: 10000,
+                }}>
+                  {/* Left Panel */}
+                  <Stack spacing={1} p={2}
+                    sx={{
+                      borderRadius: 2,
+                      boxShadow: 2,
+                      opacity: 0.95,
+                      backgroundColor: '#181c20',
                     }}
-                    type="semicircle"
-                    value={speed}
-                    minValue={-2}
-                    maxValue={0}
-                    arc={{
-                      width: 0.22,
-                      padding: 0,
-                      cornerRadius: 0,
-                      subArcs: [
-                        { limit: -1.5, color: '#EA4228', showTick: true },
-                        { limit: -1.1, color: '#F5CD19', showTick: true },
-                        { limit: -0.9, color: '#5BE12C', showTick: true },
-                        { limit: -0.5, color: '#F5CD19', showTick: true },
-                        { color: '#EA4228' }
-                      ]
+                  >
+                    <Button onClick={() => {
+                      handleActivateClick()
+                    }}>Activeren</Button>
+                    <Button onClick={() => handleResetClick()}>Reset</Button>
+                  </Stack>
+                  {/* Right Panel */}
+                  <Stack direction="column" spacing={1} justifyContent="center" p={1}
+                    sx={{
+                      borderRadius: 2,
+                      boxShadow: 2,
+                      opacity: 0.95,
+                      backgroundColor: '#181c20',
                     }}
-                    pointer={{
-                      color: '#3c93ff',
-                      length: 0.80,
-                      width: 14,
-                      elastic: true,
-                      animationDuration: 1000
-                    }}
-                    labels={{
-                      tickLabels: {
-                        defaultTickValueConfig: {
-                          style: { fontSize: 18 }
+                  >
+                    <GaugeComponent
+                      style={{
+                        width: '220px',
+                      }}
+                      type="semicircle"
+                      value={speed}
+                      minValue={0}
+                      maxValue={3}
+                      arc={{
+                        width: 0.22,
+                        padding: 0,
+                        cornerRadius: 0,
+                        subArcs: [
+                          { limit: 0.5, color: '#EA4228', showTick: true },
+                          { limit: 0.95, color: '#F5CD19', showTick: true },
+                          { limit: 1.05, color: '#5BE12C', showTick: true },
+                          { limit: 1.5, color: '#F5CD19', showTick: true },
+                          { color: '#EA4228' }
+                        ]
+                      }}
+                      pointer={{
+                        color: 'gray',
+                        length: 0.80,
+                        width: 14,
+                        elastic: true,
+                        animationDuration: 1000,
+                      }}
+                      labels={{
+                        valueLabel: { formatTextValue: value => value + ' m/s²' },
+                        tickLabels: {
+                          defaultTickValueConfig: {
+                            style: { fontSize: 12 },
+                          },
+
                         }
-                      }
-                    }}
-                  />
-                </Stack >
-              </Stack>
+                      }}
+                    />
+                    <Typography level="body-md" textColor="white" sx={{ textAlign: 'center' }}>Acceleratie</Typography>
+                  </Stack >
+                </Stack>
+
+              </>
             )}
             {currentLevel === 3 && (
-              <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
-                position: 'absolute',
-                m: 1,
-                bottom: '32px',
-                left: '0',
-                zIndex: 10000,
-              }}>
-                <Button onClick={() => level04Ref.current.play()}>Duw boot</Button>
-              </Stack>
+              <>
+                {/* Only render when welcomescreen is true */}
+                {welcomeScreen &&
+                  <Card variant="outlined" sx={
+                    // Move to middle of screen
+                    {
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '80%',
+                      maxWidth: '600px',
+                      transition: 'opacity 1s ease-in-out',
+                      zIndex: 100000,
+                      position: 'absolute',
+                    }}>
+                    <Typography level="title-md" sx={{ textAlign: 'center', mb: 1 }}>
+                      Welkom bij de laatste puzzel!
+                    </Typography>
+                    <Typography level="body-md" sx={{ mb: 1 }}>
+                      Kies het vloertype en de duwkracht om uit het gebouw te ontsnappen met de gewenste acceleratie.
+                    </Typography>
+
+                    <IconButton onClick={() => setWelcomeScreen(false)} color="danger" size="sm" sx={{
+                      position: 'absolute',
+                      top: '0',
+                      right: '0',
+                      m: 1,
+                      mt: 0.4,
+                    }}>
+                      <Close />
+                    </IconButton>
+                  </ Card >
+                }
+                <Stack direction="row" spacing={1} flexWrap={"wrap"} useFlexGap sx={{
+                  position: 'absolute',
+                  m: 1,
+                  bottom: '32px',
+                  left: '0',
+                  zIndex: 10000,
+                }}>
+                  <Select value={level4Force} onChange={(e, value) => setLevel4Force(value)} >
+                    {level4ForceOptions.map(option => (
+                      <Option key={option} value={option}>
+                        Duwkracht: {option}N
+                      </Option>
+                    ))}
+                  </Select>
+                  <Button onClick={() => level04Ref.current.play()}>Duw boot</Button>
+                </Stack>
+              </>
             )}
           </>
         ) : gameWon ? ( // If game is won show win screen
@@ -538,25 +634,25 @@ function App() {
               <Level01 cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
             )}
             {currentLevel === 1 && (
-              <Level02
-                ref={level02Ref}
-                speed={speed}
-                setSpeed={setSpeed}
+              <Level03
                 lives={lives}
                 setLives={setLives}
                 setGameWon={setGameWon}
                 gameWon={gameWon}
                 gameOver={gameOver}
                 setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame}
-                animationProgress={animationProgress}
-                setAnimationProgress={setAnimationProgress}
+
               />
             )}
             {currentLevel === 2 && (
-              <Level03 lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
+              <Level02
+                ref={level03Ref} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} animationProgress={animationProgress}
+                setAnimationProgress={setAnimationProgress}
+                speed={speed}
+                setSpeed={setSpeed} />
             )}
             {currentLevel === 3 && (
-              <Level04 ref={level04Ref} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
+              <Level04 ref={level04Ref} force={level4Force} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
             )}
 
             {/* </Debug> */}
@@ -564,7 +660,7 @@ function App() {
         </Suspense>
       </Canvas>
       <div id="info-box">
-        <div id="comment">
+        <div id="comment" style={{ userSelect: "none" }}>
           <div style={{ marginBottom: 4 }}>
             Built by — <img src="/xrzone-16x16.png" /> Zone
           </div>
@@ -729,15 +825,18 @@ function FinishedWinScreen({ penalty, won, playerID }) {
         textAlign: 'center',
         color: "gray"
       }}>
-        <Typography level="h2" color="success">Je bent klaar! Je hebt de game afgerond met een score van {400 - penalty}</Typography>
+        <Typography level="h3" color="white">Gefeliciteerd, geweldige civieltechnische helden! Jullie hebben het onmogelijke gedaan en met succes de Deltawerken gesloten, waardoor een catastrofe werd afgewend en talloze levens werden gered. Jullie teamwork, doorzettingsvermogen en begrip van dynamica hebben het verschil gemaakt.</Typography>
+        <Typography level="h3" color="white">Jullie hebben als team {400 - penalty} punten en staan daarmee voorlopig op plaats {playerIndex + 1}.</Typography>
       </Card>
       <Card color="neutral" sx={{
         backgroundColor: 'rgba(22, 22, 22, 1)',
-        p: 2,
+        px: 2,
         textAlign: 'center',
-        color: "gray"
+        color: "gray",
+        width: '90vw',
+        margin: '16px',
       }}>
-        <table width={500}>
+        <table style={{ width: "90vw", tableLayout: "fixed" }}>
           <thead style={{ color: '#fff' }}>
             <tr>
               <th align="left">#</th>
@@ -748,9 +847,9 @@ function FinishedWinScreen({ penalty, won, playerID }) {
           </thead>
           <tbody>
             {leaderboard.map((row, index) => (
-              <tr key={index} style={{ color: row.id === playerID ? 'white' : 'gray' }}>
+              <tr key={index} style={{ color: row.id === playerID ? 'white' : 'gray', height: "1em" }}>
                 <td align="left">{row.id === playerID ? playerIndex + 1 : index + 1}</td>
-                <td align="left">{row.id}</td>
+                <td align="left" style={{ overflow: "hidden", whiteSpace: "nowrap" }}>{row.id}</td>
                 <td align="right">{400 - row.Penalty}</td>
                 <td align="right">{`${String(Math.floor(((row.EndTime - row.StartTime) / 1000) / 60)).padStart(2, "0")}:${String(Math.floor(((row.EndTime - row.StartTime) / 1000) % 60)).padStart(2, "0")}`}</td>
               </tr>
@@ -833,6 +932,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
           ...prev, [`Level${currentLevel + 1}`]: level
         }
       })
+      setCurrentHintIndex(unlockedHints)
     }
   }
 
@@ -840,7 +940,7 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
   const text = useMemo(() => {
     if (unlockedHints < 1)
       return <Typography level="title-md">
-        Press unlock to unlock a hint.
+        Druk op de knop 'Nieuwe Hint' om een hint te verkrijgen.
       </Typography>
 
     return <Typography sx={{ whiteSpace: 'pre-line' }} level="title-md">
@@ -866,9 +966,9 @@ function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup
         orientation="horizontal"
         size="sm"
         variant="soft">
-        <Button onClick={previous} disabled={currentHintIndex === 0}>Previous</Button>
-        <Button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Next</Button>
-        <Button onClick={unlock} disabled={unlockedHints > 4}>Unlock Hint</Button>
+        <Button onClick={previous} disabled={currentHintIndex === 0}>Vorige</Button>
+        <Button onClick={next} disabled={unlockedHints === 0 || currentHintIndex === (unlockedHints - 1)}>Volgende</Button>
+        <Button onClick={unlock} disabled={unlockedHints > 4}>Nieuwe Hint</Button>
       </ButtonGroup>
       <IconButton color="danger" onClick={() => setShowHintPopup(false)} size="sm" sx={{
         position: 'absolute',
