@@ -9,7 +9,7 @@ import { useGLTF, Text } from '@react-three/drei'
 
 export const Cannon = forwardRef((props, ref) => {
   const { setSelectedObject, selectedObject } = props
-  const { nodes, materials } = useGLTF('models/gltfjsx/Cannon-transformed.glb')
+  const { nodes, materials } = useGLTF('models/Cannon.glb')
 
   return (
     <group name='cannon' {...props} dispose={null} onPointerDown={(obj) => {
@@ -18,8 +18,8 @@ export const Cannon = forwardRef((props, ref) => {
     }
     }>
       <mesh geometry={nodes.Cannon.geometry} material={materials.PaintedMetal} position={[-0.261, 3.4, 4.789]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={0.549}>
-        <Text color="black" scale={0.3} rotation={[-Math.PI / 2, Math.PI, 0]} position={[0, -1.3, -0.52]}>
-          {/* v = 7.5 */}
+        <Text color="black" scale={0.2} rotation={[-Math.PI / 2, 0, 0]} anchorX={"left"} textAlign={"left"} letterSpacing={0.01} position={[-0.67, 1.3, -0.47]}>
+           ANGLE = 25°
         </Text>
       </mesh>
       <mesh ref={ref} geometry={nodes.CannonBarrel.geometry} material={materials.DarkGrayMetal} position={[-0.261, 4.0, 4.789]} scale={0.482} />
@@ -27,4 +27,4 @@ export const Cannon = forwardRef((props, ref) => {
   )
 })
 
-useGLTF.preload('models/gltfjsx/Cannon-transformed.glb')
+useGLTF.preload('models/Cannon.glb')

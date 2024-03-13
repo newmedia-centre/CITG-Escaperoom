@@ -4,20 +4,41 @@ Command: npx gltfjsx@6.2.3 WindowBlueprint.glb --simplify --transform
 */
 
 import React, { forwardRef } from 'react'
-import { useGLTF } from '@react-three/drei'
+import {Text, useGLTF} from '@react-three/drei'
 
 export const WindowBlueprint = forwardRef((props, ref) => {
   const { setSelectedObject, selectedObject } = props
-  const { nodes, materials } = useGLTF('models/gltfjsx/WindowBlueprint-transformed.glb')
+  const { nodes, materials } = useGLTF('models/WindowBlueprint-v2.glb')
   return (
     <group name='blueprint' {...props} dispose={null} onPointerDown={(obj) => {
       obj.stopPropagation()
       setSelectedObject(obj.eventObject)
     }
     }>
-      <mesh geometry={nodes.WindowBlueprint.geometry} material={materials.WindowBlueprint} position={[13, 7, 5.038]} scale={1} />
+      <mesh geometry={nodes.WindowBlueprint.geometry} material={materials.WindowBlueprint} position={[13, 7, 5.038]} scale={1}>
+          <Text
+              color='white'
+              fontSize={1.8}
+              letterSpacing={0.05}
+              position={[-0.1, -0.75, 0]}
+              rotation={[0, -Math.PI / 2, 0]}
+              scale={[0.1, 0.1, 0.1]}>
+              X Data m
+          </Text>
+          <Text
+              color='white'
+              fontSize={1.8}
+              letterSpacing={0.05}
+              textAlign={"left"}
+              anchorX={"left"}
+              position={[-0.1, 0, 0.7]}
+              rotation={[0, -Math.PI / 2, 0]}
+              scale={[0.1, 0.1, 0.1]}>
+              Y Data m
+          </Text>
+      </mesh>
     </group>
   )
 })
 
-useGLTF.preload('models/gltfjsx/WindowBlueprint-transformed.glb')
+useGLTF.preload('models/WindowBlueprint-v2.glb')

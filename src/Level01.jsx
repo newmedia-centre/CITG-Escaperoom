@@ -78,13 +78,14 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     oceanRef.current.position.y = waterLevel
   }
 
-  const { cannonAngle } = useControls({
-    cannonAngle: {
-      value: 0.000, min: 0, max: (THREE.MathUtils.RAD2DEG * Math.PI / 2), step: 0.001,
-      label: "Kanon hoek in graden"
-    }
-  })
-
+  // const { cannonAngle } = useControls({
+  //   cannonAngle: {
+  //     value: 0.000, min: 0, max: (THREE.MathUtils.RAD2DEG * Math.PI / 2), step: 0.001,
+  //     label: "Kanon hoek in graden"
+  //   }
+  // })
+  const cannonAngle = 25
+  
   useEffect(() => {
     if (cannonRef.current) {
       cannonRef.current.rotation.x = THREE.MathUtils.DEG2RAD * cannonAngle
@@ -127,10 +128,10 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     if (name === "cannonBall" && !gameOver && !gameWon) {
       if (event.body.uuid === targetRef.current.uuid) {
         // console.log("The target was hit first!")
-        setGameWon(true)
+        // setGameWon(true)
       } else if (event.body.uuid === groundRef.current.uuid) {
         // console.log("The ground was hit first!")
-        takeLive()
+        // takeLive()
       }
       resetCannonBall()
     }
