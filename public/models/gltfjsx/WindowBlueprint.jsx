@@ -7,7 +7,7 @@ import React, { forwardRef } from 'react'
 import {Text, useGLTF} from '@react-three/drei'
 
 export const WindowBlueprint = forwardRef((props, ref) => {
-  const { setSelectedObject, selectedObject } = props
+  const { setSelectedObject, xText, yText } = props
   const { nodes, materials } = useGLTF('models/WindowBlueprint-v2.glb')
   return (
     <group name='blueprint' {...props} dispose={null} onPointerDown={(obj) => {
@@ -23,7 +23,7 @@ export const WindowBlueprint = forwardRef((props, ref) => {
               position={[-0.1, -0.75, 0]}
               rotation={[0, -Math.PI / 2, 0]}
               scale={[0.1, 0.1, 0.1]}>
-              8,11m
+              {xText}m
           </Text>
           <Text
               color='white'
@@ -34,7 +34,7 @@ export const WindowBlueprint = forwardRef((props, ref) => {
               position={[-0.1, 0, 0.7]}
               rotation={[0, -Math.PI / 2, 0]}
               scale={[0.1, 0.1, 0.1]}>
-              8,11m
+              {yText}m
           </Text>
       </mesh>
     </group>

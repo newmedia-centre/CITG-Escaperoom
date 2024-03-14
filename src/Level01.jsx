@@ -51,10 +51,18 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
   const [cameraFocus, setCameraFocus] = useState('default')
   const [selectedObject, setSelectedObject] = useState([])
-
-  // Solution answer range for the cannon velocity
-  const cannonVelocitySolutionAnswer = 7.44
-  const cannonVelocityErrorMargin = 0.4
+  
+  // Formula for the cannon velocity calculation
+  // Sqrt( ( 9.81 * x^2) / ( (x * tan(25) + height_canon - height_water) * 2 * (cos(25))^2 ) )
+  
+  const x = 8.76 // Distance to the target
+  const heightCannon = 5.2 // Height of the cannon
+  const heightWater = 1 // Height of the water
+  
+  const cannonVelocitySolutionAnswer = Math.sqrt((9.81 * x ** 2) / ((x * Math.tan(25 * Math.PI / 180) + heightCannon - heightWater) * 2 * (Math.cos(25 * Math.PI / 180)) ** 2))
+  
+  // Error margin for the cannon velocity for the solution
+  const cannonVelocityErrorMargin = 0.2
   // Calculate an error margin for the cannon angle
   const cannonVelocitySolutionRange = [cannonVelocitySolutionAnswer - cannonVelocityErrorMargin, cannonVelocitySolutionAnswer + cannonVelocityErrorMargin]
  
@@ -213,8 +221,8 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
           <Cannon position={[-2, 0.98, 0]} ref={cannonRef} setSelectedObject={setSelectedObject} />
 
           <WaterLevel position={[2, 0, 1.56]} />
-          <WindowBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
-          <PilarBlueprint setSelectedObject={setSelectedObject} selectedObject={selectedObject} />
+          <WindowBlueprint setSelectedObject={setSelectedObject} />
+          <PilarBlueprint setSelectedObject={setSelectedObject} />
           <Box name={"default"} ref={platformRef} args={[40.5, 0.1, 100.5]} position={[0, 3.4, 2]} visible={false} onPointerDown={(obj) => {
             obj.stopPropagation()
             setSelectedObject(obj.eventObject)

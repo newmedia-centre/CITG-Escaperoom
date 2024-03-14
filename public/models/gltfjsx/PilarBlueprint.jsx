@@ -8,7 +8,7 @@ import { useGLTF } from '@react-three/drei'
 import { Text } from '@react-three/drei'
 
 export function PilarBlueprint(props) {
-  const { setSelectedObject, selectedObject } = props
+  const { setSelectedObject, xText, yText } = props
   const { nodes, materials } = useGLTF('models/PilarBlueprint-v2.glb')
   return (
     <group name='blueprint' {...props} dispose={null} onPointerDown={(obj) => setSelectedObject(obj.eventObject)}>
@@ -20,7 +20,7 @@ export function PilarBlueprint(props) {
             position={[-0.1, -0.75, 0]}
             rotation={[0, -Math.PI / 2, 0]}
             scale={[0.1, 0.1, 0.1]}>
-              1,3m
+              {xText}m
           </Text>
           <Text
               color='white'
@@ -31,7 +31,7 @@ export function PilarBlueprint(props) {
               position={[-0.1, 0, 0.3]}
               rotation={[0, -Math.PI / 2, 0]}
               scale={[0.1, 0.1, 0.1]}>
-              13,5m
+              {yText}m
           </Text>
       </mesh>
     </group>
