@@ -62,7 +62,7 @@ function App() {
       case 'dweqiufh':
         return 3;
       default:
-        return 0;
+        return null;
     }
   }, [window.location.search])
 
@@ -122,6 +122,14 @@ function App() {
   // To prevent page refresh on form submit
   const onSubmit = (e) => {
     e.preventDefault()
+  }
+
+  // Give up level
+  const giveUpLevel = () => {
+    setGameOver(true)
+
+    setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives: 0, Lost: true, Penalty: 100, EndTime: Date.now() } }))
+    return
   }
 
   // Get player state from database
@@ -271,6 +279,11 @@ function App() {
 
   // show locked screen when levels are loaded in wrong order
   switch (currentLevel) {
+    case null: {
+      return (
+        <WelcomeScreen onSubmit={onSubmit} setPlayerIDInput={setPlayerIDInput} playerIDInput={playerIDInput} registerPlayer={playerState ? null : registerPlayer} />
+      )
+    }
     case 1: // Puzzle piece level
       if (!playerState?.Level1) {
         return (
@@ -332,7 +345,7 @@ function App() {
                 padding: '8px',
                 position: 'absolute',
                 bottom: '38px',
-                right: '202px',
+                right: '302px',
                 pr: 1.4,
               }}>
                 <Typography>Pogingen: {lives}</Typography>
@@ -341,7 +354,7 @@ function App() {
                 padding: '8px',
                 position: 'absolute',
                 bottom: '38px',
-                right: '102px',
+                right: '202px',
                 pr: 1.4,
               }}>
                 <Typography>Penalty: {(3 - lives) * 20 + (playerState && playerState[`Level${currentLevel + 1}`]?.usedHints || 0) * 10}</Typography>
@@ -350,12 +363,22 @@ function App() {
                 sx={{
                   position: 'absolute',
                   bottom: '38px',
-                  right: '20px',
+                  right: '112px',
                   pr: 1.4,
                   userSelect: 'none',
                 }}>
                 <QuestionMark />
                 Hints
+              </IconButton>
+              <IconButton variant="solid" color="danger" aria-label="Skip to the next level" onClick={() => giveUpLevel()}
+                sx={{
+                  position: 'absolute',
+                  bottom: '38px',
+                  right: '20px',
+                  px: 1.4,
+                  userSelect: 'none',
+                }}>
+                Give Up
               </IconButton>
               <TimeRemaining timeRemaining={timeRemaining} totalTimeInMilliseconds={totalTimeInMilliseconds} />
             </Stack>

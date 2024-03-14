@@ -61,14 +61,18 @@ export default function WelcomeScreen({ onSubmit, setPlayerIDInput, playerIDInpu
                     <Typography level="body-md">
                         De eerste puzzel is te vinden waar je het onderzoek naar beton en staal kunt bewonderen. (Oftewel, ga naar Stevinlab 2.) De tijd start zodra jullie de QR code van de eerste puzzel op de locatie hebben gescand.
                     </Typography>
-                    <Divider />
-                    <Typography variant="soft" level="body-md">Vul hieronder je groepsnaam in om te beginnen.</Typography>
-                    <form onSubmit={onSubmit}>
-                        <Stack spacing={1}>
-                            <Input placeholder="Voer een groepsnaam in..." variant="plain" required value={playerIDInput} onChange={e => setPlayerIDInput(e.target.value)} />
-                            <Button type={"submit"} onClick={registerPlayer} size="lg">Start</Button>
-                        </Stack>
-                    </form>
+                    {registerPlayer && (
+                        <>
+                            <Divider />
+                            <Typography variant="soft" level="body-md">Vul hieronder je groepsnaam in om te beginnen.</Typography>
+                            <form onSubmit={onSubmit}>
+                                <Stack spacing={1}>
+                                    <Input placeholder="Voer een groepsnaam in..." variant="plain" required value={playerIDInput} onChange={e => setPlayerIDInput(e.target.value)} />
+                                    <Button type={"submit"} onClick={registerPlayer} size="lg">Start</Button>
+                                </Stack>
+                            </form>
+                        </>
+                    )}
                 </>
         }
     }
