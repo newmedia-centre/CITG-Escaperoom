@@ -62,7 +62,7 @@ function App() {
       case 'dweqiufh':
         return 3;
       default:
-        return 0;
+        return null;
     }
   }, [window.location.search])
 
@@ -279,6 +279,11 @@ function App() {
 
   // show locked screen when levels are loaded in wrong order
   switch (currentLevel) {
+    case null: {
+      return (
+        <WelcomeScreen onSubmit={onSubmit} setPlayerIDInput={setPlayerIDInput} playerIDInput={playerIDInput} registerPlayer={playerState ? null : registerPlayer} />
+      )
+    }
     case 1: // Puzzle piece level
       if (!playerState?.Level1) {
         return (
