@@ -38,7 +38,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   }))
   const [targetRef] = useBox(() => ({
     args: [0.15, 0.15, 0.15],
-    position: [-2.3, 2, 2.75],
+    position: [-2.3, 2, 1.85],
     type: "Kinematic",
     onCollide: (e) => handleCollision(e, "target")
   }))
@@ -52,8 +52,14 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   const [cameraFocus, setCameraFocus] = useState('default')
   const [selectedObject, setSelectedObject] = useState([])
 
-  const cannonAngleSolutionRange = [22, 26]
-
+  // Solution answer range for the cannon velocity
+  const cannonVelocitySolutionAnswer = 7.44
+  const cannonVelocityErrorMargin = 0.4
+  // Calculate an error margin for the cannon angle
+  const cannonVelocitySolutionRange = [cannonVelocitySolutionAnswer - cannonVelocityErrorMargin, cannonVelocitySolutionAnswer + cannonVelocityErrorMargin]
+ 
+  const cannonAngle = 25
+  
   const changeCamera = (scene) => {
     switch (scene) {
       case "cannon":
@@ -78,13 +84,13 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     oceanRef.current.position.y = waterLevel
   }
 
-  // const { cannonAngle } = useControls({
-  //   cannonAngle: {
-  //     value: 0.000, min: 0, max: (THREE.MathUtils.RAD2DEG * Math.PI / 2), step: 0.001,
-  //     label: "Kanon hoek in graden"
-  //   }
-  // })
-  const cannonAngle = 25
+  const { cannonVelocity } = useControls({
+    cannonVelocity: {
+      value: 0.00, min: 0, max: 10, step: 0.01,
+      label: "Snelheid in m/s"
+    }
+  })
+  
   
   useEffect(() => {
     if (cannonRef.current) {
@@ -156,10 +162,10 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
       // Offset the force magnitude if the angle solution is not within the error margin of the cannon angle
       // Check if the value is in between the solution range array
-      if (cannonAngle > cannonAngleSolutionRange[1]) {
+      if (cannonVelocity > cannonVelocitySolutionRange[1]) {
         forceMagnitude = forceMagnitude * 1.2
       }
-      else if (cannonAngle < cannonAngleSolutionRange[0]) {
+      else if (cannonVelocity < cannonVelocitySolutionRange[0]) {
         forceMagnitude = forceMagnitude * 0.8
       }
 
@@ -174,7 +180,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
   useMemo(() => {
     setFireFunction(() => fireFunction)
-  }, [setFireFunction, cannonAngle, resetGame])
+  }, [setFireFunction, cannonVelocity, resetGame])
 
 
   const resetWaterLevel = () => {
@@ -235,7 +241,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
         <spotLight intensity={0.8} angle={1} penumbra={0.2} position={[25, 25, 0]} castShadow />
         <Env />
 
-        <Ground />
+        <Ground/>
         <Ocean ref={oceanRef} />
         <ContactShadows position={[0, 0, 0]} opacity={0.25} scale={10} blur={1.5} far={0.8} />
         <CameraControls
@@ -268,21 +274,21 @@ function Env() {
 
 function Ground({ ref }) {
   const gridConfig = {
-    cellSize: 0.5,
-    cellThickness: 0.34,
+    cellSize: 0.3,
+    cellThickness: 0.4,
     cellColor: 'black',
     sectionSize: 3,
-    sectionThickness: 1,
+    sectionThickness: 1.6,
     sectionColor: 'gray',
-    fadeDistance: 39,
-    fadeStrength: 1,
+    fadeDistance: 29,
+    fadeStrength: 0.7,
     followCamera: false,
-    infiniteGrid: true
+    infiniteGrid: true,
   }
   return (
-    <>
-      <Grid ref={ref} position={[0, 2.1, 0]} args={[10.5, 10.5]} {...gridConfig} />
-    </>)
+    <group>
+      <Grid ref={ref} position={[0.74, 2.32, -4.1]} args={[10, 10]} {...gridConfig} />
+    </group>)
 }
 
 function Effects() {

@@ -60,14 +60,15 @@ const Ocean = forwardRef((props, ref) => {
     return (
         <mesh ref={ref} rotation={[-Math.PI / 2, 0, 0]}>
             <planeBufferGeometry args={[100, 100, 32, 32]} />
-            <shaderMaterial
-                opacity={1}
-                fragmentShader={fragmentShader}
-                vertexShader={vertexShader}
-                uniforms={uniforms}
-                transparent
-                side={THREE.DoubleSide}
-            />
+            {/*<shaderMaterial*/}
+            {/*    opacity={1}*/}
+            {/*    fragmentShader={fragmentShader}*/}
+            {/*    vertexShader={vertexShader}*/}
+            {/*    uniforms={uniforms}*/}
+            {/*    transparent*/}
+            {/*    side={THREE.DoubleSide}*/}
+            {/*/>*/}
+            <meshPhongMaterial color="#186691" opacity={0.1} transparent />
         </mesh>
     )
 })

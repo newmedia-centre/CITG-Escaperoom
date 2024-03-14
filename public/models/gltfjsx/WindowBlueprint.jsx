@@ -23,7 +23,7 @@ export const WindowBlueprint = forwardRef((props, ref) => {
               position={[-0.1, -0.75, 0]}
               rotation={[0, -Math.PI / 2, 0]}
               scale={[0.1, 0.1, 0.1]}>
-              X Data m
+              8,11m
           </Text>
           <Text
               color='white'
@@ -34,7 +34,7 @@ export const WindowBlueprint = forwardRef((props, ref) => {
               position={[-0.1, 0, 0.7]}
               rotation={[0, -Math.PI / 2, 0]}
               scale={[0.1, 0.1, 0.1]}>
-              Y Data m
+              8,11m
           </Text>
       </mesh>
     </group>
