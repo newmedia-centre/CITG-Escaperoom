@@ -5,7 +5,7 @@ Command: npx gltfjsx@6.2.3 Cannon.glb --simplify --transform
 // Cannon.jsx
 
 import React, { forwardRef } from 'react'
-import { useGLTF, Text } from '@react-three/drei'
+import {useGLTF, Text, Line} from '@react-three/drei'
 
 export const Cannon = forwardRef((props, ref) => {
   const { setSelectedObject, selectedObject } = props
@@ -17,12 +17,18 @@ export const Cannon = forwardRef((props, ref) => {
       setSelectedObject(obj.eventObject)
     }
     }>
-      <mesh geometry={nodes.Cannon.geometry} material={materials.PaintedMetal} position={[-0.261, 3.4, 4.789]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={0.549}>
+      <mesh geometry={nodes.Cannon.geometry} material={materials.PaintedMetal} position={[-0.261, 0, 4.789]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={0.549}>
         <Text color="black" scale={0.2} rotation={[-Math.PI / 2, 0, 0]} anchorX={"left"} textAlign={"left"} letterSpacing={0.01} position={[-0.67, 1.3, -0.47]}>
            ANGLE = 25°
         </Text>
+          <Line
+              points={[[0, 0, 0], [0, 0, 9]]}
+              color="black"
+              lineWidth={1.5}
+          />
       </mesh>
-      <mesh ref={ref} geometry={nodes.CannonBarrel.geometry} material={materials.DarkGrayMetal} position={[-0.261, 4.0, 4.789]} scale={0.482} />
+      <mesh ref={ref} geometry={nodes.CannonBarrel.geometry} material={materials.DarkGrayMetal} position={[-0.261, 0.6, 4.789]} scale={0.482} />
+
     </group>
   )
 })

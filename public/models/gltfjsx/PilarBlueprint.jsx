@@ -20,7 +20,7 @@ export function PilarBlueprint(props) {
             position={[-0.1, -0.75, 0]}
             rotation={[0, -Math.PI / 2, 0]}
             scale={[0.1, 0.1, 0.1]}>
-              {xText}m
+                {xText.toFixed(3)}m
           </Text>
           <Text
               color='white'
@@ -31,7 +31,7 @@ export function PilarBlueprint(props) {
               position={[-0.1, 0, 0.3]}
               rotation={[0, -Math.PI / 2, 0]}
               scale={[0.1, 0.1, 0.1]}>
-              {yText}m
+              {yText.toFixed(3)}m
           </Text>
       </mesh>
     </group>

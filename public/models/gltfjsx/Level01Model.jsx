@@ -8,6 +8,7 @@ import { useGLTF, } from '@react-three/drei'
 
 export const Level01Model = forwardRef((props, ref) => {
   const { scene, nodes, materials } = useGLTF('models/gltfjsx/CannonLevel.glb')
+    const { platformHeight } = props
   useLayoutEffect(() => {
     scene.traverse((obj) => obj.isMesh && (obj.receiveShadow = obj.castShadow = true))
   })
@@ -18,7 +19,7 @@ export const Level01Model = forwardRef((props, ref) => {
         <mesh receiveShadow geometry={nodes.Plane014.geometry} material={materials['ConcreteFloor.001']} />
         <mesh receiveShadow geometry={nodes.Plane014_1.geometry} material={materials['PaintedMetal.001']} />
       </group>
-      <mesh receiveShadow geometry={nodes.Platform005.geometry} material={materials['ConcreteFloor.001']} position={[-9.194, 4.38, 5.02]} />
+      <mesh receiveShadow geometry={nodes.Platform005.geometry} material={materials['ConcreteFloor.001']} position={[-9.194, platformHeight, 5.02]} />
       <mesh receiveShadow geometry={nodes.Frame027.geometry} material={materials['RedMetal.001']} position={[2.973, -0.01, -16.559]} scale={[1, 0.362, 1]} />
       <mesh receiveShadow geometry={nodes.Frame033.geometry} material={materials['BlueMetal.001']} position={[4.328, -0.01, -11.871]} rotation={[0, -1.571, 0]} scale={[1, 1.554, 1]} />
       <mesh receiveShadow geometry={nodes.Frame039.geometry} material={materials['RedMetal.001']} position={[7.915, 3.649, -11.485]} rotation={[-Math.PI / 2, Math.PI / 2, 0]} scale={[1, 0.444, 1]} />

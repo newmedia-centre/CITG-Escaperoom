@@ -23,7 +23,8 @@ import { WaterLevel } from "../public/models/gltfjsx/WaterLevel"
 import { WindowBlueprint } from "../public/models/gltfjsx/WindowBlueprint"
 import { PilarBlueprint } from "../public/models/gltfjsx/PilarBlueprint"
 import { useSphere, usePlane, useBox } from '@react-three/cannon'
-import Ocean from "./Ocean";
+import Ocean from "./Ocean"
+import Level01Formulas from "./level01-formulas.js";
 
 export default function Level01({ cannonRef, setFireFunction, lives, setLives, setGameOver, gameOver, setGameWon, gameWon, setResetGame, resetGame }) {
   const meshRef = useRef()
@@ -36,9 +37,9 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     mass: 1,
     onCollide: (e) => handleCollision(e, "cannonBall")
   }))
-  const [targetRef] = useBox(() => ({
-    args: [0.15, 0.15, 0.15],
-    position: [-2.3, 2, 1.85],
+  const [targetRef, targetApi] = useBox(() => ({
+    args: [0.4, 0.4, 0.4],
+    position: [-2.3, 0, 1.8],
     type: "Kinematic",
     onCollide: (e) => handleCollision(e, "target")
   }))
@@ -55,11 +56,19 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   // Formula for the cannon velocity calculation
   // Sqrt( ( 9.81 * x^2) / ( (x * tan(25) + height_canon - height_water) * 2 * (cos(25))^2 ) )
   
-  const x = 8.76 // Distance to the target
-  const heightCannon = 5.2 // Height of the cannon
-  const heightWater = 1 // Height of the water
+  // Get a random id from level01-formulas.js
+  const [randomId, setRandomId] = useState(Math.floor(Math.random() * Level01Formulas.formulaData.length));
+  const x = Level01Formulas.formulaData[randomId].x // Distance to the target
+  const heightCannon = Level01Formulas.formulaData[randomId].heightCannon // Height of the cannon
+  const heightWater =Level01Formulas.formulaData[randomId].heightWater // Height of the water
+  const forceMagnitudeVisual = Level01Formulas.formulaData[randomId].forceMagnitudeVisual // Visual hint for the cannon velocity
   
   const cannonVelocitySolutionAnswer = Math.sqrt((9.81 * x ** 2) / ((x * Math.tan(25 * Math.PI / 180) + heightCannon - heightWater) * 2 * (Math.cos(25 * Math.PI / 180)) ** 2))
+  console.log(randomId + " id" + cannonVelocitySolutionAnswer + " m/s")
+  
+  // Calculate fractions of x to be used for the width of the window and pilar, where the sum of the two is equal to x
+  const fractionWindowHint = x / 10 * 7.4
+  const fractionPilarHint = x / 10 * 2.6
   
   // Error margin for the cannon velocity for the solution
   const cannonVelocityErrorMargin = 0.2
@@ -72,7 +81,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     switch (scene) {
       case "cannon":
         setCameraFocus(scene)
-        cameraControlsRef.current?.setLookAt(2, 9, 10.8, -2, 7, 10.8, true)
+        cameraControlsRef.current?.setLookAt(2, heightCannon + 4, 10.8, -2, heightCannon + 3, 10.8, true)
         break;
       case "blueprint":
         setCameraFocus(scene)
@@ -80,13 +89,14 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
         break;
       default:
         setCameraFocus('default')
-        cameraControlsRef.current?.setLookAt(-2.3, 9, 18, -2.3, 7, 10, true)
+        cameraControlsRef.current?.setLookAt(-2.3, heightCannon + 5, 18, -2.3, heightCannon + 3, 10, true)
     }
   }
 
   const [elapsed, setElapsed] = useState(0) // time elapsed
 
-  const waterLevel = 2.3
+  const waterLevel = (heightWater - 0.1) + 1.5
+  targetApi.position.set( -2.26, heightWater + 1.5, 1.9)
 
   if (oceanRef.current) {
     oceanRef.current.position.y = waterLevel
@@ -94,7 +104,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
   const { cannonVelocity } = useControls({
     cannonVelocity: {
-      value: 0.00, min: 0, max: 10, step: 0.01,
+      value: 0.00, min: 0, max: 20, step: 0.01,
       label: "Snelheid in m/s"
     }
   })
@@ -141,17 +151,16 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   const handleCollision = (event, name) => {
     if (name === "cannonBall" && !gameOver && !gameWon) {
       if (event.body.uuid === targetRef.current.uuid) {
-        // console.log("The target was hit first!")
+        console.log("The target was hit first!")
         // setGameWon(true)
       } else if (event.body.uuid === groundRef.current.uuid) {
-        // console.log("The ground was hit first!")
+        console.log("The ground was hit first!")
         // takeLive()
       }
       resetCannonBall()
     }
   }
-
-  // Cannon speed is 7.5 m/s
+  
   const fireFunction = () => {
     resetCannonBall()
 
@@ -160,9 +169,8 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
       setResetGame(false)
     }
     if (cannonRef.current && cannonBallRef.current) {
-
-      let forceMagnitude = 7.5
-      cannonBallApi.mass.set(0.0165)
+      let forceMagnitude = forceMagnitudeVisual
+      cannonBallApi.mass.set(0.015)
 
       // Create a direction vector pointing in the direction of the cannon barrel
       const direction = new THREE.Vector3(0, 0, -1) // 1 unit along the z-axis
@@ -217,12 +225,12 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     <>
       <group position={[0, 0, 0]}>
         <Center top>
-          <Level01Model ref={meshRef} />
-          <Cannon position={[-2, 0.98, 0]} ref={cannonRef} setSelectedObject={setSelectedObject} />
+          <Level01Model ref={meshRef} platformHeight={heightCannon} />
+          <Cannon position={[-2, heightCannon, 0]} ref={cannonRef} setSelectedObject={setSelectedObject} />
 
           <WaterLevel position={[2, 0, 1.56]} />
-          <WindowBlueprint setSelectedObject={setSelectedObject} />
-          <PilarBlueprint setSelectedObject={setSelectedObject} />
+          <WindowBlueprint setSelectedObject={setSelectedObject} yText={fractionWindowHint} xText={fractionWindowHint} />
+          <PilarBlueprint setSelectedObject={setSelectedObject} yText={15} xText={fractionPilarHint}/>
           <Box name={"default"} ref={platformRef} args={[40.5, 0.1, 100.5]} position={[0, 3.4, 2]} visible={false} onPointerDown={(obj) => {
             obj.stopPropagation()
             setSelectedObject(obj.eventObject)
@@ -232,11 +240,11 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
           {/* Cannonball display */}
           {
             Array(lives).fill().map((_, index) => (
-              <CannonBall key={index} position={[-0.7 + index * 1, 4.77, 5]} />
+              <CannonBall key={index} position={[-0.7 + index * 1, heightCannon + 0.2, 5]} />
             ))
           }
-          <Target ref={targetRef} />
         </Center>
+          <Target ref={targetRef} />
 
         <Sphere castShadow receiveShadow ref={cannonBallRef} args={[0.2, 64, 64]}>
           <meshStandardMaterial color="gray" metalness={0.9} roughness={0.4} />
@@ -249,7 +257,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
         <spotLight intensity={0.8} angle={1} penumbra={0.2} position={[25, 25, 0]} castShadow />
         <Env />
 
-        <Ground/>
+        <Ground waterLevel={waterLevel}/>
         <Ocean ref={oceanRef} />
         <ContactShadows position={[0, 0, 0]} opacity={0.25} scale={10} blur={1.5} far={0.8} />
         <CameraControls
@@ -280,10 +288,11 @@ function Env() {
   );
 }
 
-function Ground({ ref }) {
+function Ground({ ...props }) {
+  const { waterLevel } = props
   const gridConfig = {
     cellSize: 0.3,
-    cellThickness: 0.4,
+    cellThickness: 0.5,
     cellColor: 'black',
     sectionSize: 3,
     sectionThickness: 1.6,
@@ -295,7 +304,7 @@ function Ground({ ref }) {
   }
   return (
     <group>
-      <Grid ref={ref} position={[0.74, 2.32, -4.1]} args={[10, 10]} {...gridConfig} />
+      <Grid position={[0.75, waterLevel + 0.1, -4.14]} args={[10, 10]} {...gridConfig} />
     </group>)
 }
 

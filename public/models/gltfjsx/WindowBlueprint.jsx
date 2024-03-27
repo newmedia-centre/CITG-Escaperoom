@@ -18,23 +18,24 @@ export const WindowBlueprint = forwardRef((props, ref) => {
       <mesh geometry={nodes.WindowBlueprint.geometry} material={materials.WindowBlueprint} position={[13, 7, 5.038]} scale={1}>
           <Text
               color='white'
-              fontSize={1.8}
+              fontSize={1.5}
               letterSpacing={0.05}
               position={[-0.1, -0.75, 0]}
               rotation={[0, -Math.PI / 2, 0]}
               scale={[0.1, 0.1, 0.1]}>
-              {xText}m
+              {/*Round the number with 4 digits*/}
+              {xText.toFixed(3)}m
           </Text>
           <Text
               color='white'
-              fontSize={1.8}
-              letterSpacing={0.05}
+              fontSize={1.5}
+              letterSpacing={0.045}
               textAlign={"left"}
               anchorX={"left"}
               position={[-0.1, 0, 0.7]}
               rotation={[0, -Math.PI / 2, 0]}
               scale={[0.1, 0.1, 0.1]}>
-              {yText}m
+              {yText.toFixed(3)}m
           </Text>
       </mesh>
     </group>

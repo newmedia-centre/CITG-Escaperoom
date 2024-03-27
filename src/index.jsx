@@ -652,7 +652,7 @@ function App() {
       >
         <Suspense fallback={<Loader />}>
           <Physics >
-            {/* <Debug> */}
+             <Debug> 
             {currentLevel === 0 && (
               <Level01 cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
             )}
@@ -678,7 +678,7 @@ function App() {
               <Level04 ref={level04Ref} force={level4Force} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
             )}
 
-            {/* </Debug> */}
+             </Debug> 
           </Physics>
         </Suspense>
       </Canvas>
