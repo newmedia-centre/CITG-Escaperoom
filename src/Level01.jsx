@@ -64,7 +64,6 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   const forceMagnitudeVisual = Level01Formulas.formulaData[randomId].forceMagnitudeVisual // Visual hint for the cannon velocity
   
   const cannonVelocitySolutionAnswer = Math.sqrt((9.81 * x ** 2) / ((x * Math.tan(25 * Math.PI / 180) + heightCannon - heightWater) * 2 * (Math.cos(25 * Math.PI / 180)) ** 2))
-  console.log(randomId + " id" + cannonVelocitySolutionAnswer + " m/s")
   
   // Calculate fractions of x to be used for the width of the window and pilar, where the sum of the two is equal to x
   const fractionWindowHint = x / 10 * 7.4
@@ -151,11 +150,11 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
   const handleCollision = (event, name) => {
     if (name === "cannonBall" && !gameOver && !gameWon) {
       if (event.body.uuid === targetRef.current.uuid) {
-        console.log("The target was hit first!")
-        // setGameWon(true)
+        // console.log("The target was hit first!")
+        setGameWon(true)
       } else if (event.body.uuid === groundRef.current.uuid) {
-        console.log("The ground was hit first!")
-        // takeLive()
+        // console.log("The ground was hit first!")
+        takeLive()
       }
       resetCannonBall()
     }
