@@ -28,6 +28,7 @@ function App() {
   const [gameWon, setGameWon] = useState(false)
   const [resetGame, setResetGame] = useState(false)
   const [showHintPopup, setShowHintPopup] = useState(false)
+  const [showGiveupPopup, setShowGiveupPopup] = useState(false)
   const [geoLock, setGeoLock] = useState(false)
   const [speed, setSpeed] = useState(0)
   const [timeRemaining, setTimeRemaining] = useState(5400)
@@ -329,6 +330,10 @@ function App() {
         )
       }
 
+      {
+        showGiveupPopup && (<GiveupPopup giveUpLevel={giveUpLevel} setShowGiveupPopup={setShowGiveupPopup}/>)
+      }
+
 
       {
         !gameOver && !gameWon ? (
@@ -370,7 +375,7 @@ function App() {
                 <QuestionMark />
                 Hints
               </IconButton>
-              <IconButton variant="solid" color="danger" aria-label="Skip to the next level" onClick={() => giveUpLevel()}
+              <Button variant="solid" color="danger" aria-label="Skip to the next level" onClick={() => setShowGiveupPopup(!showGiveupPopup)}
                 sx={{
                   position: 'absolute',
                   bottom: '38px',
@@ -378,8 +383,8 @@ function App() {
                   px: 1.4,
                   userSelect: 'none',
                 }}>
-                Give Up
-              </IconButton>
+                Opgeven
+              </Button>
               <TimeRemaining timeRemaining={timeRemaining} totalTimeInMilliseconds={totalTimeInMilliseconds} />
             </Stack>
 
@@ -932,6 +937,44 @@ function Loader() {
       </CircularProgress>
     </Html>
   );
+}
+
+function GiveupPopup({ giveUpLevel, setShowGiveupPopup }) {
+  return (
+      <Card variant="outlined" sx={
+        // Move to middle of screen
+        {
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '80%',
+          maxWidth: '600px',
+          transition: 'opacity 1s ease-in-out',
+          zIndex: 100000,
+          position: 'absolute',
+        }}>
+        <p>Weet je zeker dat je dit level wilt opgeven? Bij opgeven krijg je maximale penalty.</p>
+        <Button
+            size="sm"
+            variant="solid"
+            color="danger"
+            onClick={() => {
+              setShowGiveupPopup(false)
+              giveUpLevel()
+            }
+        }>Opgeven
+        </Button>
+        <IconButton color="danger" onClick={() => setShowGiveupPopup(false)} size="sm" sx={{
+          position: 'absolute',
+          top: '0',
+          right: '0',
+          m: 1,
+          mt: 0.4,
+        }}>
+          <Close/>
+        </IconButton>
+      </ Card>
+  )
 }
 
 function HintPopup({ playerState, setPlayerState, currentLevel, setShowHintPopup }) {
