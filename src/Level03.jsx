@@ -74,13 +74,6 @@ export const Level03 = forwardRef((props, ref) => {
           setCamControls(false)
         }, 20) // Wait for camera to move in place
         break;
-
-      case "ground":
-        if (puzzles?.puzzleInPlace !== 4) {
-          setCamControls(true)
-          cameraControlsRef.current?.setLookAt(2, 2, 0, .2, 1, 0, false)
-        }
-        break;
       case "puzzletable":
         setCamControls(true)
         cameraControlsRef.current?.setLookAt(.2, 3, 0, 0, .1, 0, false)
@@ -240,7 +233,8 @@ export const Level03 = forwardRef((props, ref) => {
         <ContactShadows position={[0, 0, 0]} opacity={0.25} scale={10} blur={1.5} far={0.8} />
         <CameraControls
           ref={cameraControlsRef}
-          enabled={camControlsEnabled}
+          azimuthRotateSpeed={0}
+          polarRotateSpeed={0}
           dollySpeed={0}
           truckSpeed={0}
         />
