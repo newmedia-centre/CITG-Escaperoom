@@ -1,10 +1,10 @@
 export default {
 	0: [
-		'Om deze puzzel op te lossen moet je de snelheid van de kogel en het hoogteverschil en de afstand tussen het kanon en de rode knop weten te vinden in de ruimte.',
-		'De snelheid van de kogel staat op de zijkant van het kanon. Gebruik de hoogtemeter aan de linkerkant om het hoogteverschil te bepalen. Let daarbij op de waterdiepte en de ligging van de rode knop. Gebruik de blueprints aan de rechterkant om de afstand te bepalen. ',
+		'Om deze puzzel op te lossen moet je de hoek van het kanon en het hoogteverschil en de afstand tussen het kanon en de rode knop weten te vinden in de ruimte.',
+		'De hoek van het kanon staat op de zijkant van het kanon. Gebruik de hoogtemeter aan de linkerkant om het hoogteverschil te bepalen. Let daarbij op de waterdiepte en de ligging van de rode knop. Gebruik de blueprints aan de rechterkant om de afstand te bepalen.',
 		'Pas de formules voor de kinematica van een puntmassa toe in x- en y-richting. Dan krijg je twee formules met twee onbekenden, en dat kan je oplossen.',
 		'De versnelling in beide richtingen is constant. In de x-richting is de versnelling 0 en in de y-richting heb je de gravitatieversnelling g.',
-		`Los θ op uit de volgende vergelijkingen:
+		`Los v_kogel op uit de volgende vergelijkingen:
 			a. In x-richting: x_knop=v_kogel*cos⁡(θ)*t
 			b. In y-richting: y_knop=y_kanon+v_kogel*sin⁡(θ)*t-1/2*g*t^2
 
