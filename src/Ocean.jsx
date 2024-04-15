@@ -8,7 +8,7 @@ const Ocean = forwardRef((props, ref) => {
     const uniforms = useMemo(
         () => ({
             time: { value: 0.0 },
-            u_colorA: { value: new THREE.Color("#186691") },
+            u_colorA: { value: new THREE.Color("#286691") },
             u_colorB: { value: new THREE.Color("#9bd8ff") },
             alpha: { value: 0.2 },
         }), []
@@ -68,7 +68,7 @@ const Ocean = forwardRef((props, ref) => {
             {/*    transparent*/}
             {/*    side={THREE.DoubleSide}*/}
             {/*/>*/}
-            <meshPhongMaterial color="#186691" opacity={0.1} transparent />
+            <meshPhongMaterial color="#186691" opacity={0.15} transparent />
         </mesh>
     )
 })

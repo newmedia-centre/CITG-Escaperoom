@@ -24,7 +24,7 @@ export const WindowBlueprint = forwardRef((props, ref) => {
               rotation={[0, -Math.PI / 2, 0]}
               scale={[0.1, 0.1, 0.1]}>
               {/*Round the number with 4 digits*/}
-              {xText.toFixed(3)}m
+              {xText.toFixed(2).replace(".", ",")}m
           </Text>
           <Text
               color='white'
@@ -35,7 +35,7 @@ export const WindowBlueprint = forwardRef((props, ref) => {
               position={[-0.1, 0, 0.7]}
               rotation={[0, -Math.PI / 2, 0]}
               scale={[0.1, 0.1, 0.1]}>
-              {yText.toFixed(3)}m
+              {yText.toFixed(2).replace(".", ",")}m
           </Text>
       </mesh>
     </group>

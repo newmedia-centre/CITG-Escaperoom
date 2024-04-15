@@ -94,8 +94,8 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
 
   const [elapsed, setElapsed] = useState(0) // time elapsed
 
-  const waterLevel = (heightWater - 0.1) + 1.5
-  targetApi.position.set( -2.26, heightWater + 1.5, 1.9)
+  const waterLevel = (heightWater)
+  targetApi.position.set( -2.26, heightWater + 1, 1.9)
 
   if (oceanRef.current) {
     oceanRef.current.position.y = waterLevel
@@ -242,6 +242,10 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
               <CannonBall key={index} position={[-0.7 + index * 1, heightCannon + 0.2, 5]} />
             ))
           }
+          
+        <Ground waterLevel={waterLevel}/>
+        <Ocean ref={oceanRef} />
+          
         </Center>
           <Target ref={targetRef} />
 
@@ -256,8 +260,7 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
         <spotLight intensity={0.8} angle={1} penumbra={0.2} position={[25, 25, 0]} castShadow />
         <Env />
 
-        <Ground waterLevel={waterLevel}/>
-        <Ocean ref={oceanRef} />
+
         <ContactShadows position={[0, 0, 0]} opacity={0.25} scale={10} blur={1.5} far={0.8} />
         <CameraControls
           ref={cameraControlsRef}

@@ -19,7 +19,7 @@ export const Cannon = forwardRef((props, ref) => {
     }>
       <mesh geometry={nodes.Cannon.geometry} material={materials.PaintedMetal} position={[-0.261, 0, 4.789]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={0.549}>
         <Text color="black" scale={0.2} rotation={[-Math.PI / 2, 0, 0]} anchorX={"left"} textAlign={"left"} letterSpacing={0.01} position={[-0.67, 1.3, -0.47]}>
-           ANGLE = 25°
+           HOEK = 25°
         </Text>
           <Line
               points={[[0, 0, 0], [0, 0, 9]]}
