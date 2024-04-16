@@ -425,7 +425,7 @@ function App() {
                 <Stack direction="row" spacing={3} justifyContent="center"
                   sx={{
                     position: 'absolute',
-                    bottom: '32px',
+                    bottom: '96px',
                     left: '50px',
                     transform: 'translate(-50%, -20%)',
                     userSelect: 'none',
@@ -508,6 +508,7 @@ function App() {
                   bottom: '94px',
                   left: '12px',
                   zIndex: 10000,
+                  pointerEvents: 'none'
                 }}>
                   {/* Left Panel */}
                   <Stack spacing={1} p={2}
@@ -516,6 +517,7 @@ function App() {
                       boxShadow: 2,
                       opacity: 0.95,
                       backgroundColor: '#181c20',
+                      pointerEvents: 'auto'
                     }}
                   >
                     <Button onClick={() => {
