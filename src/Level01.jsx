@@ -80,15 +80,15 @@ export default function Level01({ cannonRef, setFireFunction, lives, setLives, s
     switch (scene) {
       case "cannon":
         setCameraFocus(scene)
-        cameraControlsRef.current?.setLookAt(2, heightCannon + 4, 10.8, -2, heightCannon + 3, 10.8, true)
+        cameraControlsRef.current?.setLookAt(2, heightCannon + 6, 10.8, -2, heightCannon + 4, 10.8, true)
         break;
       case "blueprint":
         setCameraFocus(scene)
-        cameraControlsRef.current?.setLookAt(6, 9, 11.0, 7, 9, 11.0, true)
+        cameraControlsRef.current?.setLookAt(6, 11.5, 11.0, 7, 11.5, 11.0, true)
         break;
       default:
         setCameraFocus('default')
-        cameraControlsRef.current?.setLookAt(-2.3, heightCannon + 5, 18, -2.3, heightCannon + 3, 10, true)
+        cameraControlsRef.current?.setLookAt(-2.3, heightCannon + 8, 18, -2.3, heightCannon + 4, 10, true)
     }
   }
 
