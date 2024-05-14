@@ -76,6 +76,7 @@ function App() {
       return
     }
     setPlayerState(prev => ({ ...prev, [`Level${currentLevel + 1}`]: { ...prev[`Level${currentLevel + 1}`], lives } }))
+
   }, [lives, currentLevel])
 
   // Adds player to database and starts the game
@@ -331,7 +332,7 @@ function App() {
       }
 
       {
-        showGiveupPopup && (<GiveupPopup giveUpLevel={giveUpLevel} setShowGiveupPopup={setShowGiveupPopup}/>)
+        showGiveupPopup && (<GiveupPopup giveUpLevel={giveUpLevel} setShowGiveupPopup={setShowGiveupPopup} />)
       }
 
 
@@ -658,8 +659,8 @@ function App() {
         gl={{ alpha: true, localClippingEnabled: true }}
       >
         <Suspense fallback={<Loader />}>
-          <Physics >
-             {/*<Debug> */}
+          <Physics>
+            {/* <Debug> */}
             {currentLevel === 0 && (
               <Level01 cannonRef={cannonRef} setFireFunction={setFireCannon} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} resetGame={resetGame} setResetGame={setResetGame} />
             )}
@@ -685,7 +686,7 @@ function App() {
               <Level04 ref={level04Ref} force={level4Force} lives={lives} setLives={setLives} setGameWon={setGameWon} gameWon={gameWon} gameOver={gameOver} setGameOver={setGameOver} setResetGame={setResetGame} resetGame={resetGame} />
             )}
 
-             {/*</Debug> */}
+            {/* </Debug> */}
           </Physics>
         </Suspense>
       </Canvas>
@@ -827,8 +828,8 @@ function FinishedWinScreen({ penalty, won, playerID }) {
       setLeaderboard(data)
       setPlayerIndex(playerIndex)
     }
-
     get()
+
   }, [playerID])
 
   return (
@@ -943,39 +944,39 @@ function Loader() {
 
 function GiveupPopup({ giveUpLevel, setShowGiveupPopup }) {
   return (
-      <Card variant="outlined" sx={
-        // Move to middle of screen
-        {
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '80%',
-          maxWidth: '600px',
-          transition: 'opacity 1s ease-in-out',
-          zIndex: 100000,
-          position: 'absolute',
-        }}>
-        <p>Weet je zeker dat je dit level wilt opgeven? Bij opgeven krijg je maximale penalty.</p>
-        <Button
-            size="sm"
-            variant="solid"
-            color="danger"
-            onClick={() => {
-              setShowGiveupPopup(false)
-              giveUpLevel()
-            }
+    <Card variant="outlined" sx={
+      // Move to middle of screen
+      {
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '80%',
+        maxWidth: '600px',
+        transition: 'opacity 1s ease-in-out',
+        zIndex: 100000,
+        position: 'absolute',
+      }}>
+      <p>Weet je zeker dat je dit level wilt opgeven? Bij opgeven krijg je maximale penalty.</p>
+      <Button
+        size="sm"
+        variant="solid"
+        color="danger"
+        onClick={() => {
+          setShowGiveupPopup(false)
+          giveUpLevel()
+        }
         }>Opgeven
-        </Button>
-        <IconButton color="danger" onClick={() => setShowGiveupPopup(false)} size="sm" sx={{
-          position: 'absolute',
-          top: '0',
-          right: '0',
-          m: 1,
-          mt: 0.4,
-        }}>
-          <Close/>
-        </IconButton>
-      </ Card>
+      </Button>
+      <IconButton color="danger" onClick={() => setShowGiveupPopup(false)} size="sm" sx={{
+        position: 'absolute',
+        top: '0',
+        right: '0',
+        m: 1,
+        mt: 0.4,
+      }}>
+        <Close />
+      </IconButton>
+    </ Card>
   )
 }
 
