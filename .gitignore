@@ -105,3 +105,4 @@ dist
 
 # Vendor directories
 vendor/
+/.idea/

@@ -5,17 +5,32 @@ Command: npx gltfjsx@6.2.3 Cannon.glb --simplify --transform
 // Cannon.jsx
 
 import React, { forwardRef } from 'react'
-import { useGLTF } from '@react-three/drei'
+import {useGLTF, Text, Line} from '@react-three/drei'
 
 export const Cannon = forwardRef((props, ref) => {
-  const { nodes, materials } = useGLTF('models/gltfjsx/Cannon-transformed.glb')
+  const { setSelectedObject, selectedObject } = props
+  const { nodes, materials } = useGLTF('models/Cannon.glb')
 
   return (
-    <group {...props} dispose={null}>
-      <mesh geometry={nodes.Cannon.geometry} material={materials.PaintedMetal} position={[-0.261, 5.667, 4.789]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={0.549} />
-      <mesh ref={ref} geometry={nodes.CannonBarrel.geometry} material={materials.DarkGrayMetal} position={[-0.261, 6.324, 4.789]} rotation={[-0.928, 0, 0]} scale={0.482} />
+    <group name='cannon' {...props} dispose={null} onPointerDown={(obj) => {
+      obj.stopPropagation()
+      setSelectedObject(obj.eventObject)
+    }
+    }>
+      <mesh geometry={nodes.Cannon.geometry} material={materials.PaintedMetal} position={[-0.261, 0, 4.789]} rotation={[Math.PI / 2, 0, -Math.PI / 2]} scale={0.549}>
+        <Text color="black" scale={0.2} rotation={[-Math.PI / 2, 0, 0]} anchorX={"left"} textAlign={"left"} letterSpacing={0.01} position={[-0.67, 1.3, -0.47]}>
+           HOEK = 25°
+        </Text>
+          <Line
+              points={[[0, 0, 0], [0, 0, 9]]}
+              color="black"
+              lineWidth={1.5}
+          />
+      </mesh>
+      <mesh ref={ref} geometry={nodes.CannonBarrel.geometry} material={materials.DarkGrayMetal} position={[-0.261, 0.6, 4.789]} scale={0.482} />
+
     </group>
   )
 })
 
-useGLTF.preload('models/gltfjsx/Cannon-transformed.glb')
+useGLTF.preload('models/Cannon.glb')

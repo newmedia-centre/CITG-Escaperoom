@@ -1,0 +1,15 @@
+<svg width="494" height="512" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <symbol id="a" data-name="Arrow 25" viewBox="0 0 45.72 26.28">
+   <path d="m0,0l45.72,0l0,26.28l-45.72,0l0,-26.28z" stroke-width="0" fill="none" id="svg_1"/>
+   <path d="m0,16.31l22.93,0l0,9.97l22.79,-13.14l-22.79,-13.14l0,9.97l-22.93,0l0,6.34z" fill="#231f20" stroke-width="0" id="svg_2"/>
+  </symbol>
+ </defs>
+ <g>
+  <title>Layer 1</title>
+  <path d="m358,154l-102,102" stroke-linecap="round" stroke-linejoin="round" stroke="#3fa9f5" stroke-width="14px" fill="none" id="svg_3"/>
+  <path d="m358,154l0,38l78,0l0,-77l-78,0l0,39l-102,102l-251.7,-252l0,95l46.7,-48m-47,355l0,102" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="8px" stroke="#000" id="svg_4"/>
+  <use width="45.72" height="26.28" transform="matrix(1.01 0 0 .99 448 141)" xlink:href="#a" id="svg_5"/>
+  <use width="45.72" height="26.28" transform="rotate(-90 256.672 289.343) matrix(1.00997 -0.0081 0.00795 0.98997 233.48 276.52)" xlink:href="#a" id="svg_6" y="0" x="0"/>
+ </g>
+</svg>
